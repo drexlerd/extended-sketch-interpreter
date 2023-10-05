@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Simon Stahlberg
+ * Copyright (C) 2023 Dominik Drexler
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,6 @@
 
 #include "declarations.hpp"
 
-namespace mimir::formalism
+namespace sketches::extended_sketch
 {
-}  // namespace mimir::formalism
+}  // namespace sketches::extended_sketch
