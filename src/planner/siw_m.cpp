@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     parsers::ProblemParser problem_parser(problem_file);
     auto problem_description = problem_parser.parse(domain_description);
     // 3. Parse the modules
+    
     // 4. Run SIW_M
     return 0;
 }
