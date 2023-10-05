@@ -20,13 +20,13 @@ int main(int argc, char** argv) {
     }
 
     // 1. Parse the domain
-    parsers::DomainParser domain_parser(domain_file);
+    mimir::parsers::DomainParser domain_parser(domain_file);
     auto domain_description = domain_parser.parse();
     // 2. Parse the problem
-    parsers::ProblemParser problem_parser(problem_file);
+    mimir::parsers::ProblemParser problem_parser(problem_file);
     auto problem_description = problem_parser.parse(domain_description);
     // 3. Parse the modules
-    
+
     // 4. Run SIW_M
     return 0;
 }

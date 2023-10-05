@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace planners
+namespace mimir::planners
 {
     class ParameterIndexOrConstantId
     {

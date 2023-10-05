@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-namespace planners
+namespace mimir::planners
 {
     DecisionNode::~DecisionNode() = default;
 

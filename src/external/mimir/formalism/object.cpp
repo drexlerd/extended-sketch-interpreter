@@ -19,7 +19,7 @@
 #include "help_functions.hpp"
 #include "object.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
     ObjectImpl::ObjectImpl(const uint32_t id, const std::string& name, const formalism::Type type) : hash_(0), id(id), name(name), type(type) {}
 
@@ -68,7 +68,7 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::Object>::operator()(const formalism::Object& object) const
+    std::size_t hash<mimir::formalism::Object>::operator()(const mimir::formalism::Object& object) const
     {
         if (!object)
         {
@@ -83,9 +83,9 @@ namespace std
         return object->hash_;
     }
 
-    std::size_t hash<formalism::ObjectList>::operator()(const formalism::ObjectList& objects) const { return hash_vector<formalism::Object>(objects); }
+    std::size_t hash<mimir::formalism::ObjectList>::operator()(const mimir::formalism::ObjectList& objects) const { return hash_vector<mimir::formalism::Object>(objects); }
 
-    bool less<formalism::Object>::operator()(const formalism::Object& left_object, const formalism::Object& right_object) const
+    bool less<mimir::formalism::Object>::operator()(const mimir::formalism::Object& left_object, const mimir::formalism::Object& right_object) const
     {
         if (left_object == right_object)
         {
@@ -106,7 +106,7 @@ namespace std
                             std::make_tuple(right_object->id, right_object->name, right_object->type));
     }
 
-    bool equal_to<formalism::Object>::operator()(const formalism::Object& left_object, const formalism::Object& right_object) const
+    bool equal_to<mimir::formalism::Object>::operator()(const mimir::formalism::Object& left_object, const mimir::formalism::Object& right_object) const
     {
         if (left_object == right_object)
         {

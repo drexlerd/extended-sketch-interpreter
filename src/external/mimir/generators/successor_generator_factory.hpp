@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace planners
+namespace mimir::planners
 {
     enum SuccessorGeneratorType
     {

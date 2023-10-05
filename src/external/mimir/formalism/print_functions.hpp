@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace formalism
+namespace mimir::formalism
 {
     void print_atom(const formalism::Atom& atom)
     {

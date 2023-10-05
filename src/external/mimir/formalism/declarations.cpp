@@ -18,6 +18,6 @@
 
 #include "declarations.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
 }  // namespace formalism

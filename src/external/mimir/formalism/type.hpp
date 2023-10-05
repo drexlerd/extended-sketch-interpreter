@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     struct TypeImpl;
 
@@ -34,27 +34,27 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Type>
+    struct hash<mimir::formalism::Type>
     {
-        std::size_t operator()(const formalism::Type& type) const;
+        std::size_t operator()(const mimir::formalism::Type& type) const;
     };
 
     template<>
-    struct hash<formalism::TypeList>
+    struct hash<mimir::formalism::TypeList>
     {
-        std::size_t operator()(const formalism::TypeList& types) const;
+        std::size_t operator()(const mimir::formalism::TypeList& types) const;
     };
 
     template<>
-    struct less<formalism::Type>
+    struct less<mimir::formalism::Type>
     {
-        bool operator()(const formalism::Type& left_type, const formalism::Type& right_type) const;
+        bool operator()(const mimir::formalism::Type& left_type, const mimir::formalism::Type& right_type) const;
     };
 
     template<>
-    struct equal_to<formalism::Type>
+    struct equal_to<mimir::formalism::Type>
     {
-        bool operator()(const formalism::Type& left_type, const formalism::Type& right_type) const;
+        bool operator()(const mimir::formalism::Type& left_type, const mimir::formalism::Type& right_type) const;
     };
 
 }  // namespace std

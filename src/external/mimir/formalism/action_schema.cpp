@@ -21,7 +21,7 @@
 
 #include <algorithm>
 
-namespace formalism
+namespace mimir::formalism
 {
     ActionSchemaImpl::ActionSchemaImpl(const std::string& name,
                                        const formalism::ParameterList& parameters,
@@ -133,7 +133,7 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::ActionSchema>::operator()(const formalism::ActionSchema& action_schema) const
+    std::size_t hash<mimir::formalism::ActionSchema>::operator()(const mimir::formalism::ActionSchema& action_schema) const
     {
         return hash_combine(action_schema->name,
                             action_schema->arity,
@@ -144,9 +144,9 @@ namespace std
                             action_schema->cost);
     }
 
-    std::size_t hash<formalism::ActionSchemaList>::operator()(const formalism::ActionSchemaList& action_schemas) const { return hash_vector(action_schemas); }
+    std::size_t hash<mimir::formalism::ActionSchemaList>::operator()(const mimir::formalism::ActionSchemaList& action_schemas) const { return hash_vector(action_schemas); }
 
-    bool less<formalism::ActionSchema>::operator()(const formalism::ActionSchema& left_action_schema, const formalism::ActionSchema& right_action_schema) const
+    bool less<mimir::formalism::ActionSchema>::operator()(const mimir::formalism::ActionSchema& left_action_schema, const mimir::formalism::ActionSchema& right_action_schema) const
     {
         return less_combine(std::make_tuple(left_action_schema->name,
                                             left_action_schema->parameters,
@@ -162,8 +162,8 @@ namespace std
                                             right_action_schema->cost));
     }
 
-    bool equal_to<formalism::ActionSchema>::operator()(const formalism::ActionSchema& left_action_schema,
-                                                       const formalism::ActionSchema& right_action_schema) const
+    bool equal_to<mimir::formalism::ActionSchema>::operator()(const mimir::formalism::ActionSchema& left_action_schema,
+                                                       const mimir::formalism::ActionSchema& right_action_schema) const
     {
         return equal_to_combine(std::make_tuple(left_action_schema->name,
                                                 left_action_schema->parameters,

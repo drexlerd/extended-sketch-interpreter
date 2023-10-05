@@ -20,7 +20,7 @@
 #include "lifted_successor_generator.hpp"
 #include "successor_generator_factory.hpp"
 
-namespace planners
+namespace mimir::planners
 {
     bool compute_relaxed_reachable_actions(const std::chrono::high_resolution_clock::time_point end_time,
                                            const formalism::ProblemDescription& problem,

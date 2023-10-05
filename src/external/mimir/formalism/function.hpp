@@ -3,7 +3,7 @@
 
 #include "declarations.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
     enum FunctionOperation
     {

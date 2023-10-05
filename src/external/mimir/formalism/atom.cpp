@@ -21,7 +21,7 @@
 
 #include <algorithm>
 
-namespace formalism
+namespace mimir::formalism
 {
     AtomImpl::AtomImpl(const formalism::Predicate& predicate, formalism::ObjectList&& arguments) :
         hash_(0),
@@ -255,7 +255,7 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::Atom>::operator()(const formalism::Atom& atom) const
+    std::size_t hash<mimir::formalism::Atom>::operator()(const mimir::formalism::Atom& atom) const
     {
         if (!atom)
         {
@@ -270,14 +270,14 @@ namespace std
         return atom->hash_;
     }
 
-    std::size_t hash<formalism::AtomList>::operator()(const formalism::AtomList& atoms) const { return hash_vector(atoms); }
+    std::size_t hash<mimir::formalism::AtomList>::operator()(const mimir::formalism::AtomList& atoms) const { return hash_vector(atoms); }
 
-    bool less<formalism::Atom>::operator()(const formalism::Atom& left_atom, const formalism::Atom& right_atom) const
+    bool less<mimir::formalism::Atom>::operator()(const mimir::formalism::Atom& left_atom, const mimir::formalism::Atom& right_atom) const
     {
         return less_combine(std::make_tuple(left_atom->predicate, left_atom->arguments), std::make_tuple(right_atom->predicate, right_atom->arguments));
     }
 
-    bool equal_to<formalism::Atom>::operator()(const formalism::Atom& left_atom, const formalism::Atom& right_atom) const
+    bool equal_to<mimir::formalism::Atom>::operator()(const mimir::formalism::Atom& left_atom, const mimir::formalism::Atom& right_atom) const
     {
         if (left_atom == right_atom)
         {
@@ -289,7 +289,7 @@ namespace std
             return false;
         }
 
-        const std::hash<formalism::Atom> hash;
+        const std::hash<mimir::formalism::Atom> hash;
 
         if (hash(left_atom) != hash(right_atom))
         {

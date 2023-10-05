@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace parsers
+namespace mimir::parsers
 {
     class ASTNode
     {

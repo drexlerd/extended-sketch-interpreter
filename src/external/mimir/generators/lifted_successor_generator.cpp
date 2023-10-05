@@ -20,7 +20,7 @@
 
 #include <chrono>
 
-namespace planners
+namespace mimir::planners
 {
     LiftedSuccessorGenerator::LiftedSuccessorGenerator(const formalism::ProblemDescription& problem) : problem_(problem), generators_()
     {

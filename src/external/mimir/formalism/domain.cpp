@@ -21,7 +21,7 @@
 
 #include <algorithm>
 
-namespace formalism
+namespace mimir::formalism
 {
     DomainImpl::DomainImpl(const std::string& name,
                            const formalism::RequirementList& requirements,
@@ -163,19 +163,19 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::DomainDescription>::operator()(const formalism::DomainDescription& domain) const
+    std::size_t hash<mimir::formalism::DomainDescription>::operator()(const mimir::formalism::DomainDescription& domain) const
     {
         return hash_combine(domain->name, domain->types, domain->constants, domain->predicates, domain->action_schemas);
     }
 
-    bool less<formalism::DomainDescription>::operator()(const formalism::DomainDescription& left_domain, const formalism::DomainDescription& right_domain) const
+    bool less<mimir::formalism::DomainDescription>::operator()(const mimir::formalism::DomainDescription& left_domain, const mimir::formalism::DomainDescription& right_domain) const
     {
         return less_combine(std::make_tuple(left_domain->name, left_domain->constants, left_domain->predicates, left_domain->action_schemas),
                             std::make_tuple(right_domain->name, right_domain->constants, right_domain->predicates, right_domain->action_schemas));
     }
 
-    bool equal_to<formalism::DomainDescription>::operator()(const formalism::DomainDescription& left_domain,
-                                                            const formalism::DomainDescription& right_domain) const
+    bool equal_to<mimir::formalism::DomainDescription>::operator()(const mimir::formalism::DomainDescription& left_domain,
+                                                            const mimir::formalism::DomainDescription& right_domain) const
     {
         return equal_to_combine(std::make_tuple(left_domain->name, left_domain->constants, left_domain->predicates, left_domain->action_schemas),
                                 std::make_tuple(right_domain->name, right_domain->constants, right_domain->predicates, right_domain->action_schemas));

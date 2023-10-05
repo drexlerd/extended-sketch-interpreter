@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace parsers
+namespace mimir::parsers
 {
     namespace ascii = boost::spirit::ascii;
     namespace phoenix = boost::phoenix;

@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     class ActionImpl;
     using Action = std::shared_ptr<ActionImpl>;

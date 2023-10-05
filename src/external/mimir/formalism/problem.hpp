@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     class ProblemImpl
     {
@@ -92,21 +92,21 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::ProblemDescription>
+    struct hash<mimir::formalism::ProblemDescription>
     {
-        std::size_t operator()(const formalism::ProblemDescription& problem) const;
+        std::size_t operator()(const mimir::formalism::ProblemDescription& problem) const;
     };
 
     template<>
-    struct less<formalism::ProblemDescription>
+    struct less<mimir::formalism::ProblemDescription>
     {
-        bool operator()(const formalism::ProblemDescription& left_problem, const formalism::ProblemDescription& right_problem) const;
+        bool operator()(const mimir::formalism::ProblemDescription& left_problem, const mimir::formalism::ProblemDescription& right_problem) const;
     };
 
     template<>
-    struct equal_to<formalism::ProblemDescription>
+    struct equal_to<mimir::formalism::ProblemDescription>
     {
-        bool operator()(const formalism::ProblemDescription& left_problem, const formalism::ProblemDescription& right_problem) const;
+        bool operator()(const mimir::formalism::ProblemDescription& left_problem, const mimir::formalism::ProblemDescription& right_problem) const;
     };
 
 }  // namespace std

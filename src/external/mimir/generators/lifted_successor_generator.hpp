@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 
-namespace planners
+namespace mimir::planners
 {
     class LiftedSuccessorGenerator : public SuccessorGeneratorBase
     {

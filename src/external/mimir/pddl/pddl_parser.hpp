@@ -23,7 +23,7 @@
 #endif
 
 
-namespace parsers
+namespace mimir::parsers
 {
     class DomainParser
     {

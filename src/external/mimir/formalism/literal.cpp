@@ -23,7 +23,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     LiteralImpl::LiteralImpl(const Atom& atom, const bool negated) : hash_(0), atom(atom), negated(negated) {}
 
@@ -127,7 +127,7 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::Literal>::operator()(const formalism::Literal& literal) const
+    std::size_t hash<mimir::formalism::Literal>::operator()(const mimir::formalism::Literal& literal) const
     {
         if (!literal)
         {
@@ -142,14 +142,14 @@ namespace std
         return literal->hash_;
     }
 
-    std::size_t hash<formalism::LiteralList>::operator()(const formalism::LiteralList& literals) const { return hash_vector<formalism::Literal>(literals); }
+    std::size_t hash<mimir::formalism::LiteralList>::operator()(const mimir::formalism::LiteralList& literals) const { return hash_vector<mimir::formalism::Literal>(literals); }
 
-    bool less<formalism::Literal>::operator()(const formalism::Literal& left_literal, const formalism::Literal& right_literal) const
+    bool less<mimir::formalism::Literal>::operator()(const mimir::formalism::Literal& left_literal, const mimir::formalism::Literal& right_literal) const
     {
         return less_combine(std::make_tuple(left_literal->atom, left_literal->negated), std::make_tuple(right_literal->atom, right_literal->negated));
     }
 
-    bool equal_to<formalism::Literal>::operator()(const formalism::Literal& left_literal, const formalism::Literal& right_literal) const
+    bool equal_to<mimir::formalism::Literal>::operator()(const mimir::formalism::Literal& left_literal, const mimir::formalism::Literal& right_literal) const
     {
         if (left_literal == right_literal)
         {
@@ -161,7 +161,7 @@ namespace std
             return false;
         }
 
-        const std::hash<formalism::Literal> hash;
+        const std::hash<mimir::formalism::Literal> hash;
 
         if (hash(left_literal) != hash(right_literal))
         {
@@ -173,6 +173,6 @@ namespace std
             return false;
         }
 
-        return std::equal_to<formalism::Atom>()(left_literal->atom, right_literal->atom);
+        return std::equal_to<mimir::formalism::Atom>()(left_literal->atom, right_literal->atom);
     }
 }  // namespace std

@@ -2,7 +2,7 @@
 
 #include <map>
 
-namespace planners
+namespace mimir::planners
 {
     ParameterIndexOrConstantId::ParameterIndexOrConstantId(uint32_t value, bool is_constant) : value(is_constant ? ~value : value) {}
 

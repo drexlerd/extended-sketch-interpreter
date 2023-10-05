@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace planners
+namespace mimir::planners
 {
     class StateSpaceImpl;
     using StateSpace = std::shared_ptr<StateSpaceImpl>;

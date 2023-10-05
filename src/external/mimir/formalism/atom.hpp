@@ -5,7 +5,7 @@
 #include "object.hpp"
 #include "predicate.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
     class AtomImpl
     {
@@ -62,27 +62,27 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Atom>
+    struct hash<mimir::formalism::Atom>
     {
-        std::size_t operator()(const formalism::Atom& atom) const;
+        std::size_t operator()(const mimir::formalism::Atom& atom) const;
     };
 
     template<>
-    struct hash<formalism::AtomList>
+    struct hash<mimir::formalism::AtomList>
     {
-        std::size_t operator()(const formalism::AtomList& atoms) const;
+        std::size_t operator()(const mimir::formalism::AtomList& atoms) const;
     };
 
     template<>
-    struct less<formalism::Atom>
+    struct less<mimir::formalism::Atom>
     {
-        bool operator()(const formalism::Atom& left_atom, const formalism::Atom& right_atom) const;
+        bool operator()(const mimir::formalism::Atom& left_atom, const mimir::formalism::Atom& right_atom) const;
     };
 
     template<>
-    struct equal_to<formalism::Atom>
+    struct equal_to<mimir::formalism::Atom>
     {
-        bool operator()(const formalism::Atom& left_atom, const formalism::Atom& right_atom) const;
+        bool operator()(const mimir::formalism::Atom& left_atom, const mimir::formalism::Atom& right_atom) const;
     };
 
 }  // namespace std

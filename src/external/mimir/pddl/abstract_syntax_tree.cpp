@@ -20,7 +20,7 @@
 
 #include <boost/fusion/include/at_c.hpp>
 
-namespace parsers
+namespace mimir::parsers
 {
     /* Help functions */
 

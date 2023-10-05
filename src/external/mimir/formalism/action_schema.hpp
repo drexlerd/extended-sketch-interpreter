@@ -9,7 +9,7 @@
 
 #include <string>
 
-namespace formalism
+namespace mimir::formalism
 {
     class ActionSchemaImpl
     {
@@ -61,27 +61,27 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::ActionSchema>
+    struct hash<mimir::formalism::ActionSchema>
     {
-        std::size_t operator()(const formalism::ActionSchema& action_schema) const;
+        std::size_t operator()(const mimir::formalism::ActionSchema& action_schema) const;
     };
 
     template<>
-    struct hash<formalism::ActionSchemaList>
+    struct hash<mimir::formalism::ActionSchemaList>
     {
-        std::size_t operator()(const formalism::ActionSchemaList& action_schemas) const;
+        std::size_t operator()(const mimir::formalism::ActionSchemaList& action_schemas) const;
     };
 
     template<>
-    struct less<formalism::ActionSchema>
+    struct less<mimir::formalism::ActionSchema>
     {
-        bool operator()(const formalism::ActionSchema& left_action_schema, const formalism::ActionSchema& right_action_schema) const;
+        bool operator()(const mimir::formalism::ActionSchema& left_action_schema, const mimir::formalism::ActionSchema& right_action_schema) const;
     };
 
     template<>
-    struct equal_to<formalism::ActionSchema>
+    struct equal_to<mimir::formalism::ActionSchema>
     {
-        bool operator()(const formalism::ActionSchema& left_action_schema, const formalism::ActionSchema& right_action_schema) const;
+        bool operator()(const mimir::formalism::ActionSchema& left_action_schema, const mimir::formalism::ActionSchema& right_action_schema) const;
     };
 
 }  // namespace std

@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace planners
+namespace mimir::planners
 {
     class DecisionNode
     {

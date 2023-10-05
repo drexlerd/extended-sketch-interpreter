@@ -33,7 +33,7 @@ namespace std
     };
 }  // namespace std
 
-namespace planners
+namespace mimir::planners
 {
     struct StateInfo
     {

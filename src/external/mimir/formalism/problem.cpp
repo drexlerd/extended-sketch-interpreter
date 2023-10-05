@@ -23,7 +23,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace formalism
+namespace mimir::formalism
 {
     ProblemImpl::ProblemImpl(const std::string& name,
                              const formalism::DomainDescription& domain,
@@ -179,20 +179,20 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::ProblemDescription>::operator()(const formalism::ProblemDescription& problem) const
+    std::size_t hash<mimir::formalism::ProblemDescription>::operator()(const mimir::formalism::ProblemDescription& problem) const
     {
         return hash_combine(problem->name, problem->domain, problem->objects, problem->initial, problem->goal);
     }
 
-    bool less<formalism::ProblemDescription>::operator()(const formalism::ProblemDescription& left_problem,
-                                                         const formalism::ProblemDescription& right_problem) const
+    bool less<mimir::formalism::ProblemDescription>::operator()(const mimir::formalism::ProblemDescription& left_problem,
+                                                         const mimir::formalism::ProblemDescription& right_problem) const
     {
         return less_combine(std::make_tuple(left_problem->name, left_problem->domain, left_problem->objects, left_problem->initial, left_problem->goal),
                             std::make_tuple(right_problem->name, right_problem->domain, right_problem->objects, right_problem->initial, right_problem->goal));
     }
 
-    bool equal_to<formalism::ProblemDescription>::operator()(const formalism::ProblemDescription& left_problem,
-                                                             const formalism::ProblemDescription& right_problem) const
+    bool equal_to<mimir::formalism::ProblemDescription>::operator()(const mimir::formalism::ProblemDescription& left_problem,
+                                                             const mimir::formalism::ProblemDescription& right_problem) const
     {
         if (left_problem.get() == right_problem.get())
         {

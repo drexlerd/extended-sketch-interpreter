@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-namespace formalism
+namespace mimir::formalism
 {
     class ActionImpl
     {
@@ -88,21 +88,21 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Action>
+    struct hash<mimir::formalism::Action>
     {
-        std::size_t operator()(const formalism::Action& action) const;
+        std::size_t operator()(const mimir::formalism::Action& action) const;
     };
 
     template<>
-    struct less<formalism::Action>
+    struct less<mimir::formalism::Action>
     {
-        bool operator()(const formalism::Action& left_action, const formalism::Action& right_action) const;
+        bool operator()(const mimir::formalism::Action& left_action, const mimir::formalism::Action& right_action) const;
     };
 
     template<>
-    struct equal_to<formalism::Action>
+    struct equal_to<mimir::formalism::Action>
     {
-        bool operator()(const formalism::Action& left_action, const formalism::Action& right_action) const;
+        bool operator()(const mimir::formalism::Action& left_action, const mimir::formalism::Action& right_action) const;
     };
 
 }  // namespace std

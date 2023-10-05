@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     formalism::ObjectList create_arguments(const formalism::ActionSchema& action_schema, const formalism::ParameterAssignment& assignment)
     {
@@ -224,18 +224,18 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::Action>::operator()(const formalism::Action& action) const
+    std::size_t hash<mimir::formalism::Action>::operator()(const mimir::formalism::Action& action) const
     {
         return hash_combine(action->schema, action->get_arguments(), action->cost);
     }
 
-    bool less<formalism::Action>::operator()(const formalism::Action& left_action, const formalism::Action& right_action) const
+    bool less<mimir::formalism::Action>::operator()(const mimir::formalism::Action& left_action, const mimir::formalism::Action& right_action) const
     {
         return less_combine(std::make_tuple(left_action->schema, left_action->get_arguments(), left_action->cost),
                             std::make_tuple(right_action->schema, right_action->get_arguments(), right_action->cost));
     }
 
-    bool equal_to<formalism::Action>::operator()(const formalism::Action& left_action, const formalism::Action& right_action) const
+    bool equal_to<mimir::formalism::Action>::operator()(const mimir::formalism::Action& left_action, const mimir::formalism::Action& right_action) const
     {
         return equal_to_combine(std::make_tuple(left_action->schema, left_action->get_arguments(), left_action->cost),
                                 std::make_tuple(right_action->schema, right_action->get_arguments(), right_action->cost));

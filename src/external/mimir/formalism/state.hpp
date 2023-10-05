@@ -13,7 +13,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     class StateImpl
     {
@@ -113,21 +113,21 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::State>
+    struct hash<mimir::formalism::State>
     {
-        std::size_t operator()(const formalism::State& state) const;
+        std::size_t operator()(const mimir::formalism::State& state) const;
     };
 
     template<>
-    struct less<formalism::State>
+    struct less<mimir::formalism::State>
     {
-        bool operator()(const formalism::State& left_state, const formalism::State& right_state) const;
+        bool operator()(const mimir::formalism::State& left_state, const mimir::formalism::State& right_state) const;
     };
 
     template<>
-    struct equal_to<formalism::State>
+    struct equal_to<mimir::formalism::State>
     {
-        bool operator()(const formalism::State& left_state, const formalism::State& right_state) const;
+        bool operator()(const mimir::formalism::State& left_state, const mimir::formalism::State& right_state) const;
     };
 
 }  // namespace std

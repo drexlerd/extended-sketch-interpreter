@@ -27,7 +27,7 @@
 #include <set>
 #include <unordered_map>
 
-namespace planners
+namespace mimir::planners
 {
     std::size_t
     get_assignment_position(int32_t first_position, int32_t first_object, int32_t second_position, int32_t second_object, int32_t arity, int32_t num_objects)

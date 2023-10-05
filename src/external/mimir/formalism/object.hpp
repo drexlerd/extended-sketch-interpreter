@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 
-namespace formalism
+namespace mimir::formalism
 {
     class ObjectImpl
     {
@@ -45,27 +45,27 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Object>
+    struct hash<mimir::formalism::Object>
     {
-        std::size_t operator()(const formalism::Object& object) const;
+        std::size_t operator()(const mimir::formalism::Object& object) const;
     };
 
     template<>
-    struct hash<formalism::ObjectList>
+    struct hash<mimir::formalism::ObjectList>
     {
-        std::size_t operator()(const formalism::ObjectList& objects) const;
+        std::size_t operator()(const mimir::formalism::ObjectList& objects) const;
     };
 
     template<>
-    struct less<formalism::Object>
+    struct less<mimir::formalism::Object>
     {
-        bool operator()(const formalism::Object& left_object, const formalism::Object& right_object) const;
+        bool operator()(const mimir::formalism::Object& left_object, const mimir::formalism::Object& right_object) const;
     };
 
     template<>
-    struct equal_to<formalism::Object>
+    struct equal_to<mimir::formalism::Object>
     {
-        bool operator()(const formalism::Object& left_object, const formalism::Object& right_object) const;
+        bool operator()(const mimir::formalism::Object& left_object, const mimir::formalism::Object& right_object) const;
     };
 
 }  // namespace std

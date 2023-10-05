@@ -1,7 +1,7 @@
 #include "domain.hpp"
 #include "function.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
     FunctionImpl::FunctionImpl(FunctionOperation operation, const formalism::Predicate& variable, const formalism::Atom& atom) :
         operation_(operation),

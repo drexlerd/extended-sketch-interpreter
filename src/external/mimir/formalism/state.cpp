@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace formalism
+namespace mimir::formalism
 {
     inline std::size_t compute_state_hash(const formalism::Bitset& bitset, const formalism::ProblemDescription& problem)
     {
@@ -509,14 +509,14 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructu1
-    std::size_t hash<formalism::State>::operator()(const formalism::State& state) const { return !state ? 0 : state->hash_; }
+    std::size_t hash<mimir::formalism::State>::operator()(const mimir::formalism::State& state) const { return !state ? 0 : state->hash_; }
 
-    bool less<formalism::State>::operator()(const formalism::State& left_state, const formalism::State& right_state) const
+    bool less<mimir::formalism::State>::operator()(const mimir::formalism::State& left_state, const mimir::formalism::State& right_state) const
     {
         return *left_state < *right_state;
     }
 
-    bool equal_to<formalism::State>::operator()(const formalism::State& left_state, const formalism::State& right_state) const
+    bool equal_to<mimir::formalism::State>::operator()(const mimir::formalism::State& left_state, const mimir::formalism::State& right_state) const
     {
         return *left_state == *right_state;
     }

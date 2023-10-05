@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-namespace formalism
+namespace mimir::formalism
 {
     class DomainImpl
     {
@@ -61,21 +61,21 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::DomainDescription>
+    struct hash<mimir::formalism::DomainDescription>
     {
-        std::size_t operator()(const formalism::DomainDescription& domain) const;
+        std::size_t operator()(const mimir::formalism::DomainDescription& domain) const;
     };
 
     template<>
-    struct less<formalism::DomainDescription>
+    struct less<mimir::formalism::DomainDescription>
     {
-        bool operator()(const formalism::DomainDescription& left_domain, const formalism::DomainDescription& right_domain) const;
+        bool operator()(const mimir::formalism::DomainDescription& left_domain, const mimir::formalism::DomainDescription& right_domain) const;
     };
 
     template<>
-    struct equal_to<formalism::DomainDescription>
+    struct equal_to<mimir::formalism::DomainDescription>
     {
-        bool operator()(const formalism::DomainDescription& left_domain, const formalism::DomainDescription& right_domain) const;
+        bool operator()(const mimir::formalism::DomainDescription& left_domain, const mimir::formalism::DomainDescription& right_domain) const;
     };
 
 }  // namespace std

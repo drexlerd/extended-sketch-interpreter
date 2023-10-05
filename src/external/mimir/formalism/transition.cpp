@@ -19,7 +19,7 @@
 #include "help_functions.hpp"
 #include "transition.hpp"
 
-namespace formalism
+namespace mimir::formalism
 {
     TransitionImpl::TransitionImpl(const formalism::State& source_state, const formalism::Action& action, const formalism::State& target_state) :
         source_state(source_state),
@@ -72,18 +72,18 @@ namespace formalism
 namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
-    std::size_t hash<formalism::Transition>::operator()(const formalism::Transition& transition) const
+    std::size_t hash<mimir::formalism::Transition>::operator()(const mimir::formalism::Transition& transition) const
     {
         return hash_combine(transition->action, transition->source_state, transition->target_state);
     }
 
-    bool less<formalism::Transition>::operator()(const formalism::Transition& left_transition, const formalism::Transition& right_transition) const
+    bool less<mimir::formalism::Transition>::operator()(const mimir::formalism::Transition& left_transition, const mimir::formalism::Transition& right_transition) const
     {
         return less_combine(std::make_tuple(left_transition->action, left_transition->source_state, left_transition->target_state),
                             std::make_tuple(right_transition->action, right_transition->source_state, right_transition->target_state));
     }
 
-    bool equal_to<formalism::Transition>::operator()(const formalism::Transition& left_transition, const formalism::Transition& right_transition) const
+    bool equal_to<mimir::formalism::Transition>::operator()(const mimir::formalism::Transition& left_transition, const mimir::formalism::Transition& right_transition) const
     {
         return equal_to_combine(std::make_tuple(left_transition->action, left_transition->source_state, left_transition->target_state),
                                 std::make_tuple(right_transition->action, right_transition->source_state, right_transition->target_state));

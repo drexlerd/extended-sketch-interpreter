@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace formalism
+namespace mimir::formalism
 {
     class LiteralImpl
     {
@@ -44,27 +44,27 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Literal>
+    struct hash<mimir::formalism::Literal>
     {
-        std::size_t operator()(const formalism::Literal& literal) const;
+        std::size_t operator()(const mimir::formalism::Literal& literal) const;
     };
 
     template<>
-    struct hash<formalism::LiteralList>
+    struct hash<mimir::formalism::LiteralList>
     {
-        std::size_t operator()(const formalism::LiteralList& literals) const;
+        std::size_t operator()(const mimir::formalism::LiteralList& literals) const;
     };
 
     template<>
-    struct less<formalism::Literal>
+    struct less<mimir::formalism::Literal>
     {
-        bool operator()(const formalism::Literal& left_literal, const formalism::Literal& right_literal) const;
+        bool operator()(const mimir::formalism::Literal& left_literal, const mimir::formalism::Literal& right_literal) const;
     };
 
     template<>
-    struct equal_to<formalism::Literal>
+    struct equal_to<mimir::formalism::Literal>
     {
-        bool operator()(const formalism::Literal& left_literal, const formalism::Literal& right_literal) const;
+        bool operator()(const mimir::formalism::Literal& left_literal, const mimir::formalism::Literal& right_literal) const;
     };
 
 }  // namespace std

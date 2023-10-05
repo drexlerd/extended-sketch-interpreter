@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace formalism
+namespace mimir::formalism
 {
     class TransitionImpl
     {
@@ -32,21 +32,21 @@ namespace std
 {
     // Inject comparison and hash functions to make pointers behave appropriately with ordered and unordered datastructures
     template<>
-    struct hash<formalism::Transition>
+    struct hash<mimir::formalism::Transition>
     {
-        std::size_t operator()(const formalism::Transition& transition) const;
+        std::size_t operator()(const mimir::formalism::Transition& transition) const;
     };
 
     template<>
-    struct less<formalism::Transition>
+    struct less<mimir::formalism::Transition>
     {
-        bool operator()(const formalism::Transition& left_transition, const formalism::Transition& right_transition) const;
+        bool operator()(const mimir::formalism::Transition& left_transition, const mimir::formalism::Transition& right_transition) const;
     };
 
     template<>
-    struct equal_to<formalism::Transition>
+    struct equal_to<mimir::formalism::Transition>
     {
-        bool operator()(const formalism::Transition& left_transition, const formalism::Transition& right_transition) const;
+        bool operator()(const mimir::formalism::Transition& left_transition, const mimir::formalism::Transition& right_transition) const;
     };
 
 }  // namespace std
