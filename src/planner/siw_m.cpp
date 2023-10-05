@@ -36,3 +36,5 @@ int main(int argc, char** argv) {
     // 4. Run SIW_M
     return 0;
 }
+
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siwm  benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/sketch.pddl
