@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../external/dlplan/include/dlplan/core.h"
+#include "../external/dlplan/include/dlplan/policy.h"
 
 #include "../parsers/parsers.hpp"
 #include "../parsers/extended_sketch/context.hpp"
@@ -58,8 +59,9 @@ int main(int argc, char** argv) {
     auto vocabulary_info = construct_vocabulary_info(domain_description);
     auto instance_info = construct_instance_info(vocabulary_info, problem_description);
     auto syntactic_element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
+    auto policy_builder = std::make_shared<dlplan::policy::PolicyBuilder>();
     // 4. Parse the modules
-    parser::Context context{syntactic_element_factory};
+    parser::Context context{syntactic_element_factory, policy_builder};
     ExtendedSketchList sketch_list;
     for (const auto& sketch_file : sketch_files) {
         parser::ExtendedSketchParser sketch_parser(sketch_file);

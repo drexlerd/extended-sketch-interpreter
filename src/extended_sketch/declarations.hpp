@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../external/dlplan/include/dlplan/core.h"
+#include "../external/dlplan/include/dlplan/policy.h"
 
 
 namespace sketches::extended_sketch {
@@ -29,9 +30,18 @@ namespace sketches::extended_sketch {
     using ConceptList = std::vector<Concept>;
     using ConceptMap = std::unordered_map<std::string, Concept>;
 
+    using Condition = std::shared_ptr<const dlplan::policy::BaseCondition>;
+    using ConditionList = std::vector<Condition>;
+    using ConditionSet = dlplan::policy::Conditions;
+
+    using Effect = std::shared_ptr<const dlplan::policy::BaseEffect>;
+    using EffectList = std::vector<Effect>;
+    using EffectSet = dlplan::policy::Effects;
+
     class LoadRuleImpl;
     using LoadRule = std::shared_ptr<LoadRuleImpl>;
     using LoadRuleList = std::vector<LoadRule>;
+    using LoadRuleSet = std::set<LoadRule, dlplan::policy::ScoreCompare<LoadRule>>;
 
     class CallRuleImpl;
     using CallRule = std::shared_ptr<CallRuleImpl>;
