@@ -447,6 +447,10 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
     qi::rule<std::string::iterator, StringNode*(), ascii::space_type> STRING;
     qi::rule<std::string::iterator, BooleanNode*(), ascii::space_type> BOOLEAN;
     qi::rule<std::string::iterator, BooleanListNode*(), ascii::space_type> BOOLEAN_LIST;
+    qi::rule<std::string::iterator, NumericalNode*(), ascii::space_type> NUMERICAL;
+    qi::rule<std::string::iterator, NumericalListNode*(), ascii::space_type> NUMERICAL_LIST;
+    qi::rule<std::string::iterator, ConceptNode*(), ascii::space_type> CONCEPT;
+    qi::rule<std::string::iterator, ConceptListNode*(), ascii::space_type> CONCEPT_LIST;
     qi::rule<std::string::iterator, ExtendedSketchNode*(), ascii::space_type> EXTENDED_SKETCH_DESCRIPTION;
 
     ExtendedSketchGrammar() : ExtendedSketchGrammar::base_type(EXTENDED_SKETCH_DESCRIPTION) {
@@ -477,7 +481,7 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
                     | char_('-')[_val = new_<CharacterNode>(_1)]   // dash character
                     | char_('_')[_val = new_<CharacterNode>(_1)]   // underscore character
                     | char_('(')[_val = new_<CharacterNode>(_1)]   // opening parentheses character
-                    | char_(')')[_val = new_<CharacterNode>(_1)]  // closing parentheses character
+                    | char_(')')[_val = new_<CharacterNode>(_1)]   // closing parentheses character
                     | char_(',')[_val = new_<CharacterNode>(_1)];  // comma character
 
         NAME = (alpha >> *ANY_CHAR)[_val = new_<NameNode>(_1, _2)];  // a name must start with an alphabetical character
@@ -487,11 +491,23 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
         // Booleans
         BOOLEAN = (lit('(') > NAME > STRING > lit(')'))[_val = new_<BooleanNode>(_1, _2)];
 
-        BOOLEAN_LIST = (lit('(') > lit(":booleans") > *BOOLEAN)[_val = new_<BooleanListNode>(_1)];
+        BOOLEAN_LIST = (lit('(') > lit(":booleans") > *BOOLEAN > lit(')'))[_val = new_<BooleanListNode>(_1)];
+
+        // Numericals
+        NUMERICAL = (lit('(') > NAME > STRING > lit(')'))[_val = new_<NumericalNode>(_1, _2)];
+
+        NUMERICAL_LIST = (lit('(') > lit(":numericals") > *NUMERICAL > lit(')'))[_val = new_<NumericalListNode>(_1)];
+
+        // Concepts
+        CONCEPT = (lit('(') > NAME > STRING > lit(')'))[_val = new_<ConceptNode>(_1, _2)];
+
+        CONCEPT_LIST = (lit('(') > lit(":concepts") > *CONCEPT > lit(')'))[_val = new_<ConceptListNode>(_1)];
 
         // Domain
-        EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":sketch")
+        EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
                                   > BOOLEAN_LIST
+                                  > NUMERICAL_LIST
+                                  > CONCEPT_LIST
                                   > lit(')'))[_val = new_<ExtendedSketchNode>(_1)];
     }
 };

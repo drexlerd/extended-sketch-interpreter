@@ -60,7 +60,8 @@ std::string StringNode::get_string() const {
     return ss.str();
 }
 
-/* ExtendedSketchNode */
+
+/* BooleanNode */
 BooleanNode::BooleanNode(NameNode* key, StringNode* repr)
     : key(key), repr(repr) { }
 
@@ -70,7 +71,8 @@ std::pair<std::string, std::shared_ptr<const dlplan::core::Boolean>> BooleanNode
     return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_boolean(repr->get_string()));
 }
 
-/* ExtendedSketchNode */
+
+/* BooleanListNode */
 BooleanListNode::BooleanListNode(const std::vector<BooleanNode*>& boolean_nodes)
     : boolean_nodes(boolean_nodes) {}
 
@@ -88,6 +90,68 @@ BooleanMap BooleanListNode::get_boolean_map(Context& context) const {
     return result;
 }
 
+
+/* NumericalNode */
+NumericalNode::NumericalNode(NameNode* key, StringNode* repr)
+    : key(key), repr(repr) { }
+
+NumericalNode::~NumericalNode() = default;
+
+std::pair<std::string, std::shared_ptr<const dlplan::core::Numerical>> NumericalNode::get_numerical(Context& context) const {
+    return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_numerical(repr->get_string()));
+}
+
+
+/* NumericalListNode */
+NumericalListNode::NumericalListNode(const std::vector<NumericalNode*>& numerical_nodes)
+    : numerical_nodes(numerical_nodes) {}
+
+NumericalListNode::~NumericalListNode() {
+    for (auto node : numerical_nodes) {
+        delete node;
+    }
+}
+
+NumericalMap NumericalListNode::get_numerical_map(Context& context) const {
+    NumericalMap result;
+    for (const auto node : numerical_nodes) {
+        result.insert(node->get_numerical(context));
+    }
+    return result;
+}
+
+
+/* ConceptNode */
+ConceptNode::ConceptNode(NameNode* key, StringNode* repr)
+    : key(key), repr(repr) { }
+
+ConceptNode::~ConceptNode() = default;
+
+std::pair<std::string, std::shared_ptr<const dlplan::core::Concept>> ConceptNode::get_concept(Context& context) const {
+    return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_concept(repr->get_string()));
+}
+
+
+/* ConceptListNode */
+ConceptListNode::ConceptListNode(const std::vector<ConceptNode*>& concept_nodes)
+    : concept_nodes(concept_nodes) {}
+
+ConceptListNode::~ConceptListNode() {
+    for (auto node : concept_nodes) {
+        delete node;
+    }
+}
+
+ConceptMap ConceptListNode::get_concept_map(Context& context) const {
+    ConceptMap result;
+    for (const auto node : concept_nodes) {
+        result.insert(node->get_concept(context));
+    }
+    return result;
+}
+
+
+/* ExtendedSketchNode */
 ExtendedSketchNode::ExtendedSketchNode(BooleanListNode* boolean_list_node)
     : boolean_list_node(boolean_list_node) {}
 
@@ -95,7 +159,6 @@ ExtendedSketchNode::~ExtendedSketchNode() {
     delete boolean_list_node;
 }
 
-/* ExtendedSketchNode */
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     BooleanList booleans;
     auto boolean_map = boolean_list_node->get_boolean_map(context);

@@ -63,6 +63,46 @@ public:
     BooleanMap get_boolean_map(Context& context) const;
 };
 
+class NumericalNode : public ASTNode {
+public:
+    NameNode* key;
+    StringNode* repr;
+
+    NumericalNode(NameNode* key, StringNode* repr);
+    ~NumericalNode() override;
+
+    std::pair<std::string, std::shared_ptr<const dlplan::core::Numerical>> get_numerical(Context& context) const;
+};
+
+class NumericalListNode : public ASTNode {
+public:
+    std::vector<NumericalNode*> numerical_nodes;
+
+    NumericalListNode(const std::vector<NumericalNode*>& numerical_nodes);
+    ~NumericalListNode() override;
+    NumericalMap get_numerical_map(Context& context) const;
+};
+
+class ConceptNode : public ASTNode {
+public:
+    NameNode* key;
+    StringNode* repr;
+
+    ConceptNode(NameNode* key, StringNode* repr);
+    ~ConceptNode() override;
+
+    std::pair<std::string, std::shared_ptr<const dlplan::core::Concept>> get_concept(Context& context) const;
+};
+
+class ConceptListNode : public ASTNode {
+public:
+    std::vector<ConceptNode*> concept_nodes;
+
+    ConceptListNode(const std::vector<ConceptNode*>& concept_nodes);
+    ~ConceptListNode() override;
+    ConceptMap get_concept_map(Context& context) const;
+};
+
 class ExtendedSketchNode : public ASTNode {
 public:
     BooleanListNode* boolean_list_node;
