@@ -8,37 +8,53 @@ namespace sketches::extended_sketch {
 
 class ExtendedRuleImpl {
 protected:
-    MemoryState m_body_memory_state;
-    MemoryState m_head_memory_state;
+    MemoryState m_condition_memory_state;
+    MemoryState m_effect_memory_state;
 
 public:
     ExtendedRuleImpl(
-        const MemoryState& body_memory_state,
-        const MemoryState& head_memory_state);
+        const MemoryState& condition_memory_state,
+        const MemoryState& effect_memory_state);
     virtual ~ExtendedRuleImpl();
 
     virtual int compute_evaluate_time_score() const = 0;
-    virtual std::string compute_repr() const = 0;
-    virtual void compute_repr(std::stringstream& out) = 0;
+    std::string compute_repr() const;
+    virtual void compute_repr(std::stringstream& out) const = 0;
 
-    virtual const MemoryState& get_body_memory_state() const;
-    virtual const MemoryState& get_head_memory_state() const;
+    const MemoryState& get_condition_memory_state() const;
+    const MemoryState& get_effect_memory_state() const;
 };
 
 class LoadRuleImpl : public ExtendedRuleImpl {
 public:
+    ~LoadRuleImpl() override;
+
+    int compute_evaluate_time_score() const override;
+    void compute_repr(std::stringstream& out) const override;
 };
 
 class CallRuleImpl : public ExtendedRuleImpl {
 public:
+    ~CallRuleImpl() override;
+
+    int compute_evaluate_time_score() const override;
+    void compute_repr(std::stringstream& out) const override;
 };
 
 class ActionRuleImpl : public ExtendedRuleImpl {
 public:
+    ~ActionRuleImpl() override;
+
+    int compute_evaluate_time_score() const override;
+    void compute_repr(std::stringstream& out) const override;
 };
 
 class IWSearchRuleImpl : public ExtendedRuleImpl {
 public:
+    ~IWSearchRuleImpl() override;
+
+    int compute_evaluate_time_score() const override;
+    void compute_repr(std::stringstream& out) const override;
 };
 }
 
