@@ -2,9 +2,11 @@
 #define SRC_EXTENDED_SKETCH_DECLARATIONS_HPP_
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
-#include "memory_state.hpp"
+#include "../external/dlplan/include/dlplan/core.h"
+
 
 namespace sketches::extended_sketch {
     class MemoryStateImpl;
@@ -15,17 +17,17 @@ namespace sketches::extended_sketch {
     using Register = std::shared_ptr<RegisterImpl>;
     using RegisterList = std::vector<Register>;
 
-    class BooleanImpl;
-    using Boolean = std::shared_ptr<BooleanImpl>;
+    using Boolean = std::shared_ptr<const dlplan::core::Boolean>;
     using BooleanList = std::vector<Boolean>;
+    using BooleanMap = std::unordered_map<std::string, Boolean>;
 
-    class NumericalImpl;
-    using Numerical = std::shared_ptr<NumericalImpl>;
+    using Numerical = std::shared_ptr<const dlplan::core::Numerical>;
     using NumericalList = std::vector<Numerical>;
+    using NumericalMap = std::unordered_map<std::string, Numerical>;
 
-    class ConceptImpl;
-    using Concept = std::shared_ptr<ConceptImpl>;
+    using Concept = std::shared_ptr<const dlplan::core::Concept>;
     using ConceptList = std::vector<Concept>;
+    using ConceptMap = std::unordered_map<std::string, Concept>;
 
     class LoadRuleImpl;
     using LoadRule = std::shared_ptr<LoadRuleImpl>;

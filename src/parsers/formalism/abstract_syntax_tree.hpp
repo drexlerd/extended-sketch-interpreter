@@ -1,14 +1,14 @@
-#if !defined(PARSERS_ABSTRACT_SYNTAX_TREE_HPP_)
-#define PARSERS_ABSTRACT_SYNTAX_TREE_HPP_
+#ifndef SRC_PARSERS_FORMALISM_ABSTRACT_SYNTAX_TREE_HPP_
+#define SRC_PARSERS_FORMALISM_ABSTRACT_SYNTAX_TREE_HPP_
 
-#include "../formalism/action_schema.hpp"
-#include "../formalism/domain.hpp"
-#include "../formalism/function.hpp"
-#include "../formalism/literal.hpp"
-#include "../formalism/object.hpp"
-#include "../formalism/predicate.hpp"
-#include "../formalism/problem.hpp"
-#include "../formalism/type.hpp"
+#include "../../external/mimir/formalism/action_schema.hpp"
+#include "../../external/mimir/formalism/domain.hpp"
+#include "../../external/mimir/formalism/function.hpp"
+#include "../../external/mimir/formalism/literal.hpp"
+#include "../../external/mimir/formalism/object.hpp"
+#include "../../external/mimir/formalism/predicate.hpp"
+#include "../../external/mimir/formalism/problem.hpp"
+#include "../../external/mimir/formalism/type.hpp"
 
 #include <boost/fusion/container/vector.hpp>
 #include <boost/optional.hpp>

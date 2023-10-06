@@ -1,13 +1,40 @@
 
 #include <iostream>
+#include <memory>
 #include <vector>
 
-#include "../external/mimir/pddl/parsers.hpp"
-#include "../extended_sketch/parser/parser.hpp"
+#include "../external/dlplan/include/dlplan/core.h"
+
+#include "../parsers/parsers.hpp"
+#include "../parsers/extended_sketch/context.hpp"
 #include "../extended_sketch/declarations.hpp"
 
 using namespace std;
 using namespace sketches::extended_sketch;
+
+std::shared_ptr<dlplan::core::VocabularyInfo>
+construct_vocabulary_info(const mimir::formalism::DomainDescription& domain_description) {
+    std::shared_ptr<dlplan::core::VocabularyInfo> vocabulary_info = std::make_shared<dlplan::core::VocabularyInfo>();
+    for (const auto& constant : domain_description->constants) {
+        vocabulary_info->add_constant(constant->name);
+    }
+    for (const auto& predicate : domain_description->static_predicates) {
+        vocabulary_info->add_predicate(predicate->name, predicate->arity, true);
+    }
+    for (const auto& predicate : domain_description->predicates) {
+        vocabulary_info->add_predicate(predicate->name, predicate->arity, false);
+        vocabulary_info->add_predicate(predicate->name + "_g", predicate->arity, false);
+    }
+    return vocabulary_info;
+}
+
+std::shared_ptr<dlplan::core::InstanceInfo>
+construct_instance_info(
+    std::shared_ptr<dlplan::core::VocabularyInfo> vocabulary_info,
+    const mimir::formalism::ProblemDescription& problem_description) {
+    std::shared_ptr<dlplan::core::InstanceInfo> instance_info = std::make_shared<dlplan::core::InstanceInfo>(vocabulary_info);
+    return instance_info;
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -26,12 +53,17 @@ int main(int argc, char** argv) {
     auto domain_description = domain_parser.parse();
     // 2. Parse the problem
     mimir::parsers::ProblemParser problem_parser(problem_file);
+    // 3. Initialize DLPlan
     auto problem_description = problem_parser.parse(domain_description);
-    // 3. Parse the modules
+    auto vocabulary_info = construct_vocabulary_info(domain_description);
+    auto instance_info = construct_instance_info(vocabulary_info, problem_description);
+    auto syntactic_element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
+    // 4. Parse the modules
+    parser::Context context{syntactic_element_factory};
     ExtendedSketchList sketch_list;
     for (const auto& sketch_file : sketch_files) {
         parser::ExtendedSketchParser sketch_parser(sketch_file);
-        sketch_list.push_back(sketch_parser.parse());
+        sketch_list.push_back(sketch_parser.parse(context));
     }
     // 4. Run SIW_M
     return 0;

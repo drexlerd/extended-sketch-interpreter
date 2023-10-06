@@ -24,6 +24,18 @@ private:
     IWSearchRuleList m_iwsearch_rules;
 
 public:
+    ExtendedSketchImpl(
+        MemoryStateList&& memory_states,
+        RegisterList&& registers,
+        BooleanList&& booleans,
+        NumericalList&& numericals,
+        ConceptList&& concepts,
+        MemoryState&& initial_memory_state,
+        LoadRuleList&& load_rules,
+        CallRuleList&& call_rules,
+        ActionRuleList&& action_rules,
+        IWSearchRuleList&& iwsearch_rules);
+
     /// INTERNAL MEMORY RULES ///
 
     /// @brief Returns applicable load rule given extended state with internal memory state.
