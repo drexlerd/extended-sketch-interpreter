@@ -156,6 +156,10 @@ std::shared_ptr<const Concept>SyntacticElementFactory::make_primitive_concept(co
     return m_pImpl->make_primitive_concept(predicate, pos);
 }
 
+std::shared_ptr<const Concept> SyntacticElementFactory::make_register_concept(const Register& reg) {
+    return m_pImpl->make_register_concept(reg);
+}
+
 std::shared_ptr<const Concept>SyntacticElementFactory::make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept) {
     return m_pImpl->make_some_concept(role, concept);
 }

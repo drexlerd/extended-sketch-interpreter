@@ -46,12 +46,21 @@ const Constant& VocabularyInfo::add_constant(const std::string& constant_name) {
     return m_constants.back();
 }
 
+const Register& VocabularyInfo::add_register() {
+    m_registers.push_back(Register(m_registers.size()));
+    return m_registers.back();
+}
+
 const std::vector<Predicate>& VocabularyInfo::get_predicates() const {
     return m_predicates;
 }
 
 const std::vector<Constant>& VocabularyInfo::get_constants() const {
     return m_constants;
+}
+
+const std::vector<Register>& VocabularyInfo::get_registers() const {
+    return m_registers;
 }
 
 const Predicate& VocabularyInfo::get_predicate(const std::string& name) const {

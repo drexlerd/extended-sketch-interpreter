@@ -26,6 +26,7 @@ class VocabularyInfo;
 class Object;
 class Atom;
 class InstanceInfo;
+class Register;
 class State;
 class BaseElement;
 class Concept;
@@ -72,6 +73,9 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const std::pair<const int, dlplan::core::State>* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, std::pair<const int, dlplan::core::State>* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::core::Register& t, const unsigned int version);
 
     template <typename Archive>
     void serialize(Archive& ar, dlplan::core::VocabularyInfo& t, const unsigned int version);
@@ -142,6 +146,8 @@ using AtomIndices = std::vector<AtomIndex>;
 using ElementIndex = int;
 
 using InstanceIndex = int;
+
+using RegisterIndex = int;
 
 using StateIndex = int;
 
@@ -563,6 +569,25 @@ public:
 };
 
 
+class Register {
+private:
+    RegisterIndex m_index;
+
+    /// @brief Constructor for serialization.
+    Register();
+
+    explicit Register(RegisterIndex index);
+
+    friend class VocabularyInfo;
+    friend class boost::serialization::access;
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, Register& t, const unsigned int version);
+
+public:
+    RegisterIndex get_index() const;
+};
+
+
 /// @brief Encapsulates domain-general data and provides functionality
 ///        to access it.
 ///
@@ -580,6 +605,8 @@ private:
     std::unordered_map<std::string, ConstantIndex> m_constant_name_to_index;
     std::vector<Constant> m_constants;
 
+    std::vector<Register> m_registers;
+
     template<typename Archive>
     friend void boost::serialization::serialize(Archive& ar, VocabularyInfo& t, const unsigned int version);
 
@@ -593,9 +620,11 @@ public:
 
     const Predicate& add_predicate(const std::string &name, int arity, bool is_static=false);
     const Constant& add_constant(const std::string& name);
+    const Register& add_register();
 
     const std::vector<Predicate>& get_predicates() const;
     const std::vector<Constant>& get_constants() const;
+    const std::vector<Register>& get_registers() const;
 
     const Predicate& get_predicate(const std::string& name) const;
     const Constant& get_constant(const std::string& name) const;
@@ -823,7 +852,7 @@ private:
     friend void boost::serialization::serialize(Archive& ar, State& t, const unsigned int version);
 
 public:
-    State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms, StateIndex index=-1);
+    State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms,StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, StateIndex index=-1);
     State(const State& other);
@@ -860,6 +889,22 @@ public:
     std::shared_ptr<InstanceInfo> get_instance_info() const;
     const AtomIndices& get_atom_indices() const;
     StateIndex get_index() const;
+};
+
+
+class ExtendedState {
+private:
+    // We use shared_ptr because load actions only change the register contents
+    std::shared_ptr<const State> m_state;
+    ObjectIndices m_register_contents;
+
+public:
+    ExtendedState(
+        std::shared_ptr<const State> state,
+        ObjectIndices&& register_contents);
+
+    std::shared_ptr<const State> get_state() const;
+    const ObjectIndices& get_register_contents() const;
 };
 
 
@@ -1098,6 +1143,7 @@ public:
     std::shared_ptr<const Concept> make_or_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right);
     std::shared_ptr<const Concept> make_projection_concept(const std::shared_ptr<const Role>& role, int pos);
     std::shared_ptr<const Concept> make_primitive_concept(const Predicate& predicate, int pos);
+    std::shared_ptr<const Concept> make_register_concept(const Register& reg);
     std::shared_ptr<const Concept> make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept);
     std::shared_ptr<const Concept> make_subset_concept(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Concept> make_top_concept();

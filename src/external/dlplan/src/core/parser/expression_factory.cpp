@@ -13,6 +13,7 @@
 #include "expressions/concepts/or.h"
 #include "expressions/concepts/projection.h"
 #include "expressions/concepts/primitive.h"
+#include "expressions/concepts/register.h"
 #include "expressions/concepts/some.h"
 #include "expressions/concepts/subset.h"
 #include "expressions/concepts/top.h"
@@ -67,6 +68,8 @@ std::unique_ptr<Expression> ExpressionFactory::make_expression(const std::string
         return std::make_unique<PrimitiveConcept>(name, std::move(children));
     } else if (name == ProjectionConcept::get_name()) {
         return std::make_unique<ProjectionConcept>(name, std::move(children));
+    } else if (name == RegisterConcept::get_name()) {
+        return std::make_unique<RegisterConcept>(name, std::move(children));
     } else if (name == SomeConcept::get_name()) {
         return std::make_unique<SomeConcept>(name, std::move(children));
     } else if (name == SubsetConcept::get_name()) {

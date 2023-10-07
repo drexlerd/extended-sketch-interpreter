@@ -14,10 +14,12 @@ target_sources(dlplancore
         denotations_caches.cpp
         element_factory.cpp
         elements/roles/primitive.cpp
+        extended_state.cpp
         instance_info.cpp
         numerical.cpp
         vocabulary_info.cpp
         predicate.cpp
+        register.cpp
         object.cpp
         parser/parser.cpp
         parser/expression_factory.cpp

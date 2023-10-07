@@ -17,6 +17,7 @@
 #include "elements/concepts/or.h"
 #include "elements/concepts/projection.h"
 #include "elements/concepts/primitive.h"
+#include "elements/concepts/register.h"
 #include "elements/concepts/some.h"
 #include "elements/concepts/subset.h"
 #include "elements/concepts/top.h"
@@ -140,6 +141,10 @@ std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_projection_conc
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_primitive_concept(const Predicate& predicate, int pos) {
     return m_caches.m_concept_cache->insert(std::make_unique<PrimitiveConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), predicate, pos)).first;
+}
+
+std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_register_concept(const Register& reg) {
+    return m_caches.m_concept_cache->insert(std::make_unique<RegisterConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), reg)).first;
 }
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept) {
