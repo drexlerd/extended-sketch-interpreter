@@ -119,4 +119,8 @@ void NoveltyTable::resize(std::shared_ptr<const NoveltyBase> novelty_base) {
     m_novelty_base = novelty_base;
 }
 
+std::shared_ptr<const NoveltyBase> NoveltyTable::get_novelty_base() const {
+    return m_novelty_base;
+}
+
 }

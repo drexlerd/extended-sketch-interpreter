@@ -480,6 +480,23 @@ namespace mimir::formalism
         return true;
     }
 
+    int compute_num_unsatisfied_literals(const LiteralList& literal_list, const formalism::State& state, std::size_t min_arity)
+    {
+        int num_unsatisfied_literals = 0;
+
+        for (const auto& literal : literal_list)
+        {
+            const auto predicate_arity = literal->atom->predicate->arity;
+
+            if ((predicate_arity >= min_arity) && !formalism::literal_holds(literal, state))
+            {
+                ++num_unsatisfied_literals;
+            }
+        }
+
+        return num_unsatisfied_literals;
+    }
+
     bool matches_any_in_state(const formalism::Atom& atom, const formalism::State& state)
     {
         for (const auto& state_atom : state->get_atoms())

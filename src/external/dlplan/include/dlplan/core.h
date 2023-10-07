@@ -774,6 +774,8 @@ public:
     const Atom& add_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
     const Atom& add_static_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
 
+    void clear_atoms();
+
     /// @brief Compute the canonical string representation of this instance.
     /// @return The canonical string representation of this instance.
     ///

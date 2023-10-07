@@ -101,6 +101,8 @@ namespace mimir::formalism
 
     bool literals_hold(const LiteralList& literal_list, const formalism::State& state, std::size_t min_arity = 0);
 
+    int compute_num_unsatisfied_literals(const LiteralList& literal_list, const formalism::State& state, std::size_t min_arity = 0);
+
     bool matches_any_in_state(const formalism::Atom& atom, const formalism::State& state);
 
     std::ostream& operator<<(std::ostream& os, const formalism::State& state);

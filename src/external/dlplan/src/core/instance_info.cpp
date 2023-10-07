@@ -138,6 +138,11 @@ const Atom& InstanceInfo::add_static_atom(const std::string& predicate_name, con
     return add_atom(predicate_name, object_names, true);
 }
 
+void InstanceInfo::clear_atoms() {
+    m_atoms.clear();
+    m_atom_name_to_index.clear();
+}
+
 std::string InstanceInfo::compute_repr() const {
     std::stringstream ss;
     ss << "InstanceInfo("
