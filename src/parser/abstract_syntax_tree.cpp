@@ -4,7 +4,7 @@
 
 #include <boost/fusion/include/at_c.hpp>
 
-#include "../../extended_sketch/extended_sketch.hpp"
+#include "../extended_sketch/extended_sketch.hpp"
 
 
 namespace sketches::extended_sketch::parser {

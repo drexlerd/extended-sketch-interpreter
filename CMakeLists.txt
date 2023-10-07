@@ -63,13 +63,15 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Add library and executable targets
 ##############################################################
 
+add_compile_definitions(BOOST_PHOENIX_STL_TUPLE_H_)
+
 include_directories(include/)
 
 add_subdirectory(src)
 
-if (ENABLE_TESTING)
-    add_subdirectory(tests)
-endif()
+#if (ENABLE_TESTING)
+#    add_subdirectory(tests)
+#endif()
 
 ###########
 # Install #

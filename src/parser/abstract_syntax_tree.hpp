@@ -1,9 +1,9 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_ABSTRACT_SYNTAX_TREE_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_ABSTRACT_SYNTAX_TREE_HPP_
+#ifndef SRC_PARSER_ABSTRACT_SYNTAX_TREE_HPP_
+#define SRC_PARSER_ABSTRACT_SYNTAX_TREE_HPP_
 
 #include <vector>
 
-#include "../../extended_sketch/declarations.hpp"
+#include "../extended_sketch/declarations.hpp"
 
 #include "context.hpp"
 

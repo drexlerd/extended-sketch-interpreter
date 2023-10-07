@@ -1,12 +1,9 @@
-#ifndef SRC_PARSERS_PARSERS_HPP_
-#define SRC_PARSERS_PARSERS_HPP_
+#if !defined(PDDL_DOMAIN_PARSER_HPP_)
+#define PDDL_DOMAIN_PARSER_HPP_
 
 #include <memory>
 
-#include "../external/mimir/formalism/domain.hpp"
-#include "../extended_sketch/declarations.hpp"
-
-#include "extended_sketch/context.hpp"
+#include "../formalism/domain.hpp"
 
 
 // Older versions of LibC++ does not have filesystem (e.g., ubuntu 18.04), use the experimental version
@@ -27,7 +24,7 @@
 #endif
 
 
-namespace mimir::parsers
+namespace mimir::pddl
 {
     class DomainParser
     {
@@ -40,30 +37,7 @@ namespace mimir::parsers
         formalism::DomainDescription parse();
     };
 
-    class ProblemParser
-    {
-      private:
-        const fs::path problem_path;
+}  // namespace mimir::pddl
 
-      public:
-        ProblemParser(const fs::path& problem_path);
-
-        formalism::ProblemDescription parse(const formalism::DomainDescription& domain);
-    };
-}  // namespace mimir::parsers
-
-namespace sketches::extended_sketch::parser
-{
-    class ExtendedSketchParser
-    {
-      private:
-        const fs::path m_sketch_path;
-
-      public:
-        ExtendedSketchParser(const fs::path& sketch_path);
-
-        ExtendedSketch parse(Context& context);
-    };
-}  // namespace sketches::extended_sketch::parsers
 
 #endif  // PDDL_PARSER_DOMAIN_HPP_

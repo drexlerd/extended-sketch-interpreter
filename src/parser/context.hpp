@@ -1,10 +1,10 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_CONTEXT_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_CONTEXT_HPP_
+#ifndef SRC_PARSER_CONTEXT_HPP_
+#define SRC_PARSER_CONTEXT_HPP_
 
 #include <memory>
 
-#include "../../external/dlplan/include/dlplan/core.h"
-#include "../../external/dlplan/include/dlplan/policy.h"
+#include "../external/dlplan/include/dlplan/core.h"
+#include "../external/dlplan/include/dlplan/policy.h"
 
 
 namespace sketches::extended_sketch::parser {

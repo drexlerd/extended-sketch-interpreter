@@ -6,8 +6,9 @@
 #include "../external/dlplan/include/dlplan/core.h"
 #include "../external/dlplan/include/dlplan/policy.h"
 
-#include "../parsers/parsers.hpp"
-#include "../parsers/extended_sketch/context.hpp"
+#include "../external/mimir/pddl/domain_parser.hpp"
+#include "../external/mimir/pddl/problem_parser.hpp"
+#include "../parser/extended_sketch_parser.hpp"
 #include "../extended_sketch/declarations.hpp"
 
 using namespace std;
@@ -45,15 +46,15 @@ int main(int argc, char** argv) {
     string domain_file = argv[1];
     string problem_file = argv[2];
     vector<string> sketch_files;
-    for (size_t i = 3; i < argc; ++i) {
+    for (int i = 3; i < argc; ++i) {
         sketch_files.push_back(argv[i]);
     }
 
     // 1. Parse the domain
-    mimir::parsers::DomainParser domain_parser(domain_file);
+    mimir::pddl::DomainParser domain_parser(domain_file);
     auto domain_description = domain_parser.parse();
     // 2. Parse the problem
-    mimir::parsers::ProblemParser problem_parser(problem_file);
+    mimir::pddl::ProblemParser problem_parser(problem_file);
     // 3. Initialize DLPlan
     auto problem_description = problem_parser.parse(domain_description);
     auto vocabulary_info = construct_vocabulary_info(domain_description);

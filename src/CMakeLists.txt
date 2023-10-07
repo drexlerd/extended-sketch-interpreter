@@ -1,4 +1,4 @@
 add_subdirectory(extended_sketch)
 add_subdirectory(external)
 add_subdirectory(planner)
-add_subdirectory(parsers)
+add_subdirectory(parser)
