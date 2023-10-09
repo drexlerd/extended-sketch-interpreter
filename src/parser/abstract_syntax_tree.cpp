@@ -4,6 +4,8 @@
 
 #include <boost/fusion/include/at_c.hpp>
 
+#include "../extended_sketch/memory_state.hpp"
+#include "../extended_sketch/register.hpp"
 #include "../extended_sketch/extended_sketch.hpp"
 
 
@@ -42,7 +44,48 @@ std::string NameNode::get_name() const
     return std::string(characters.begin(), characters.end());
 }
 
-/* QuotedStringNode */
+
+/* MemoryStateMapNode */
+MemoryStateMapNode::MemoryStateMapNode(const std::vector<NameNode*>& name_nodes)
+    : name_nodes(name_nodes) { }
+
+MemoryStateMapNode::~MemoryStateMapNode() {
+    for (auto node : name_nodes) {
+        delete node;
+    }
+}
+
+MemoryStateMap MemoryStateMapNode::get_memory_state_map() const {
+    MemoryStateMap result;
+    for (const auto& node : name_nodes) {
+        auto name = node->get_name();
+        result.emplace(name, std::make_shared<MemoryStateImpl>(name));
+    }
+    return result;
+}
+
+
+/* RegisterMapNode */
+RegisterMapNode::RegisterMapNode(const std::vector<NameNode*>& name_nodes)
+    : name_nodes(name_nodes) { }
+
+RegisterMapNode::~RegisterMapNode() {
+    for (auto node : name_nodes) {
+        delete node;
+    }
+}
+
+RegisterMap RegisterMapNode::get_register_map() const {
+    RegisterMap result;
+    for (const auto& node : name_nodes) {
+        auto name = node->get_name();
+        result.emplace(name, std::make_shared<RegisterImpl>(name));
+    }
+    return result;
+}
+
+
+/* StringNode */
 StringNode::StringNode(const std::vector<CharacterNode*>& character_nodes)
     : character_nodes(character_nodes) { }
 
@@ -61,122 +104,99 @@ std::string StringNode::get_string() const {
 }
 
 
-/* BooleanNode */
-BooleanNode::BooleanNode(NameNode* key, StringNode* repr)
-    : key(key), repr(repr) { }
+/* NameAndStringNode */
+NameAndStringNode::NameAndStringNode(NameNode* name_node, StringNode* string_node)
+    : name_node(name_node), string_node(string_node) { }
 
-BooleanNode::~BooleanNode() = default;
-
-std::pair<std::string, std::shared_ptr<const dlplan::core::Boolean>> BooleanNode::get_boolean(Context& context) const {
-    return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_boolean(repr->get_string()));
+NameAndStringNode::~NameAndStringNode() {
+    delete name_node;
+    delete string_node;
 }
 
-
-/* BooleanListNode */
-BooleanListNode::BooleanListNode(const std::vector<BooleanNode*>& boolean_nodes)
-    : boolean_nodes(boolean_nodes) {}
-
-BooleanListNode::~BooleanListNode() {
-    for (auto node : boolean_nodes) {
-        delete node;
-    }
-}
-
-BooleanMap BooleanListNode::get_boolean_map(Context& context) const {
-    BooleanMap result;
-    for (const auto node : boolean_nodes) {
-        result.insert(node->get_boolean(context));
-    }
-    return result;
-}
-
-
-/* NumericalNode */
-NumericalNode::NumericalNode(NameNode* key, StringNode* repr)
-    : key(key), repr(repr) { }
-
-NumericalNode::~NumericalNode() = default;
-
-std::pair<std::string, std::shared_ptr<const dlplan::core::Numerical>> NumericalNode::get_numerical(Context& context) const {
-    return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_numerical(repr->get_string()));
-}
-
-
-/* NumericalListNode */
-NumericalListNode::NumericalListNode(const std::vector<NumericalNode*>& numerical_nodes)
-    : numerical_nodes(numerical_nodes) {}
-
-NumericalListNode::~NumericalListNode() {
-    for (auto node : numerical_nodes) {
-        delete node;
-    }
-}
-
-NumericalMap NumericalListNode::get_numerical_map(Context& context) const {
-    NumericalMap result;
-    for (const auto node : numerical_nodes) {
-        result.insert(node->get_numerical(context));
-    }
-    return result;
-}
-
-
-/* ConceptNode */
-ConceptNode::ConceptNode(NameNode* key, StringNode* repr)
-    : key(key), repr(repr) { }
-
-ConceptNode::~ConceptNode() = default;
-
-std::pair<std::string, std::shared_ptr<const dlplan::core::Concept>> ConceptNode::get_concept(Context& context) const {
-    return std::make_pair(key->get_name(), context.dlplan_element_factory->parse_concept(repr->get_string()));
-}
-
-
-/* ConceptListNode */
-ConceptListNode::ConceptListNode(const std::vector<ConceptNode*>& concept_nodes)
-    : concept_nodes(concept_nodes) {}
-
-ConceptListNode::~ConceptListNode() {
-    for (auto node : concept_nodes) {
-        delete node;
-    }
-}
-
-ConceptMap ConceptListNode::get_concept_map(Context& context) const {
-    ConceptMap result;
-    for (const auto node : concept_nodes) {
-        result.insert(node->get_concept(context));
-    }
-    return result;
+std::pair<std::string, std::string> NameAndStringNode::get_name_and_string() const {
+    return std::make_pair(name_node->get_name(), string_node->get_string());
 }
 
 
 /* ExtendedSketchNode */
-ExtendedSketchNode::ExtendedSketchNode(BooleanListNode* boolean_list_node)
-    : boolean_list_node(boolean_list_node) {}
+ExtendedSketchNode::ExtendedSketchNode(
+    const std::vector<NameNode*>& memory_state_name_nodes,
+    NameNode* initial_memory_state_name_node,
+    const std::vector<NameNode*>& register_name_nodes,
+    const std::vector<NameAndStringNode*>& boolean_name_and_string_nodes,
+    const std::vector<NameAndStringNode*>& numerical_name_and_string_nodes,
+    const std::vector<NameAndStringNode*>& concept_name_and_string_nodes)
+    : memory_state_name_nodes(memory_state_name_nodes),
+      initial_memory_state_name_node(initial_memory_state_name_node),
+      register_name_nodes(register_name_nodes),
+      boolean_name_and_string_nodes(boolean_name_and_string_nodes),
+      numerical_name_and_string_nodes(numerical_name_and_string_nodes),
+      concept_name_and_string_nodes(concept_name_and_string_nodes) {}
 
 ExtendedSketchNode::~ExtendedSketchNode() {
-    delete boolean_list_node;
+    for (auto node : memory_state_name_nodes) {
+        delete node;
+    }
+    delete initial_memory_state_name_node;
+    for (auto node : register_name_nodes) {
+        delete node;
+    }
+    for (auto node : boolean_name_and_string_nodes) {
+        delete node;
+    }
+    for (auto node : numerical_name_and_string_nodes) {
+        delete node;
+    }
+    for (auto node : concept_name_and_string_nodes) {
+        delete node;
+    }
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
-    BooleanList booleans;
-    auto boolean_map = boolean_list_node->get_boolean_map(context);
-    for (const auto& pair : boolean_map) {
-        booleans.push_back(pair.second);
+    MemoryStateMap memory_states;
+    for (const auto& node : memory_state_name_nodes) {
+        std::string name = node->get_name();
+        memory_states.emplace(name, make_memory_state(name));
     }
-    return ExtendedSketch(
-        new ExtendedSketchImpl(
-            MemoryStateList(),
-            RegisterList(),
+    std::string initial_memory_state_key = initial_memory_state_name_node->get_name();
+    auto find = memory_states.find(initial_memory_state_key);
+    if (find == memory_states.end()) {
+        throw std::runtime_error("ExtendedSketchNode::get_extended_sketch - initial memory state must be in memory state.");
+    }
+    MemoryState initial_memory_state = find->second;
+
+    RegisterMap registers;
+    for (const auto& node : register_name_nodes) {
+        std::string name = node->get_name();
+        registers.emplace(name, make_register(name));
+    }
+
+    BooleanMap booleans;
+    for (const auto& node : boolean_name_and_string_nodes) {
+        auto pair = node->get_name_and_string();
+        booleans.emplace(pair.first, context.dlplan_element_factory->parse_boolean(pair.second));
+    }
+    NumericalMap numericals;
+    for (const auto& node : numerical_name_and_string_nodes) {
+        auto pair = node->get_name_and_string();
+        numericals.emplace(pair.first, context.dlplan_element_factory->parse_numerical(pair.second));
+    }
+    ConceptMap concepts;
+    for (const auto& node : concept_name_and_string_nodes) {
+        auto pair = node->get_name_and_string();
+        concepts.emplace(pair.first, context.dlplan_element_factory->parse_concept(pair.second));
+    }
+    return make_extended_sketch(
+            std::move(memory_states),
+            std::move(initial_memory_state),
+            std::move(registers),
             std::move(booleans),
-            NumericalList(),
-            ConceptList(),
-            MemoryState(),
+            std::move(numericals),
+            std::move(concepts),
             LoadRuleList(),
             CallRuleList(),
             ActionRuleList(),
-            IWSearchRuleList()));
+            IWSearchRuleList());
 }
 
 }

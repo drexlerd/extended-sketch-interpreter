@@ -43,71 +43,56 @@ public:
     std::string get_string() const;
 };
 
-class BooleanNode : public ASTNode {
+class MemoryStateMapNode : public ASTNode {
 public:
-    NameNode* key;
-    StringNode* repr;
+    std::vector<NameNode*> name_nodes;
 
-    BooleanNode(NameNode* key, StringNode* repr);
-    ~BooleanNode() override;
+    MemoryStateMapNode(const std::vector<NameNode*>& name_nodes);
+    ~MemoryStateMapNode() override;
 
-    std::pair<std::string, std::shared_ptr<const dlplan::core::Boolean>> get_boolean(Context& context) const;
+    MemoryStateMap get_memory_state_map() const;
 };
 
-class BooleanListNode : public ASTNode {
+class RegisterMapNode : public ASTNode {
 public:
-    std::vector<BooleanNode*> boolean_nodes;
+    std::vector<NameNode*> name_nodes;
 
-    BooleanListNode(const std::vector<BooleanNode*>& boolean_nodes);
-    ~BooleanListNode() override;
-    BooleanMap get_boolean_map(Context& context) const;
+    RegisterMapNode(const std::vector<NameNode*>& name_nodes);
+    ~RegisterMapNode() override;
+
+    RegisterMap get_register_map() const;
 };
 
-class NumericalNode : public ASTNode {
+
+class NameAndStringNode : public ASTNode {
 public:
-    NameNode* key;
-    StringNode* repr;
+    NameNode* name_node;
+    StringNode* string_node;
 
-    NumericalNode(NameNode* key, StringNode* repr);
-    ~NumericalNode() override;
+    NameAndStringNode(NameNode* name_node, StringNode* string_node);
 
-    std::pair<std::string, std::shared_ptr<const dlplan::core::Numerical>> get_numerical(Context& context) const;
+    ~NameAndStringNode() override;
+
+    std::pair<std::string, std::string> get_name_and_string() const;
 };
 
-class NumericalListNode : public ASTNode {
-public:
-    std::vector<NumericalNode*> numerical_nodes;
-
-    NumericalListNode(const std::vector<NumericalNode*>& numerical_nodes);
-    ~NumericalListNode() override;
-    NumericalMap get_numerical_map(Context& context) const;
-};
-
-class ConceptNode : public ASTNode {
-public:
-    NameNode* key;
-    StringNode* repr;
-
-    ConceptNode(NameNode* key, StringNode* repr);
-    ~ConceptNode() override;
-
-    std::pair<std::string, std::shared_ptr<const dlplan::core::Concept>> get_concept(Context& context) const;
-};
-
-class ConceptListNode : public ASTNode {
-public:
-    std::vector<ConceptNode*> concept_nodes;
-
-    ConceptListNode(const std::vector<ConceptNode*>& concept_nodes);
-    ~ConceptListNode() override;
-    ConceptMap get_concept_map(Context& context) const;
-};
 
 class ExtendedSketchNode : public ASTNode {
 public:
-    BooleanListNode* boolean_list_node;
+    std::vector<NameNode*> memory_state_name_nodes;
+    NameNode* initial_memory_state_name_node;
+    std::vector<NameNode*> register_name_nodes;
+    std::vector<NameAndStringNode*> boolean_name_and_string_nodes;
+    std::vector<NameAndStringNode*> numerical_name_and_string_nodes;
+    std::vector<NameAndStringNode*> concept_name_and_string_nodes;
 
-    ExtendedSketchNode(BooleanListNode* boolean_list_node);
+    ExtendedSketchNode(
+        const std::vector<NameNode*>& memory_state_name_nodes,
+        NameNode* initial_memory_state_name_node,
+        const std::vector<NameNode*>& register_name_nodes,
+        const std::vector<NameAndStringNode*>& boolean_name_and_string_nodes,
+        const std::vector<NameAndStringNode*>& numerical_name_and_string_nodes,
+        const std::vector<NameAndStringNode*>& concept_name_and_string_nodes);
     ~ExtendedSketchNode() override;
 
     ExtendedSketch get_extended_sketch(Context& context) const;

@@ -13,10 +13,12 @@ namespace sketches::extended_sketch {
     class MemoryStateImpl;
     using MemoryState = std::shared_ptr<MemoryStateImpl>;
     using MemoryStateList = std::vector<MemoryState>;
+    using MemoryStateMap = std::unordered_map<std::string, MemoryState>;
 
     class RegisterImpl;
     using Register = std::shared_ptr<RegisterImpl>;
     using RegisterList = std::vector<Register>;
+    using RegisterMap = std::unordered_map<std::string, Register>;
 
     using Boolean = std::shared_ptr<const dlplan::core::Boolean>;
     using BooleanList = std::vector<Boolean>;

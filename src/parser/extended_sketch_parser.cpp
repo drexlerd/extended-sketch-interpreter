@@ -37,13 +37,9 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
     // list of rules, the middle argument to the template is the return value of the grammar
     qi::rule<std::string::iterator, CharacterNode*()> ANY_CHAR;
     qi::rule<std::string::iterator, NameNode*()> NAME;
+    qi::rule<std::string::iterator, CharacterNode*()> STRING_CHAR;
     qi::rule<std::string::iterator, StringNode*(), ascii::space_type> STRING;
-    qi::rule<std::string::iterator, BooleanNode*(), ascii::space_type> BOOLEAN;
-    qi::rule<std::string::iterator, BooleanListNode*(), ascii::space_type> BOOLEAN_LIST;
-    qi::rule<std::string::iterator, NumericalNode*(), ascii::space_type> NUMERICAL;
-    qi::rule<std::string::iterator, NumericalListNode*(), ascii::space_type> NUMERICAL_LIST;
-    qi::rule<std::string::iterator, ConceptNode*(), ascii::space_type> CONCEPT;
-    qi::rule<std::string::iterator, ConceptListNode*(), ascii::space_type> CONCEPT_LIST;
+    qi::rule<std::string::iterator, NameAndStringNode*(), ascii::space_type> NAME_AND_STRING;
     qi::rule<std::string::iterator, ExtendedSketchNode*(), ascii::space_type> EXTENDED_SKETCH_DESCRIPTION;
 
     ExtendedSketchGrammar() : ExtendedSketchGrammar::base_type(EXTENDED_SKETCH_DESCRIPTION) {
@@ -72,36 +68,33 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
         ANY_CHAR = alpha[_val = new_<CharacterNode>(_1)]           // alphabetical character
                     | alnum[_val = new_<CharacterNode>(_1)]        // alphanumerical character
                     | char_('-')[_val = new_<CharacterNode>(_1)]   // dash character
+                    | char_('_')[_val = new_<CharacterNode>(_1)];  // underscore character
+
+        NAME = (alpha >> *ANY_CHAR)[_val = new_<NameNode>(_1, _2)];  // a name must start with an alphabetical character
+
+        // String characters (used for dlplan features)
+        STRING_CHAR = alpha[_val = new_<CharacterNode>(_1)]        // alphabetical character
+                    | alnum[_val = new_<CharacterNode>(_1)]        // alphanumerical character
+                    | char_('-')[_val = new_<CharacterNode>(_1)]   // dash character
                     | char_('_')[_val = new_<CharacterNode>(_1)]   // underscore character
                     | char_('(')[_val = new_<CharacterNode>(_1)]   // opening parentheses character
                     | char_(')')[_val = new_<CharacterNode>(_1)]   // closing parentheses character
                     | char_(',')[_val = new_<CharacterNode>(_1)];  // comma character
 
-        NAME = (alpha >> *ANY_CHAR)[_val = new_<NameNode>(_1, _2)];  // a name must start with an alphabetical character
+        STRING = (lit('"') > +STRING_CHAR > lit('"'))[_val = new_<StringNode>(_1)];
 
-        STRING = (lit('"') > +ANY_CHAR > lit('"'))[_val = new_<StringNode>(_1)];
-
-        // Booleans
-        BOOLEAN = (lit('(') > NAME > STRING > lit(')'))[_val = new_<BooleanNode>(_1, _2)];
-
-        BOOLEAN_LIST = (lit('(') > lit(":booleans") > *BOOLEAN > lit(')'))[_val = new_<BooleanListNode>(_1)];
-
-        // Numericals
-        NUMERICAL = (lit('(') > NAME > STRING > lit(')'))[_val = new_<NumericalNode>(_1, _2)];
-
-        NUMERICAL_LIST = (lit('(') > lit(":numericals") > *NUMERICAL > lit(')'))[_val = new_<NumericalListNode>(_1)];
-
-        // Concepts
-        CONCEPT = (lit('(') > NAME > STRING > lit(')'))[_val = new_<ConceptNode>(_1, _2)];
-
-        CONCEPT_LIST = (lit('(') > lit(":concepts") > *CONCEPT > lit(')'))[_val = new_<ConceptListNode>(_1)];
+        // Name and string
+        NAME_AND_STRING = (lit('(') > NAME > STRING > lit(')'))[_val = new_<NameAndStringNode>(_1, _2)];
 
         // Domain
         EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
-                                  > BOOLEAN_LIST
-                                  > NUMERICAL_LIST
-                                  > CONCEPT_LIST
-                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1)];
+                                  > lit('(') > lit(":memory_states") > lit('(') > *NAME > lit(')') > lit(')')
+                                  > lit('(') > lit(":initial_memory_state") > NAME > lit(')')
+                                  > lit('(') > lit(":registers") > lit('(') > *NAME > lit(')') > lit(')')
+                                  > lit('(') > lit(":booleans") > *NAME_AND_STRING > lit(')')
+                                  > lit('(') > lit(":numericals") > *NAME_AND_STRING > lit(')')
+                                  > lit('(') > lit(":concepts") > *NAME_AND_STRING > lit(')')
+                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6)];
     }
 };
 
@@ -121,21 +114,24 @@ ExtendedSketch ExtendedSketchParser::parse(Context& context) {
             auto iterator_end = sketch_content.end();
             ExtendedSketchNode* sketch_node = nullptr;
 
-            if (qi::phrase_parse(iterator_begin, iterator_end, extended_sketch_grammar, ascii::space, sketch_node))
+            decltype(iterator_begin) error_pos; // To store the position of the error
+            bool parse_success = qi::phrase_parse(iterator_begin, iterator_end, extended_sketch_grammar, ascii::space, sketch_node  );
+            if (parse_success)
+            {
+                const auto extended_sketch = sketch_node->get_extended_sketch(context);
+                delete sketch_node;
+                return extended_sketch;
+            }
+            else
+            {
+                if (sketch_node)
                 {
-                    const auto extended_sketch = sketch_node->get_extended_sketch(context);
                     delete sketch_node;
-                    return extended_sketch;
                 }
-                else
-                {
-                    if (sketch_node)
-                    {
-                        delete sketch_node;
-                    }
 
-                    throw std::runtime_error("extended sketch could not be parsed");
-                }
+                std::cerr << "Parsing failed at position " << std::distance(sketch_content.begin(), error_pos) << std::endl;
+                throw std::runtime_error("extended sketch could not be parsed");
+            }
         }
     }
     throw std::invalid_argument("extended sketch file does not exist");

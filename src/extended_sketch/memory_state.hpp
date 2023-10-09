@@ -2,6 +2,7 @@
 #define SRC_EXTENDED_SKETCH_MEMORY_STATE_HPP_
 
 #include <string>
+#include <memory>
 
 
 namespace sketches::extended_sketch {
@@ -11,7 +12,11 @@ private:
 
 public:
     explicit MemoryStateImpl(const std::string& key);
+
+    const std::string& get_key() const;
 };
+
+extern std::shared_ptr<MemoryStateImpl> make_memory_state(const std::string& key);
 
 }
 

@@ -1,6 +1,7 @@
 #ifndef SRC_EXTENDED_SKETCH_EXTENDED_SKETCH_HPP_
 #define SRC_EXTENDED_SKETCH_EXTENDED_SKETCH_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "declarations.hpp"
@@ -8,15 +9,14 @@
 namespace sketches::extended_sketch {
 class ExtendedSketchImpl {
 private:
-    MemoryStateList m_memory_states;
-
-    RegisterList m_registers;
-
-    BooleanList m_booleans;
-    NumericalList m_numericals;
-    ConceptList m_concepts;
-
+    MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
+
+    RegisterMap m_registers;
+
+    BooleanMap m_booleans;
+    NumericalMap m_numericals;
+    ConceptMap m_concepts;
 
     LoadRuleList m_load_rules;
     CallRuleList m_call_rules;
@@ -25,12 +25,12 @@ private:
 
 public:
     ExtendedSketchImpl(
-        MemoryStateList&& memory_states,
-        RegisterList&& registers,
-        BooleanList&& booleans,
-        NumericalList&& numericals,
-        ConceptList&& concepts,
+        MemoryStateMap&& memory_states,
         MemoryState&& initial_memory_state,
+        RegisterMap&& registers,
+        BooleanMap&& booleans,
+        NumericalMap&& numericals,
+        ConceptMap&& concepts,
         LoadRuleList&& load_rules,
         CallRuleList&& call_rules,
         ActionRuleList&& action_rules,
@@ -61,6 +61,18 @@ public:
     /// @return
     ActionRule find_compatible_iwsearch_rule(const ExtendedState& source, const ExtendedState& target) const;
 };
+
+extern std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
+    MemoryStateMap&& memory_states,
+    MemoryState&& initial_memory_state,
+    RegisterMap&& registers,
+    BooleanMap&& booleans,
+    NumericalMap&& numericals,
+    ConceptMap&& concepts,
+    LoadRuleList&& load_rules,
+    CallRuleList&& call_rules,
+    ActionRuleList&& action_rules,
+    IWSearchRuleList&& iwsearch_rules);
 
 }
 
