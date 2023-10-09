@@ -40,6 +40,11 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
     qi::rule<std::string::iterator, CharacterNode*()> STRING_CHAR;
     qi::rule<std::string::iterator, StringNode*(), ascii::space_type> STRING;
     qi::rule<std::string::iterator, NameAndStringNode*(), ascii::space_type> NAME_AND_STRING;
+    qi::rule<std::string::iterator, LoadRuleNode*(), ascii::space_type> LOAD_RULE;
+    qi::rule<std::string::iterator, CallRuleNode*(), ascii::space_type> CALL_RULE;
+    qi::rule<std::string::iterator, ActionRuleNode*(), ascii::space_type> ACTION_RULE;
+    qi::rule<std::string::iterator, IWSearchRuleNode*(), ascii::space_type> IWSEARCH_RULE;
+    qi::rule<std::string::iterator, LoadCallActionOrIWSearchRuleNode*(), ascii::space_type> LOAD_CALL_ACTION_OR_IWSEARCH_RULE;
     qi::rule<std::string::iterator, ExtendedSketchNode*(), ascii::space_type> EXTENDED_SKETCH_DESCRIPTION;
 
     ExtendedSketchGrammar() : ExtendedSketchGrammar::base_type(EXTENDED_SKETCH_DESCRIPTION) {
@@ -86,6 +91,12 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
         // Name and string
         NAME_AND_STRING = (lit('(') > NAME > STRING > lit(')'))[_val = new_<NameAndStringNode>(_1, _2)];
 
+        // Rules
+        // (:rule (:conditions (:memory )) (:effects (:memory )))
+        IWSEARCH_RULE = (lit('(') > lit(":rule") > lit('(') > lit(":conditions") > lit(')') > lit('(') > lit(":effects") > lit(')') > lit(')'))[_val = new_<IWSearchRuleNode>(nullptr, std::vector<FeatureConditionNode*>{}, nullptr, std::vector<FeatureEffectNode*>{})];
+
+        LOAD_CALL_ACTION_OR_IWSEARCH_RULE = IWSEARCH_RULE[_val = new_<LoadCallActionOrIWSearchRuleNode>(_1)];
+
         // Domain
         EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
                                   > lit('(') > lit(":memory_states") > lit('(') > *NAME > lit(')') > lit(')')
@@ -94,7 +105,8 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
                                   > lit('(') > lit(":booleans") > *NAME_AND_STRING > lit(')')
                                   > lit('(') > lit(":numericals") > *NAME_AND_STRING > lit(')')
                                   > lit('(') > lit(":concepts") > *NAME_AND_STRING > lit(')')
-                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6)];
+                                  >> *LOAD_CALL_ACTION_OR_IWSEARCH_RULE
+                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6, _7)];
     }
 };
 
@@ -114,8 +126,7 @@ ExtendedSketch ExtendedSketchParser::parse(Context& context) {
             auto iterator_end = sketch_content.end();
             ExtendedSketchNode* sketch_node = nullptr;
 
-            decltype(iterator_begin) error_pos; // To store the position of the error
-            bool parse_success = qi::phrase_parse(iterator_begin, iterator_end, extended_sketch_grammar, ascii::space, sketch_node  );
+            bool parse_success = qi::phrase_parse(iterator_begin, iterator_end, extended_sketch_grammar, ascii::space, sketch_node);
             if (parse_success)
             {
                 const auto extended_sketch = sketch_node->get_extended_sketch(context);
@@ -128,8 +139,6 @@ ExtendedSketch ExtendedSketchParser::parse(Context& context) {
                 {
                     delete sketch_node;
                 }
-
-                std::cerr << "Parsing failed at position " << std::distance(sketch_content.begin(), error_pos) << std::endl;
                 throw std::runtime_error("extended sketch could not be parsed");
             }
         }

@@ -4,6 +4,7 @@
 
 #include <boost/fusion/include/at_c.hpp>
 
+#include "../extended_sketch/memory_state_factory.hpp"
 #include "../extended_sketch/memory_state.hpp"
 #include "../extended_sketch/register.hpp"
 #include "../extended_sketch/extended_sketch.hpp"
@@ -118,6 +119,113 @@ std::pair<std::string, std::string> NameAndStringNode::get_name_and_string() con
 }
 
 
+/* IWSearchRuleNode */
+IWSearchRuleNode::IWSearchRuleNode(
+    NameNode* memory_condition_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    NameNode* memory_effect_node,
+    const std::vector<FeatureEffectNode*>& feature_effect_nodes)
+    : memory_condition_node(memory_condition_node),
+      feature_condition_nodes(feature_condition_nodes),
+      memory_effect_node(memory_effect_node),
+      feature_effect_nodes(feature_effect_nodes) {
+}
+
+IWSearchRuleNode::~IWSearchRuleNode() {
+    delete memory_condition_node;
+    for (auto node : feature_condition_nodes) {
+        delete node;
+    }
+    delete memory_effect_node;
+    for (auto node : feature_effect_nodes) {
+        delete node;
+    }
+}
+
+IWSearchRule IWSearchRuleNode::get_iwsearch_rule(
+    Context& context,
+    const MemoryStateFactory& memory_states,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts) const {
+    MemoryState memory_state_condition = memory_states.get_memory_state(memory_condition_node->get_name());
+}
+
+
+
+/* LoadCallActionOrIWSearchRuleNode */
+LoadCallActionOrIWSearchRuleNode::LoadCallActionOrIWSearchRuleNode(LoadRuleNode* load_rule_node)
+    : load_rule_node(load_rule_node),
+      call_rule_node(nullptr),
+      action_rule_node(nullptr),
+      iwsearch_rule_node(nullptr) { }
+LoadCallActionOrIWSearchRuleNode::LoadCallActionOrIWSearchRuleNode(CallRuleNode* call_rule_node)
+    : load_rule_node(nullptr),
+      call_rule_node(call_rule_node),
+      action_rule_node(nullptr),
+      iwsearch_rule_node(nullptr) { }
+LoadCallActionOrIWSearchRuleNode::LoadCallActionOrIWSearchRuleNode(ActionRuleNode* action_rule_node)
+    : load_rule_node(nullptr),
+      call_rule_node(nullptr),
+      action_rule_node(action_rule_node),
+      iwsearch_rule_node(nullptr) { }
+LoadCallActionOrIWSearchRuleNode::LoadCallActionOrIWSearchRuleNode(IWSearchRuleNode* iwsearch_rule_node)
+    : load_rule_node(nullptr),
+      call_rule_node(nullptr),
+      action_rule_node(nullptr),
+      iwsearch_rule_node(iwsearch_rule_node) { }
+
+LoadCallActionOrIWSearchRuleNode::~LoadCallActionOrIWSearchRuleNode() {
+    if (load_rule_node) delete load_rule_node;
+    if (call_rule_node) delete call_rule_node;
+    if (action_rule_node) delete action_rule_node;
+    if (iwsearch_rule_node) delete iwsearch_rule_node;
+}
+
+LoadRule LoadCallActionOrIWSearchRuleNode::get_load_rule(
+    Context& context,
+    const MemoryStateFactory& memory_states,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts) const {
+    if (load_rule_node)
+        return load_rule_node->get_load_rule(context, memory_states, booleans, numericals, concepts);
+    return nullptr;
+}
+
+CallRule LoadCallActionOrIWSearchRuleNode::get_call_rule(
+    Context& context,
+    const MemoryStateFactory& memory_states,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts) const {
+    if (call_rule_node)
+        return call_rule_node->get_call_rule(context, memory_states, booleans, numericals, concepts);
+    return nullptr;
+}
+ActionRule LoadCallActionOrIWSearchRuleNode::get_action_rule(
+    Context& context,
+    const MemoryStateFactory& memory_states,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts) const {
+    if (action_rule_node)
+        return action_rule_node->get_action_rule(context, memory_states, booleans, numericals, concepts);
+    return nullptr;
+}
+
+IWSearchRule LoadCallActionOrIWSearchRuleNode::get_iwsearch_rule(
+    Context& context,
+    const MemoryStateFactory& memory_states,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts) const {
+    if (iwsearch_rule_node)
+        return iwsearch_rule_node->get_iwsearch_rule(context, memory_states, booleans, numericals, concepts);
+    return nullptr;
+}
+
+
 /* ExtendedSketchNode */
 ExtendedSketchNode::ExtendedSketchNode(
     const std::vector<NameNode*>& memory_state_name_nodes,
@@ -125,13 +233,15 @@ ExtendedSketchNode::ExtendedSketchNode(
     const std::vector<NameNode*>& register_name_nodes,
     const std::vector<NameAndStringNode*>& boolean_name_and_string_nodes,
     const std::vector<NameAndStringNode*>& numerical_name_and_string_nodes,
-    const std::vector<NameAndStringNode*>& concept_name_and_string_nodes)
+    const std::vector<NameAndStringNode*>& concept_name_and_string_nodes,
+    const std::vector<LoadCallActionOrIWSearchRuleNode*>& load_call_action_or_iwsearch_rule_nodes)
     : memory_state_name_nodes(memory_state_name_nodes),
       initial_memory_state_name_node(initial_memory_state_name_node),
       register_name_nodes(register_name_nodes),
       boolean_name_and_string_nodes(boolean_name_and_string_nodes),
       numerical_name_and_string_nodes(numerical_name_and_string_nodes),
-      concept_name_and_string_nodes(concept_name_and_string_nodes) {}
+      concept_name_and_string_nodes(concept_name_and_string_nodes),
+      load_call_action_or_iwsearch_rule_nodes(load_call_action_or_iwsearch_rule_nodes) {}
 
 ExtendedSketchNode::~ExtendedSketchNode() {
     for (auto node : memory_state_name_nodes) {
@@ -150,13 +260,17 @@ ExtendedSketchNode::~ExtendedSketchNode() {
     for (auto node : concept_name_and_string_nodes) {
         delete node;
     }
+    for (auto node : load_call_action_or_iwsearch_rule_nodes) {
+        delete node;
+    }
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
+    MemoryStateFactory memory_state_factory;
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
         std::string name = node->get_name();
-        memory_states.emplace(name, make_memory_state(name));
+        memory_states.emplace(name, memory_state_factory.make_memory_state(name));
     }
     std::string initial_memory_state_key = initial_memory_state_name_node->get_name();
     auto find = memory_states.find(initial_memory_state_key);
@@ -185,6 +299,10 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     for (const auto& node : concept_name_and_string_nodes) {
         auto pair = node->get_name_and_string();
         concepts.emplace(pair.first, context.dlplan_element_factory->parse_concept(pair.second));
+    }
+    LoadRuleList load_rules;
+    for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
+
     }
     return make_extended_sketch(
             std::move(memory_states),

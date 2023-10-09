@@ -10,16 +10,18 @@ namespace sketches::extended_sketch {
 
 class ExtendedRuleImpl {
 protected:
-    MemoryState m_condition_memory_state;
-    MemoryState m_effect_memory_state;
+    // complete conditions.
+    MemoryState m_memory_state_condition;
+    ConditionSet m_feature_conditions;
 
-    ConditionSet m_conditions;
+    // partial effects.
+    MemoryState m_memory_state_effect;
 
 public:
     ExtendedRuleImpl(
-        const MemoryState& condition_memory_state,
-        const MemoryState& effect_memory_state,
-        const ConditionSet& conditions);
+        const MemoryState& memory_state_condition,
+        const ConditionSet& feature_conditions,
+        const MemoryState& memory_state_effect);
     virtual ~ExtendedRuleImpl();
 
     bool evaluate_conditions(const ExtendedState& state) const;
@@ -28,9 +30,9 @@ public:
     std::string compute_repr() const;
     virtual void compute_repr(std::stringstream& out) const = 0;
 
-    const MemoryState& get_condition_memory_state() const;
-    const MemoryState& get_effect_memory_state() const;
-    const ConditionSet& get_conditions() const;
+    const MemoryState& get_memory_state_condition() const;
+    const MemoryState& get_memory_state_effect() const;
+    const ConditionSet& get_feature_conditions() const;
 };
 
 class LoadRuleImpl : public ExtendedRuleImpl {
@@ -71,15 +73,17 @@ public:
 };
 
 class ActionRuleImpl : public ExtendedRuleImpl {
-private:
+protected:
     mimir::formalism::ActionSchema m_action_schema;
+    RegisterList m_arguments;
 
 public:
     ActionRuleImpl(
-        const MemoryState& condition_memory_state,
-        const MemoryState& effect_memory_state,
-        const ConditionSet& conditions
-        /* action rule effect*/);
+        const MemoryState& memory_state_condition,
+        const ConditionSet& feature_conditions,
+        const MemoryState& memory_state_effect,
+        const mimir::formalism::ActionSchema& action_schema,
+        const RegisterList& arguments);
     ~ActionRuleImpl() override;
 
     /// @brief Computes a ground action and applies it
@@ -90,12 +94,27 @@ public:
 };
 
 class IWSearchRuleImpl : public ExtendedRuleImpl {
+protected:
+    EffectSet m_feature_effects;
+
 public:
+    IWSearchRuleImpl(
+        const MemoryState& memory_state_condition,
+        const ConditionSet& feature_conditions,
+        const MemoryState& memory_state_effect,
+        const EffectSet& feature_effects);
     ~IWSearchRuleImpl() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
+
+extern std::shared_ptr<IWSearchRuleImpl> make_iwsearch_rule(
+    const MemoryState& memory_state_condition,
+    const ConditionSet& feature_conditions,
+    const MemoryState& memory_state_effect,
+    const EffectSet& feature_effects);
+
 }
 
 #endif
