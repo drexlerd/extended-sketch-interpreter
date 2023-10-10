@@ -94,7 +94,7 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
 
         // Rules
         // (:rule (:conditions (:memory )) (:effects (:memory )))
-        IWSEARCH_RULE = (lit('(') > lit(":rule") > lit('(') > lit(":conditions") > lit(')') > lit('(') > lit(":effects") > lit(')') > lit(')'))[_val = new_<IWSearchRuleNode>(nullptr, std::vector<FeatureConditionNode*>{}, nullptr, std::vector<FeatureEffectNode*>{})];
+        IWSEARCH_RULE = (lit('(') > lit(":rule") > lit('(') > lit(":conditions") > lit(')') > lit('(') > lit(":effects") > lit(')') > lit(')'))[_val = new_<IWSearchRuleNode>(nullptr, nullptr, std::vector<FeatureConditionNode*>{}, std::vector<FeatureEffectNode*>{})];
 
         LOAD_CALL_ACTION_OR_IWSEARCH_RULE = IWSEARCH_RULE[_val = new_<LoadCallActionOrIWSearchRuleNode>(_1)];
 

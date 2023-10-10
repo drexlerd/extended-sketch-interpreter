@@ -10,18 +10,15 @@ namespace sketches::extended_sketch {
 
 class ExtendedRuleImpl {
 protected:
-    // complete conditions.
     MemoryState m_memory_state_condition;
-    ConditionSet m_feature_conditions;
-
-    // partial effects.
     MemoryState m_memory_state_effect;
+    ConditionSet m_feature_conditions;
 
 public:
     ExtendedRuleImpl(
         const MemoryState& memory_state_condition,
-        const ConditionSet& feature_conditions,
-        const MemoryState& memory_state_effect);
+        const MemoryState& memory_state_effect,
+        const ConditionSet& feature_conditions);
     virtual ~ExtendedRuleImpl();
 
     bool evaluate_conditions(const ExtendedState& state) const;
@@ -80,8 +77,8 @@ protected:
 public:
     ActionRuleImpl(
         const MemoryState& memory_state_condition,
-        const ConditionSet& feature_conditions,
         const MemoryState& memory_state_effect,
+        const ConditionSet& feature_conditions,
         const mimir::formalism::ActionSchema& action_schema,
         const RegisterList& arguments);
     ~ActionRuleImpl() override;
@@ -100,8 +97,8 @@ protected:
 public:
     IWSearchRuleImpl(
         const MemoryState& memory_state_condition,
-        const ConditionSet& feature_conditions,
         const MemoryState& memory_state_effect,
+        const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
     ~IWSearchRuleImpl() override;
 
@@ -111,8 +108,8 @@ public:
 
 extern std::shared_ptr<IWSearchRuleImpl> make_iwsearch_rule(
     const MemoryState& memory_state_condition,
-    const ConditionSet& feature_conditions,
     const MemoryState& memory_state_effect,
+    const ConditionSet& feature_conditions,
     const EffectSet& feature_effects);
 
 }

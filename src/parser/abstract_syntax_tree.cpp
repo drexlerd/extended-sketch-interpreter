@@ -6,6 +6,7 @@
 
 #include "../extended_sketch/memory_state.hpp"
 #include "../extended_sketch/register.hpp"
+#include "../extended_sketch/rules.hpp"
 #include "../extended_sketch/extended_sketch.hpp"
 
 
@@ -113,12 +114,13 @@ PositiveBooleanConditionNode::get_condition(Context& context) const {
 
 /* ActionRuleNode */
 ActionRuleNode::ActionRuleNode(
-    NameNode* memory_condition_node,
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
-    NameNode* memory_effect_node,
     NameNode* action_name_node,
     const std::vector<NameNode*>& register_name_nodes)
-    : action_name_node(action_name_node),
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
+      action_name_node(action_name_node),
       register_name_nodes(register_name_nodes) { }
 
 ActionRuleNode::~ActionRuleNode() {
@@ -140,35 +142,64 @@ ActionRule ActionRuleNode::get_action_rule(
 }
 
 
+RuleNode::RuleNode(
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes)
+    : memory_condition_node(memory_condition_node),
+      memory_effect_node(memory_effect_node),
+      feature_condition_nodes(feature_condition_nodes) { }
+
+RuleNode::~RuleNode() {
+    delete memory_condition_node;
+    delete memory_effect_node;
+    for (auto node : feature_condition_nodes) {
+        delete node;
+    }
+}
+
+MemoryState RuleNode::get_memory_condition(Context& context) const {
+    return memory_condition_node->get_memory_state(context);
+}
+
+MemoryState RuleNode::get_memory_effect(Context& context) const {
+    return memory_effect_node->get_memory_state(context);
+}
+
+ConditionSet RuleNode::get_feature_conditions(Context& context) const {
+    ConditionSet result;
+    for (const auto& node : feature_condition_nodes) {
+        result.insert(node->get_condition(context));
+    }
+    return result;
+}
+
 /* IWSearchRuleNode */
 IWSearchRuleNode::IWSearchRuleNode(
-    NameNode* memory_condition_node,
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
-    NameNode* memory_effect_node,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes)
-    : memory_condition_node(memory_condition_node),
-      feature_condition_nodes(feature_condition_nodes),
-      memory_effect_node(memory_effect_node),
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
       feature_effect_nodes(feature_effect_nodes) {
 }
 
 IWSearchRuleNode::~IWSearchRuleNode() {
-    delete memory_condition_node;
-    for (auto node : feature_condition_nodes) {
-        delete node;
-    }
-    delete memory_effect_node;
     for (auto node : feature_effect_nodes) {
         delete node;
     }
 }
 
 IWSearchRule IWSearchRuleNode::get_iwsearch_rule(Context& context) const {
-    MemoryState memory_state_condition = context.memory_state_factory.get_memory_state(memory_condition_node->get_name());
-    MemoryState memory_state_effect = context.memory_state_factory.get_memory_state(memory_effect_node->get_name());
-    for (const auto& node : feature_condition_nodes) {
-        // TODO
+    EffectSet feature_effects;
+    for (const auto& node : feature_effect_nodes) {
+        feature_effects.insert(node->get_effect(context));
     }
+    return make_iwsearch_rule(
+        get_memory_condition(context),
+        get_memory_effect(context),
+        get_feature_conditions(context),
+        feature_effects);
 }
 
 
@@ -281,10 +312,10 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     }
     MemoryState initial_memory_state = find->second;
 
-    RegisterList registers;
+    RegisterMap registers;
     for (const auto& node : register_name_nodes) {
         std::string name = node->get_name();
-        registers.push_back(context.register_factory.make_register(name));
+        registers.emplace(name, context.register_factory.make_register(name));
     }
 
     BooleanMap booleans;
@@ -318,7 +349,8 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     }
     IWSearchRuleList iwsearch_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-
+        auto rule = node->get_iwsearch_rule(context);
+        if (rule) iwsearch_rules.push_back(rule);
     }
     return make_extended_sketch(
             std::move(memory_states),

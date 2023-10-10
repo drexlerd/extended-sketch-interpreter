@@ -103,7 +103,7 @@ public:
     FeatureEffectNode(NameNode* effect_type_node, NameNode* feature_key_node);
     ~FeatureEffectNode() override;
 
-    std::shared_ptr<const dlplan::policy::BaseEffect> get_effect(Context& context) const = 0;
+    virtual std::shared_ptr<const dlplan::policy::BaseEffect> get_effect(Context& context) const = 0;
 };
 
 class PositiveBooleanEffectNode : public FeatureEffectNode {
@@ -130,25 +130,42 @@ class UnchangedNumericalEffectNode : public FeatureEffectNode {
 
 };
 
-class LoadRuleNode : public ASTNode {
+class RuleNode : public ASTNode {
+public:
+    MemoryConditionNode* memory_condition_node;
+    MemoryConditionNode* memory_effect_node;
+    std::vector<FeatureConditionNode*> feature_condition_nodes;
+
+    RuleNode(
+        MemoryConditionNode* memory_condition_node,
+        MemoryConditionNode* memory_effect_node,
+        const std::vector<FeatureConditionNode*>& feature_condition_nodes);
+    ~RuleNode();
+
+    MemoryState get_memory_condition(Context& context) const;
+    MemoryState get_memory_effect(Context& context) const;
+    ConditionSet get_feature_conditions(Context& context) const;
+};
+
+class LoadRuleNode : public RuleNode {
 public:
     LoadRule get_load_rule(Context& context) const;
 };
 
-class CallRuleNode : public ASTNode {
+class CallRuleNode : public RuleNode {
 public:
     CallRule get_call_rule(Context& context) const;
 };
 
-class ActionRuleNode : public ASTNode {
+class ActionRuleNode : public RuleNode {
 public:
     NameNode* action_name_node;
     std::vector<NameNode*> register_name_nodes;
 
     ActionRuleNode(
-        NameNode* memory_condition_node,
+        MemoryConditionNode* memory_condition_node,
+        MemoryConditionNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
-        NameNode* memory_effect_node,
         NameNode* action_name_node,
         const std::vector<NameNode*>& register_name_nodes);
     ~ActionRuleNode() override;
@@ -158,18 +175,14 @@ public:
         const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const;
 };
 
-class IWSearchRuleNode : public ASTNode {
+class IWSearchRuleNode : public RuleNode {
 public:
-    NameNode* memory_condition_node;
-    std::vector<FeatureConditionNode*> feature_condition_nodes;
-
-    NameNode* memory_effect_node;
     std::vector<FeatureEffectNode*> feature_effect_nodes;
 
     IWSearchRuleNode(
-        NameNode* memory_condition_node,
+        MemoryConditionNode* memory_condition_node,
+        MemoryConditionNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
-        NameNode* memory_effect_node,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes);
     ~IWSearchRuleNode() override;
 
@@ -191,9 +204,7 @@ public:
 
     LoadRule get_load_rule(Context& context) const;
     CallRule get_call_rule(Context& context) const;
-    ActionRule get_action_rule(
-        Context& context,
-        const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const;
+    ActionRule get_action_rule(Context& context, const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const;
     IWSearchRule get_iwsearch_rule(Context& context) const;
 };
 
