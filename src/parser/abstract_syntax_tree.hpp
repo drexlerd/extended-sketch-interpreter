@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "../extended_sketch/declarations.hpp"
-#include "../extended_sketch/memory_state_factory.hpp"
 
 #include "context.hpp"
 
@@ -44,27 +43,6 @@ public:
     std::string get_string() const;
 };
 
-class MemoryStateMapNode : public ASTNode {
-public:
-    std::vector<NameNode*> name_nodes;
-
-    MemoryStateMapNode(const std::vector<NameNode*>& name_nodes);
-    ~MemoryStateMapNode() override;
-
-    MemoryStateMap get_memory_state_map() const;
-};
-
-class RegisterMapNode : public ASTNode {
-public:
-    std::vector<NameNode*> name_nodes;
-
-    RegisterMapNode(const std::vector<NameNode*>& name_nodes);
-    ~RegisterMapNode() override;
-
-    RegisterMap get_register_map() const;
-};
-
-
 class NameAndStringNode : public ASTNode {
 public:
     NameNode* name_node;
@@ -77,33 +55,55 @@ public:
     std::pair<std::string, std::string> get_name_and_string() const;
 };
 
-
 class MemoryConditionNode : public ASTNode {
+public:
+    NameNode* memory_state_key;
 
+    MemoryConditionNode(NameNode* memory_state_key);
+    ~MemoryConditionNode() override;
+
+    MemoryState get_memory_state(Context& context) const;
 };
+
 
 class FeatureConditionNode : public ASTNode {
+public:
+    NameNode* boolean_key;
+
+    FeatureConditionNode(NameNode* boolean_key);
+    ~FeatureConditionNode() override;
+
+    virtual std::shared_ptr<const dlplan::policy::BaseCondition> get_condition(Context& context) const = 0;
+};
+
+class PositiveBooleanConditionNode : public FeatureConditionNode {
+public:
+    PositiveBooleanConditionNode(NameNode* boolean_key);
+
+    std::shared_ptr<const dlplan::policy::BaseCondition> get_condition(Context& context) const override;
+};
+
+class NegativeBooleanConditionNode : public FeatureConditionNode {
 
 };
 
-class PositiveBooleanConditionNode : public ASTNode {
+class GreaterNumericalConditionNode : public FeatureConditionNode {
 
 };
 
-class NegativeBooleanConditionNode : public ASTNode {
-
-};
-
-class GreaterNumericalConditionNode : public ASTNode {
-
-};
-
-class EqualNumericalConditionNode : public ASTNode {
+class EqualNumericalConditionNode : public FeatureConditionNode {
 
 };
 
 class FeatureEffectNode : public ASTNode {
+public:
+    NameNode* effect_type_node;
+    NameNode* feature_key_node;
 
+    FeatureEffectNode(NameNode* effect_type_node, NameNode* feature_key_node);
+    ~FeatureEffectNode() override;
+
+    std::shared_ptr<const dlplan::policy::BaseEffect> get_effect(Context& context) const = 0;
 };
 
 class PositiveBooleanEffectNode : public FeatureEffectNode {
@@ -132,32 +132,30 @@ class UnchangedNumericalEffectNode : public FeatureEffectNode {
 
 class LoadRuleNode : public ASTNode {
 public:
-    LoadRule get_load_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+    LoadRule get_load_rule(Context& context) const;
 };
 
 class CallRuleNode : public ASTNode {
 public:
-    CallRule get_call_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+    CallRule get_call_rule(Context& context) const;
 };
 
 class ActionRuleNode : public ASTNode {
 public:
+    NameNode* action_name_node;
+    std::vector<NameNode*> register_name_nodes;
+
+    ActionRuleNode(
+        NameNode* memory_condition_node,
+        const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        NameNode* memory_effect_node,
+        NameNode* action_name_node,
+        const std::vector<NameNode*>& register_name_nodes);
+    ~ActionRuleNode() override;
+
     ActionRule get_action_rule(
         Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+        const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const;
 };
 
 class IWSearchRuleNode : public ASTNode {
@@ -175,12 +173,7 @@ public:
         const std::vector<FeatureEffectNode*>& feature_effect_nodes);
     ~IWSearchRuleNode() override;
 
-    IWSearchRule get_iwsearch_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+    IWSearchRule get_iwsearch_rule(Context& context) const;
 };
 
 class LoadCallActionOrIWSearchRuleNode : public ASTNode {
@@ -196,30 +189,12 @@ public:
     LoadCallActionOrIWSearchRuleNode(IWSearchRuleNode* iwsearch_rule_node);
     ~LoadCallActionOrIWSearchRuleNode() override;
 
-    LoadRule get_load_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
-    CallRule get_call_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+    LoadRule get_load_rule(Context& context) const;
+    CallRule get_call_rule(Context& context) const;
     ActionRule get_action_rule(
         Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
-    IWSearchRule get_iwsearch_rule(
-        Context& context,
-        const MemoryStateFactory& memory_states,
-        const BooleanMap& booleans,
-        const NumericalMap& numericals,
-        const ConceptMap& concepts) const;
+        const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const;
+    IWSearchRule get_iwsearch_rule(Context& context) const;
 };
 
 

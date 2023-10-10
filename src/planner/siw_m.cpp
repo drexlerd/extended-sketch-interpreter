@@ -62,11 +62,10 @@ int main(int argc, char** argv) {
     auto syntactic_element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
     auto policy_builder = std::make_shared<dlplan::policy::PolicyBuilder>();
     // 4. Parse the modules
-    parser::Context context{syntactic_element_factory, policy_builder};
     ExtendedSketchList sketch_list;
     for (const auto& sketch_file : sketch_files) {
         parser::ExtendedSketchParser sketch_parser(sketch_file);
-        sketch_list.push_back(sketch_parser.parse(context));
+        sketch_list.push_back(sketch_parser.parse(domain_description, syntactic_element_factory, policy_builder));
     }
     // 4. Run SIW_M
     return 0;

@@ -32,6 +32,8 @@ namespace mimir::formalism
                    const formalism::PredicateList& functions,
                    const formalism::ActionSchemaList& action_schemas);
 
+        std::map<std::string, formalism::ActionSchema> get_action_schema_map() const;
+
         std::map<std::string, formalism::Type> get_type_map() const;
 
         std::map<std::string, formalism::Predicate> get_predicate_name_map() const;

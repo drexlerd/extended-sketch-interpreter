@@ -18,6 +18,7 @@
 
 #include "abstract_syntax_tree.hpp"
 #include "parser_includes.hpp"
+#include "context.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -113,7 +114,11 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
 ExtendedSketchParser::ExtendedSketchParser(const fs::path& sketch_path)
     : m_sketch_path(sketch_path) { }
 
-ExtendedSketch ExtendedSketchParser::parse(Context& context) {
+ExtendedSketch ExtendedSketchParser::parse(
+    const mimir::formalism::DomainDescription& domain_description,
+    std::shared_ptr<dlplan::core::SyntacticElementFactory> factory,
+    std::shared_ptr<dlplan::policy::PolicyBuilder> builder) {
+    Context context(domain_description, factory, builder);
     if (fs::exists(m_sketch_path)) {
         std::ifstream sketch_stream(this->m_sketch_path.c_str());
         if (sketch_stream.is_open()) {

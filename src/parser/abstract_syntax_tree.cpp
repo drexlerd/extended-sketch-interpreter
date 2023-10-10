@@ -4,7 +4,6 @@
 
 #include <boost/fusion/include/at_c.hpp>
 
-#include "../extended_sketch/memory_state_factory.hpp"
 #include "../extended_sketch/memory_state.hpp"
 #include "../extended_sketch/register.hpp"
 #include "../extended_sketch/extended_sketch.hpp"
@@ -46,46 +45,6 @@ std::string NameNode::get_name() const
 }
 
 
-/* MemoryStateMapNode */
-MemoryStateMapNode::MemoryStateMapNode(const std::vector<NameNode*>& name_nodes)
-    : name_nodes(name_nodes) { }
-
-MemoryStateMapNode::~MemoryStateMapNode() {
-    for (auto node : name_nodes) {
-        delete node;
-    }
-}
-
-MemoryStateMap MemoryStateMapNode::get_memory_state_map() const {
-    MemoryStateMap result;
-    for (const auto& node : name_nodes) {
-        auto name = node->get_name();
-        result.emplace(name, std::make_shared<MemoryStateImpl>(name));
-    }
-    return result;
-}
-
-
-/* RegisterMapNode */
-RegisterMapNode::RegisterMapNode(const std::vector<NameNode*>& name_nodes)
-    : name_nodes(name_nodes) { }
-
-RegisterMapNode::~RegisterMapNode() {
-    for (auto node : name_nodes) {
-        delete node;
-    }
-}
-
-RegisterMap RegisterMapNode::get_register_map() const {
-    RegisterMap result;
-    for (const auto& node : name_nodes) {
-        auto name = node->get_name();
-        result.emplace(name, std::make_shared<RegisterImpl>(name));
-    }
-    return result;
-}
-
-
 /* StringNode */
 StringNode::StringNode(const std::vector<CharacterNode*>& character_nodes)
     : character_nodes(character_nodes) { }
@@ -119,6 +78,68 @@ std::pair<std::string, std::string> NameAndStringNode::get_name_and_string() con
 }
 
 
+/* MemoryConditionNode */
+MemoryConditionNode::MemoryConditionNode(NameNode* memory_state_key)
+    : memory_state_key(memory_state_key) { }
+
+MemoryConditionNode::~MemoryConditionNode() {
+    delete memory_state_key;
+}
+
+MemoryState MemoryConditionNode::get_memory_state(Context& context) const {
+    return context.memory_state_factory.get_memory_state(memory_state_key->get_name());
+}
+
+
+/* FeatureConditionNode */
+FeatureConditionNode::FeatureConditionNode(
+    NameNode* boolean_key)
+    : boolean_key(boolean_key) { }
+
+FeatureConditionNode::~FeatureConditionNode() {
+    delete boolean_key;
+}
+
+
+/* PositiveBooleanConditionNode */
+PositiveBooleanConditionNode::PositiveBooleanConditionNode(
+    NameNode* boolean_key) : FeatureConditionNode(boolean_key) { }
+
+std::shared_ptr<const dlplan::policy::BaseCondition>
+PositiveBooleanConditionNode::get_condition(Context& context) const {
+    return context.policy_builder->add_pos_condition(context.boolean_factory.get_boolean(boolean_key->get_name()));
+}
+
+
+/* ActionRuleNode */
+ActionRuleNode::ActionRuleNode(
+    NameNode* memory_condition_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    NameNode* memory_effect_node,
+    NameNode* action_name_node,
+    const std::vector<NameNode*>& register_name_nodes)
+    : action_name_node(action_name_node),
+      register_name_nodes(register_name_nodes) { }
+
+ActionRuleNode::~ActionRuleNode() {
+    delete action_name_node;
+    for (auto node : register_name_nodes) {
+        delete node;
+    }
+}
+
+ActionRule ActionRuleNode::get_action_rule(
+    Context& context,
+    const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const {
+    const auto name = action_name_node->get_name();
+    auto it = action_schemas.find(name);
+    if (it == action_schemas.end()) {
+        throw std::runtime_error("ActionRuleNode::get_action_rule - no action schema exists with name " + name);
+    }
+
+}
+
+
 /* IWSearchRuleNode */
 IWSearchRuleNode::IWSearchRuleNode(
     NameNode* memory_condition_node,
@@ -142,13 +163,12 @@ IWSearchRuleNode::~IWSearchRuleNode() {
     }
 }
 
-IWSearchRule IWSearchRuleNode::get_iwsearch_rule(
-    Context& context,
-    const MemoryStateFactory& memory_states,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts) const {
-    MemoryState memory_state_condition = memory_states.get_memory_state(memory_condition_node->get_name());
+IWSearchRule IWSearchRuleNode::get_iwsearch_rule(Context& context) const {
+    MemoryState memory_state_condition = context.memory_state_factory.get_memory_state(memory_condition_node->get_name());
+    MemoryState memory_state_effect = context.memory_state_factory.get_memory_state(memory_effect_node->get_name());
+    for (const auto& node : feature_condition_nodes) {
+        // TODO
+    }
 }
 
 
@@ -182,46 +202,29 @@ LoadCallActionOrIWSearchRuleNode::~LoadCallActionOrIWSearchRuleNode() {
     if (iwsearch_rule_node) delete iwsearch_rule_node;
 }
 
-LoadRule LoadCallActionOrIWSearchRuleNode::get_load_rule(
-    Context& context,
-    const MemoryStateFactory& memory_states,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts) const {
+LoadRule LoadCallActionOrIWSearchRuleNode::get_load_rule(Context& context) const {
     if (load_rule_node)
-        return load_rule_node->get_load_rule(context, memory_states, booleans, numericals, concepts);
+        return load_rule_node->get_load_rule(context);
     return nullptr;
 }
 
-CallRule LoadCallActionOrIWSearchRuleNode::get_call_rule(
-    Context& context,
-    const MemoryStateFactory& memory_states,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts) const {
+CallRule LoadCallActionOrIWSearchRuleNode::get_call_rule(Context& context) const {
     if (call_rule_node)
-        return call_rule_node->get_call_rule(context, memory_states, booleans, numericals, concepts);
+        return call_rule_node->get_call_rule(context);
     return nullptr;
 }
+
 ActionRule LoadCallActionOrIWSearchRuleNode::get_action_rule(
     Context& context,
-    const MemoryStateFactory& memory_states,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts) const {
+    const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const {
     if (action_rule_node)
-        return action_rule_node->get_action_rule(context, memory_states, booleans, numericals, concepts);
+        return action_rule_node->get_action_rule(context, action_schemas);
     return nullptr;
 }
 
-IWSearchRule LoadCallActionOrIWSearchRuleNode::get_iwsearch_rule(
-    Context& context,
-    const MemoryStateFactory& memory_states,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts) const {
+IWSearchRule LoadCallActionOrIWSearchRuleNode::get_iwsearch_rule(Context& context) const {
     if (iwsearch_rule_node)
-        return iwsearch_rule_node->get_iwsearch_rule(context, memory_states, booleans, numericals, concepts);
+        return iwsearch_rule_node->get_iwsearch_rule(context);
     return nullptr;
 }
 
@@ -266,11 +269,10 @@ ExtendedSketchNode::~ExtendedSketchNode() {
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
-    MemoryStateFactory memory_state_factory;
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
         std::string name = node->get_name();
-        memory_states.emplace(name, memory_state_factory.make_memory_state(name));
+        memory_states.emplace(name, context.memory_state_factory.make_memory_state(name));
     }
     std::string initial_memory_state_key = initial_memory_state_name_node->get_name();
     auto find = memory_states.find(initial_memory_state_key);
@@ -279,28 +281,42 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     }
     MemoryState initial_memory_state = find->second;
 
-    RegisterMap registers;
+    RegisterList registers;
     for (const auto& node : register_name_nodes) {
         std::string name = node->get_name();
-        registers.emplace(name, make_register(name));
+        registers.push_back(context.register_factory.make_register(name));
     }
 
     BooleanMap booleans;
     for (const auto& node : boolean_name_and_string_nodes) {
         auto pair = node->get_name_and_string();
-        booleans.emplace(pair.first, context.dlplan_element_factory->parse_boolean(pair.second));
+        booleans.emplace(pair.first, context.boolean_factory.make_boolean(pair.first, pair.second));
     }
     NumericalMap numericals;
     for (const auto& node : numerical_name_and_string_nodes) {
         auto pair = node->get_name_and_string();
-        numericals.emplace(pair.first, context.dlplan_element_factory->parse_numerical(pair.second));
+        numericals.emplace(pair.first, context.numerical_factory.make_numerical(pair.first, pair.second));
     }
     ConceptMap concepts;
     for (const auto& node : concept_name_and_string_nodes) {
         auto pair = node->get_name_and_string();
-        concepts.emplace(pair.first, context.dlplan_element_factory->parse_concept(pair.second));
+        concepts.emplace(pair.first, context.concept_factory.make_concept(pair.first, pair.second));
     }
     LoadRuleList load_rules;
+    for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
+
+    }
+    CallRuleList call_rules;
+    for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
+
+    }
+    const auto action_schemas = context.domain_description->get_action_schema_map();
+    ActionRuleList action_rules;
+    for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
+        auto rule = node->get_action_rule(context, action_schemas);
+        if (rule) action_rules.push_back(rule);
+    }
+    IWSearchRuleList iwsearch_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
 
     }

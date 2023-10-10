@@ -5,7 +5,9 @@
 
 #include "../extended_sketch/declarations.hpp"
 
-#include "context.hpp"
+#include "../external/dlplan/include/dlplan/core.h"
+#include "../external/dlplan/include/dlplan/policy.h"
+#include "../external/mimir/formalism/domain.hpp"
 
 
 // Older versions of LibC++ does not have filesystem (e.g., ubuntu 18.04), use the experimental version
@@ -36,7 +38,10 @@ namespace sketches::extended_sketch::parser
       public:
         ExtendedSketchParser(const fs::path& sketch_path);
 
-        ExtendedSketch parse(Context& context);
+        ExtendedSketch parse(
+          const mimir::formalism::DomainDescription& domain_description,
+          std::shared_ptr<dlplan::core::SyntacticElementFactory> factory,
+          std::shared_ptr<dlplan::policy::PolicyBuilder> builder);
     };
 }  // namespace sketches::extended_sketch::parsers
 
