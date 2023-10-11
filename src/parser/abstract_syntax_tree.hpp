@@ -55,16 +55,6 @@ public:
     std::pair<std::string, std::string> get_name_and_string() const;
 };
 
-class MemoryConditionNode : public ASTNode {
-public:
-    NameNode* memory_state_key;
-
-    MemoryConditionNode(NameNode* memory_state_key);
-    ~MemoryConditionNode() override;
-
-    MemoryState get_memory_state(Context& context) const;
-};
-
 
 class FeatureConditionNode : public ASTNode {
 public:
@@ -131,14 +121,14 @@ class UnchangedNumericalEffectNode : public FeatureEffectNode {
 
 class RuleNode : public ASTNode {
 public:
-    MemoryConditionNode* memory_condition_node;
-    MemoryConditionNode* memory_effect_node;
+    NameNode* memory_condition_node;
+    NameNode* memory_effect_node;
     std::vector<FeatureConditionNode*> feature_condition_nodes;
     std::vector<FeatureEffectNode*> feature_effect_nodes;
 
     RuleNode(
-        MemoryConditionNode* memory_condition_node,
-        MemoryConditionNode* memory_effect_node,
+        NameNode* memory_condition_node,
+        NameNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes);
     ~RuleNode();
@@ -155,8 +145,8 @@ public:
     NameNode* concept_name_node;
 
     LoadRuleNode(
-        MemoryConditionNode* memory_condition_node,
-        MemoryConditionNode* memory_effect_node,
+        NameNode* memory_condition_node,
+        NameNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes,
         NameNode* register_name_node,
@@ -172,8 +162,8 @@ public:
     std::vector<NameNode*> register_name_nodes;
 
     CallRuleNode(
-        MemoryConditionNode* memory_condition_node,
-        MemoryConditionNode* memory_effect_node,
+        NameNode* memory_condition_node,
+        NameNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes,
         NameNode* sketch_name_node,
@@ -190,8 +180,8 @@ public:
     std::vector<NameNode*> register_name_nodes;
 
     ActionRuleNode(
-        MemoryConditionNode* memory_condition_node,
-        MemoryConditionNode* memory_effect_node,
+        NameNode* memory_condition_node,
+        NameNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes,
         NameNode* action_name_node,
@@ -208,8 +198,8 @@ public:
     std::vector<FeatureEffectNode*> feature_effect_nodes;
 
     IWSearchRuleNode(
-        MemoryConditionNode* memory_condition_node,
-        MemoryConditionNode* memory_effect_node,
+        NameNode* memory_condition_node,
+        NameNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
         const std::vector<FeatureEffectNode*>& feature_effect_nodes);
     ~IWSearchRuleNode() override;

@@ -80,19 +80,6 @@ std::pair<std::string, std::string> NameAndStringNode::get_name_and_string() con
 }
 
 
-/* MemoryConditionNode */
-MemoryConditionNode::MemoryConditionNode(NameNode* memory_state_key)
-    : memory_state_key(memory_state_key) { }
-
-MemoryConditionNode::~MemoryConditionNode() {
-    delete memory_state_key;
-}
-
-MemoryState MemoryConditionNode::get_memory_state(Context& context) const {
-    return context.memory_state_factory.get_memory_state(memory_state_key->get_name());
-}
-
-
 /* FeatureConditionNode */
 FeatureConditionNode::FeatureConditionNode(NameNode* feature_name_node)
     : feature_name_node(feature_name_node) { }
@@ -122,8 +109,8 @@ FeatureEffectNode::~FeatureEffectNode() {
 
 /* RuleNode */
 RuleNode::RuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
+    NameNode* memory_condition_node,
+    NameNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes)
     : memory_condition_node(memory_condition_node),
@@ -143,11 +130,11 @@ RuleNode::~RuleNode() {
 }
 
 MemoryState RuleNode::get_memory_condition(Context& context) const {
-    return memory_condition_node->get_memory_state(context);
+    return context.memory_state_factory.get_memory_state(memory_condition_node->get_name());
 }
 
 MemoryState RuleNode::get_memory_effect(Context& context) const {
-    return memory_effect_node->get_memory_state(context);
+    return context.memory_state_factory.get_memory_state(memory_effect_node->get_name());
 }
 
 ConditionSet RuleNode::get_feature_conditions(Context& context) const {
@@ -169,8 +156,8 @@ EffectSet RuleNode::get_feature_effects(Context& context) const {
 
 /* LoadRuleNode */
 LoadRuleNode::LoadRuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
+    NameNode* memory_condition_node,
+    NameNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes,
     NameNode* register_name_node,
@@ -196,8 +183,8 @@ LoadRule LoadRuleNode::get_load_rule(Context& context) const {
 
 /* CallRuleNode */
 CallRuleNode::CallRuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
+    NameNode* memory_condition_node,
+    NameNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes,
     NameNode* sketch_name_node,
@@ -230,8 +217,8 @@ CallRule CallRuleNode::get_call_rule(Context& context) const {
 
 /* ActionRuleNode */
 ActionRuleNode::ActionRuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
+    NameNode* memory_condition_node,
+    NameNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes,
     NameNode* action_name_node,
@@ -255,13 +242,24 @@ ActionRule ActionRuleNode::get_action_rule(
     if (it == action_schemas.end()) {
         throw std::runtime_error("ActionRuleNode::get_action_rule - no action schema exists with name " + name);
     }
+    RegisterList arguments;
+    for (const auto& node : register_name_nodes) {
+        arguments.push_back(context.register_factory.get_register(node->get_name()));
+    }
+    return create_action_rule(
+        get_memory_condition(context),
+        get_memory_effect(context),
+        get_feature_conditions(context),
+        get_feature_effects(context),
+        it->second,
+        arguments);
 }
 
 
 /* IWSearchRuleNode */
 IWSearchRuleNode::IWSearchRuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
+    NameNode* memory_condition_node,
+    NameNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes)
     : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes, feature_effect_nodes) {
@@ -276,7 +274,6 @@ IWSearchRule IWSearchRuleNode::get_iwsearch_rule(Context& context) const {
         get_feature_conditions(context),
         get_feature_effects(context));
 }
-
 
 
 /* LoadCallActionOrIWSearchRuleNode */
@@ -379,22 +376,20 @@ ExtendedSketchNode::~ExtendedSketchNode() {
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
     std::string sketch_name = name_node->get_name();
+
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
         std::string name = node->get_name();
-        memory_states.emplace(name, context.memory_state_factory.make_memory_state(name));
+        auto memory_state = context.memory_state_factory.make_memory_state(name);
+        memory_states.emplace(memory_state->get_key(), memory_state);
     }
-    std::string initial_memory_state_key = initial_memory_state_name_node->get_name();
-    auto find = memory_states.find(initial_memory_state_key);
-    if (find == memory_states.end()) {
-        throw std::runtime_error("ExtendedSketchNode::get_extended_sketch - initial memory state must be in memory state.");
-    }
-    MemoryState initial_memory_state = find->second;
+    MemoryState initial_memory_state = context.memory_state_factory.get_memory_state(initial_memory_state_name_node->get_name());
 
     RegisterMap registers;
     for (const auto& node : register_name_nodes) {
         std::string name = node->get_name();
-        registers.emplace(name, context.register_factory.make_register(name));
+        auto reg = context.register_factory.make_register(name);
+        registers.emplace(reg->get_key(), reg);
     }
 
     BooleanMap booleans;
@@ -412,13 +407,16 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
         auto pair = node->get_name_and_string();
         concepts.emplace(pair.first, context.concept_factory.make_concept(pair.first, pair.second));
     }
+
     LoadRuleList load_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-
+        auto rule = node->get_load_rule(context);
+        if (rule) load_rules.push_back(rule);
     }
     CallRuleList call_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-
+        auto rule = node->get_call_rule(context);
+        if (rule) call_rules.push_back(rule);
     }
     const auto action_schemas = context.domain_description->get_action_schema_map();
     ActionRuleList action_rules;
