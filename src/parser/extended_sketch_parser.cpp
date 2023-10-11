@@ -25,6 +25,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <string>
 
 
 namespace sketches::extended_sketch::parser {
@@ -36,11 +37,12 @@ namespace sketches::extended_sketch::parser {
 
 struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, ExtendedSketchNode*(), ascii::space_type> {
     // list of rules, the middle argument to the template is the return value of the grammar
-    qi::rule<std::string::iterator, CharacterNode*()> ANY_CHAR;
-    qi::rule<std::string::iterator, NameNode*()> NAME;
-    qi::rule<std::string::iterator, CharacterNode*()> STRING_CHAR;
-    qi::rule<std::string::iterator, StringNode*(), ascii::space_type> STRING;
-    qi::rule<std::string::iterator, NameAndStringNode*(), ascii::space_type> NAME_AND_STRING;
+    qi::rule<std::string::iterator, char()> ANY_CHAR;
+    qi::rule<std::string::iterator, NameNode(), ascii::space_type> NAME;
+    qi::rule<std::string::iterator, char()> STRING_CHAR;
+    qi::rule<std::string::iterator, StringNode(), ascii::space_type> STRING;
+    qi::rule<std::string::iterator, IdentifierNode(), ascii::space_type> IDENTIFIER;
+    qi::rule<std::string::iterator, NameAndStringNode(), ascii::space_type> NAME_AND_STRING;
     qi::rule<std::string::iterator, LoadRuleNode*(), ascii::space_type> LOAD_RULE;
     qi::rule<std::string::iterator, CallRuleNode*(), ascii::space_type> CALL_RULE;
     qi::rule<std::string::iterator, ActionRuleNode*(), ascii::space_type> ACTION_RULE;
@@ -72,55 +74,58 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
         using spirit::lit;
 
         // Names
-        ANY_CHAR = alpha[_val = new_<CharacterNode>(_1)]           // alphabetical character
-                    | alnum[_val = new_<CharacterNode>(_1)]        // alphanumerical character
-                    | char_('-')[_val = new_<CharacterNode>(_1)]   // dash character
-                    | char_('_')[_val = new_<CharacterNode>(_1)];  // underscore character
+        ANY_CHAR = alpha           // alphabetical character
+                    | alnum        // alphanumerical character
+                    | char_('-')   // dash character
+                    | char_('_');  // underscore character
 
-        NAME = (alpha >> *ANY_CHAR)[_val = new_<NameNode>(_1, _2)];  // a name must start with an alphabetical character
+        NAME = (alpha >> *ANY_CHAR)[_val = construct<NameNode>(_1, _2)];  // a name must start with an alphabetical character
+
+        // Identifier nodes (start with colon)
+        IDENTIFIER = (lit(':') > +ANY_CHAR)[_val = construct<IdentifierNode>(_1)];
 
         // String characters (used for dlplan features)
-        STRING_CHAR = alpha[_val = new_<CharacterNode>(_1)]        // alphabetical character
-                    | alnum[_val = new_<CharacterNode>(_1)]        // alphanumerical character
-                    | char_('-')[_val = new_<CharacterNode>(_1)]   // dash character
-                    | char_('_')[_val = new_<CharacterNode>(_1)]   // underscore character
-                    | char_('(')[_val = new_<CharacterNode>(_1)]   // opening parentheses character
-                    | char_(')')[_val = new_<CharacterNode>(_1)]   // closing parentheses character
-                    | char_(',')[_val = new_<CharacterNode>(_1)];  // comma character
+        STRING_CHAR = alpha        // alphabetical character
+                    | alnum        // alphanumerical character
+                    | char_('-')   // dash character
+                    | char_('_')   // underscore character
+                    | char_('(')   // opening parentheses character
+                    | char_(')')   // closing parentheses character
+                    | char_(',');  // comma character
 
-        STRING = (lit('"') > +STRING_CHAR > lit('"'))[_val = new_<StringNode>(_1)];
+        STRING = (lit('"') > +STRING_CHAR > lit('"'))[_val = construct<StringNode>(_1)];
 
         // Name and string
-        NAME_AND_STRING = (lit('(') > NAME > STRING > lit(')'))[_val = new_<NameAndStringNode>(_1, _2)];
+        NAME_AND_STRING = (lit('(') > NAME > STRING > lit(')'))[_val = construct<NameAndStringNode>(_1, _2)];
 
-        // Rules
-        // (:rule (:conditions (:memory )) (:effects (:memory )))
-        IWSEARCH_RULE = (
-            lit('(')
-            > lit(":rule")
-                > lit('(')
-                > lit(":conditions")
-                    > (lit('(') > lit(":memory") > NAME > lit(')'))  // memory
-                > lit(')')  // conditions
-                > lit('(')
-                > lit(":effects")
-                    > lit('(') > lit(":memory") > NAME > lit(')')  // memory
-                > lit(')')  // effects
-            > lit(')'))[_val = new_<IWSearchRuleNode>(_1, _2, std::vector<FeatureConditionNode*>{}, std::vector<FeatureEffectNode*>{})];
-
-        LOAD_CALL_ACTION_OR_IWSEARCH_RULE = IWSEARCH_RULE[_val = new_<LoadCallActionOrIWSearchRuleNode>(_1)];
-
-        // Domain
-        EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
-                                  > lit('(') > lit(":name") > NAME > lit(')')
-                                  > lit('(') > lit(":memory_states") > lit('(') > *NAME > lit(')') > lit(')')
-                                  > lit('(') > lit(":initial_memory_state") > NAME > lit(')')
-                                  > lit('(') > lit(":registers") > lit('(') > *NAME > lit(')') > lit(')')
-                                  > lit('(') > lit(":booleans") > *NAME_AND_STRING > lit(')')
-                                  > lit('(') > lit(":numericals") > *NAME_AND_STRING > lit(')')
-                                  > lit('(') > lit(":concepts") > *NAME_AND_STRING > lit(')')
-                                  >> *LOAD_CALL_ACTION_OR_IWSEARCH_RULE
-                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6, _7, _8)];
+        //// Rules
+        //// (:rule (:conditions (:memory )) (:effects (:memory )))
+        //IWSEARCH_RULE = (
+        //    lit('(')
+        //    > lit(":rule")
+        //        > lit('(')
+        //        > lit(":conditions")
+        //            > (lit('(') > lit(":memory") > NAME > lit(')'))  // memory
+        //        > lit(')')  // conditions
+        //        > lit('(')
+        //        > lit(":effects")
+        //            > lit('(') > lit(":memory") > NAME > lit(')')  // memory
+        //        > lit(')')  // effects
+        //    > lit(')'))[_val = new_<IWSearchRuleNode>(_1, _2, std::vector<FeatureConditionNode*>{}, std::vector<FeatureEffectNode*>{})];
+//
+        //LOAD_CALL_ACTION_OR_IWSEARCH_RULE = IWSEARCH_RULE[_val = new_<LoadCallActionOrIWSearchRuleNode>(_1)];
+//
+        ////// Domain
+        //EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
+        //                          > lit('(') > lit(":name") > NAME > lit(')')
+        //                          > lit('(') > lit(":memory_states") > lit('(') > *NAME > lit(')') > lit(')')
+        //                          > lit('(') > lit(":initial_memory_state") > NAME > lit(')')
+        //                          > lit('(') > lit(":registers") > lit('(') > *NAME > lit(')') > lit(')')
+        //                          > lit('(') > lit(":booleans") > *NAME_AND_STRING > lit(')')
+        //                          > lit('(') > lit(":numericals") > *NAME_AND_STRING > lit(')')
+        //                          > lit('(') > lit(":concepts") > *NAME_AND_STRING > lit(')')
+        //                          >> *LOAD_CALL_ACTION_OR_IWSEARCH_RULE
+        //                          > lit(')'))[_val = construct<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6, _7, _8)];
     }
 };
 

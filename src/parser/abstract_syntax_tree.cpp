@@ -15,68 +15,63 @@ namespace sketches::extended_sketch::parser {
 
 ASTNode::~ASTNode() = default;
 
-/* CharacterNode */
-CharacterNode::CharacterNode(char character) : character(character) {}
-
 
 /* NameNode */
-NameNode::NameNode(char prefix, const std::vector<CharacterNode*>& character_nodes) : prefix(prefix), character_nodes(character_nodes) {}
+NameNode::NameNode() : prefix(0), characters({}) { }
+
+NameNode::NameNode(char prefix, const std::vector<char>& characters)
+    : prefix(prefix), characters(characters) {}
 
 NameNode::~NameNode()
 {
-    for (auto node : character_nodes)
-    {
-        if (node)
-        {
-            delete node;
-        }
-    }
 }
 
 std::string NameNode::get_name() const
 {
-    std::vector<char> characters;
-    characters.push_back(prefix);
-
-    for (auto node : character_nodes)
-    {
-        characters.push_back(node->character);
-    }
-
-    return std::string(characters.begin(), characters.end());
+    std::vector<char> result;
+    result.push_back(prefix);
+    result.insert(result.end(), characters.begin(), characters.end());
+    return std::string(result.begin(), result.end());
 }
 
 
 /* StringNode */
-StringNode::StringNode(const std::vector<CharacterNode*>& character_nodes)
-    : character_nodes(character_nodes) { }
+StringNode::StringNode() : characters({}) { }
 
-StringNode::~StringNode() {
-    for (auto node : character_nodes) {
-        delete node;
-    }
-}
+StringNode::StringNode(const std::vector<char>& characters)
+    : characters(characters) { }
+
+StringNode::~StringNode() = default;
 
 std::string StringNode::get_string() const {
-    std::stringstream ss;
-    for (auto node : character_nodes) {
-        ss << node->character;
-    }
-    return ss.str();
+    return std::string(characters.begin(), characters.end());
+}
+
+
+/* IdentifierNode */
+IdentifierNode::IdentifierNode() : characters({}) { }
+
+IdentifierNode::IdentifierNode(const std::vector<char>& characters)
+    : characters(characters) { }
+
+IdentifierNode::~IdentifierNode() = default;
+
+std::string IdentifierNode::get_identifier() const {
+    return std::string(characters.begin(), characters.end());
 }
 
 
 /* NameAndStringNode */
-NameAndStringNode::NameAndStringNode(NameNode* name_node, StringNode* string_node)
+NameAndStringNode::NameAndStringNode() : name_node(NameNode()), string_node(StringNode()) { }
+
+NameAndStringNode::NameAndStringNode(const NameNode& name_node, const StringNode& string_node)
     : name_node(name_node), string_node(string_node) { }
 
 NameAndStringNode::~NameAndStringNode() {
-    delete name_node;
-    delete string_node;
 }
 
 std::pair<std::string, std::string> NameAndStringNode::get_name_and_string() const {
-    return std::make_pair(name_node->get_name(), string_node->get_string());
+    return std::make_pair(name_node.get_name(), string_node.get_string());
 }
 
 
@@ -334,14 +329,14 @@ IWSearchRule LoadCallActionOrIWSearchRuleNode::get_iwsearch_rule(Context& contex
 
 /* ExtendedSketchNode */
 ExtendedSketchNode::ExtendedSketchNode(
-    NameNode* name_node,
-    const std::vector<NameNode*>& memory_state_name_nodes,
-    NameNode* initial_memory_state_name_node,
-    const std::vector<NameNode*>& register_name_nodes,
-    const std::vector<NameAndStringNode*>& boolean_name_and_string_nodes,
-    const std::vector<NameAndStringNode*>& numerical_name_and_string_nodes,
-    const std::vector<NameAndStringNode*>& concept_name_and_string_nodes,
-    const std::vector<LoadCallActionOrIWSearchRuleNode*>& load_call_action_or_iwsearch_rule_nodes)
+    NameNode name_node,
+    const std::vector<NameNode>& memory_state_name_nodes,
+    NameNode initial_memory_state_name_node,
+    const std::vector<NameNode>& register_name_nodes,
+    const std::vector<NameAndStringNode>& boolean_name_and_string_nodes,
+    const std::vector<NameAndStringNode>& numerical_name_and_string_nodes,
+    const std::vector<NameAndStringNode>& concept_name_and_string_nodes,
+    const std::vector<LoadCallActionOrIWSearchRuleNode>& load_call_action_or_iwsearch_rule_nodes)
     : name_node(name_node),
       memory_state_name_nodes(memory_state_name_nodes),
       initial_memory_state_name_node(initial_memory_state_name_node),
@@ -352,81 +347,61 @@ ExtendedSketchNode::ExtendedSketchNode(
       load_call_action_or_iwsearch_rule_nodes(load_call_action_or_iwsearch_rule_nodes) {}
 
 ExtendedSketchNode::~ExtendedSketchNode() {
-    delete name_node;
-    for (auto node : memory_state_name_nodes) {
-        delete node;
-    }
-    delete initial_memory_state_name_node;
-    for (auto node : register_name_nodes) {
-        delete node;
-    }
-    for (auto node : boolean_name_and_string_nodes) {
-        delete node;
-    }
-    for (auto node : numerical_name_and_string_nodes) {
-        delete node;
-    }
-    for (auto node : concept_name_and_string_nodes) {
-        delete node;
-    }
-    for (auto node : load_call_action_or_iwsearch_rule_nodes) {
-        delete node;
-    }
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
-    std::string sketch_name = name_node->get_name();
+    std::string sketch_name = name_node.get_name();
 
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
-        std::string name = node->get_name();
+        std::string name = node.get_name();
         auto memory_state = context.memory_state_factory.make_memory_state(name);
         memory_states.emplace(memory_state->get_key(), memory_state);
     }
-    MemoryState initial_memory_state = context.memory_state_factory.get_memory_state(initial_memory_state_name_node->get_name());
+    MemoryState initial_memory_state = context.memory_state_factory.get_memory_state(initial_memory_state_name_node.get_name());
 
     RegisterMap registers;
     for (const auto& node : register_name_nodes) {
-        std::string name = node->get_name();
+        std::string name = node.get_name();
         auto reg = context.register_factory.make_register(name);
         registers.emplace(reg->get_key(), reg);
     }
 
     BooleanMap booleans;
     for (const auto& node : boolean_name_and_string_nodes) {
-        auto pair = node->get_name_and_string();
+        auto pair = node.get_name_and_string();
         booleans.emplace(pair.first, context.boolean_factory.make_boolean(pair.first, pair.second));
     }
     NumericalMap numericals;
     for (const auto& node : numerical_name_and_string_nodes) {
-        auto pair = node->get_name_and_string();
+        auto pair = node.get_name_and_string();
         numericals.emplace(pair.first, context.numerical_factory.make_numerical(pair.first, pair.second));
     }
     ConceptMap concepts;
     for (const auto& node : concept_name_and_string_nodes) {
-        auto pair = node->get_name_and_string();
+        auto pair = node.get_name_and_string();
         concepts.emplace(pair.first, context.concept_factory.make_concept(pair.first, pair.second));
     }
 
     LoadRuleList load_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-        auto rule = node->get_load_rule(context);
+        auto rule = node.get_load_rule(context);
         if (rule) load_rules.push_back(rule);
     }
     CallRuleList call_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-        auto rule = node->get_call_rule(context);
+        auto rule = node.get_call_rule(context);
         if (rule) call_rules.push_back(rule);
     }
     const auto action_schemas = context.domain_description->get_action_schema_map();
     ActionRuleList action_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-        auto rule = node->get_action_rule(context, action_schemas);
+        auto rule = node.get_action_rule(context, action_schemas);
         if (rule) action_rules.push_back(rule);
     }
     IWSearchRuleList iwsearch_rules;
     for (const auto& node : load_call_action_or_iwsearch_rule_nodes) {
-        auto rule = node->get_iwsearch_rule(context);
+        auto rule = node.get_iwsearch_rule(context);
         if (rule) iwsearch_rules.push_back(rule);
     }
     return make_extended_sketch(
