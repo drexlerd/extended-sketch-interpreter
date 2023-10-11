@@ -16,7 +16,7 @@ public:
     const std::string& get_key() const;
 };
 
-extern std::shared_ptr<RegisterImpl> make_register(const std::string& key);
+extern std::shared_ptr<RegisterImpl> create_register(const std::string& key);
 
 }
 

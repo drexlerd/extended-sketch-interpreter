@@ -94,22 +94,29 @@ MemoryState MemoryConditionNode::get_memory_state(Context& context) const {
 
 
 /* FeatureConditionNode */
-FeatureConditionNode::FeatureConditionNode(
-    NameNode* boolean_key)
-    : boolean_key(boolean_key) { }
+FeatureConditionNode::FeatureConditionNode(NameNode* feature_name_node)
+    : feature_name_node(feature_name_node) { }
 
 FeatureConditionNode::~FeatureConditionNode() {
-    delete boolean_key;
+    delete feature_name_node;
 }
 
 
 /* PositiveBooleanConditionNode */
 PositiveBooleanConditionNode::PositiveBooleanConditionNode(
-    NameNode* boolean_key) : FeatureConditionNode(boolean_key) { }
+    NameNode* boolean_name_node) : FeatureConditionNode(boolean_name_node) { }
 
 std::shared_ptr<const dlplan::policy::BaseCondition>
 PositiveBooleanConditionNode::get_condition(Context& context) const {
-    return context.policy_builder->add_pos_condition(context.boolean_factory.get_boolean(boolean_key->get_name())->get_boolean());
+    return context.policy_builder->add_pos_condition(context.boolean_factory.get_boolean(feature_name_node->get_name())->get_boolean());
+}
+
+
+FeatureEffectNode::FeatureEffectNode(NameNode* feature_name_node)
+    : feature_name_node(feature_name_node) { }
+
+FeatureEffectNode::~FeatureEffectNode() {
+    delete feature_name_node;
 }
 
 
@@ -117,15 +124,20 @@ PositiveBooleanConditionNode::get_condition(Context& context) const {
 RuleNode::RuleNode(
     MemoryConditionNode* memory_condition_node,
     MemoryConditionNode* memory_effect_node,
-    const std::vector<FeatureConditionNode*>& feature_condition_nodes)
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    const std::vector<FeatureEffectNode*>& feature_effect_nodes)
     : memory_condition_node(memory_condition_node),
       memory_effect_node(memory_effect_node),
-      feature_condition_nodes(feature_condition_nodes) { }
+      feature_condition_nodes(feature_condition_nodes),
+      feature_effect_nodes(feature_effect_nodes) { }
 
 RuleNode::~RuleNode() {
     delete memory_condition_node;
     delete memory_effect_node;
-    for (auto node : feature_condition_nodes) {
+    for (auto& node : feature_condition_nodes) {
+        delete node;
+    }
+    for (auto& node : feature_effect_nodes) {
         delete node;
     }
 }
@@ -146,15 +158,51 @@ ConditionSet RuleNode::get_feature_conditions(Context& context) const {
     return result;
 }
 
+EffectSet RuleNode::get_feature_effects(Context& context) const {
+    EffectSet result;
+    for (const auto& node : feature_effect_nodes) {
+        result.insert(node->get_effect(context));
+    }
+    return result;
+}
+
+
+/* LoadRuleNode */
+LoadRuleNode::LoadRuleNode(
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    const std::vector<FeatureEffectNode*>& feature_effect_nodes,
+    NameNode* register_name_node,
+    NameNode* concept_name_node)
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes, feature_effect_nodes),
+      register_name_node(register_name_node), concept_name_node(concept_name_node) { }
+
+LoadRuleNode::~LoadRuleNode() {
+    delete register_name_node;
+    delete concept_name_node;
+}
+
+LoadRule LoadRuleNode::get_load_rule(Context& context) const {
+    return create_load_rule(
+        get_memory_condition(context),
+        get_memory_effect(context),
+        get_feature_conditions(context),
+        get_feature_effects(context),
+        context.register_factory.get_register(register_name_node->get_name()),
+        context.concept_factory.get_concept(concept_name_node->get_name()));
+}
+
 
 /* CallRuleNode */
 CallRuleNode::CallRuleNode(
     MemoryConditionNode* memory_condition_node,
     MemoryConditionNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    const std::vector<FeatureEffectNode*>& feature_effect_nodes,
     NameNode* sketch_name_node,
     const std::vector<NameNode*>& register_name_nodes)
-    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes, feature_effect_nodes),
       sketch_name_node(sketch_name_node),
       register_name_nodes(register_name_nodes) { }
 
@@ -166,6 +214,17 @@ CallRuleNode::~CallRuleNode() {
 }
 
 CallRule CallRuleNode::get_call_rule(Context& context) const {
+    RegisterList arguments;
+    for (const auto& node : register_name_nodes) {
+        arguments.push_back(context.register_factory.get_register(node->get_name()));
+    }
+    return create_call_rule(
+        get_memory_condition(context),
+        get_memory_effect(context),
+        get_feature_conditions(context),
+        get_feature_effects(context),
+        sketch_name_node->get_name(),
+        arguments);
 }
 
 
@@ -174,9 +233,10 @@ ActionRuleNode::ActionRuleNode(
     MemoryConditionNode* memory_condition_node,
     MemoryConditionNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    const std::vector<FeatureEffectNode*>& feature_effect_nodes,
     NameNode* action_name_node,
     const std::vector<NameNode*>& register_name_nodes)
-    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes, feature_effect_nodes),
       action_name_node(action_name_node),
       register_name_nodes(register_name_nodes) { }
 
@@ -204,26 +264,17 @@ IWSearchRuleNode::IWSearchRuleNode(
     MemoryConditionNode* memory_effect_node,
     const std::vector<FeatureConditionNode*>& feature_condition_nodes,
     const std::vector<FeatureEffectNode*>& feature_effect_nodes)
-    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
-      feature_effect_nodes(feature_effect_nodes) {
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes, feature_effect_nodes) {
 }
 
-IWSearchRuleNode::~IWSearchRuleNode() {
-    for (auto node : feature_effect_nodes) {
-        delete node;
-    }
-}
+IWSearchRuleNode::~IWSearchRuleNode() { }
 
 IWSearchRule IWSearchRuleNode::get_iwsearch_rule(Context& context) const {
-    EffectSet feature_effects;
-    for (const auto& node : feature_effect_nodes) {
-        feature_effects.insert(node->get_effect(context));
-    }
     return create_iwsearch_rule(
         get_memory_condition(context),
         get_memory_effect(context),
         get_feature_conditions(context),
-        feature_effects);
+        get_feature_effects(context));
 }
 
 
@@ -327,7 +378,7 @@ ExtendedSketchNode::~ExtendedSketchNode() {
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
-    std::string name = name_node->get_name();
+    std::string sketch_name = name_node->get_name();
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
         std::string name = node->get_name();
@@ -381,17 +432,17 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
         if (rule) iwsearch_rules.push_back(rule);
     }
     return make_extended_sketch(
-            name,
+            sketch_name,
             memory_states,
             initial_memory_state,
             registers,
             booleans,
             numericals,
             concepts,
-            LoadRuleList(),
-            CallRuleList(),
-            ActionRuleList(),
-            IWSearchRuleList());
+            load_rules,
+            call_rules,
+            action_rules,
+            iwsearch_rules);
 }
 
 }

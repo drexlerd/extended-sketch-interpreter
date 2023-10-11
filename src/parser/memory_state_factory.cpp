@@ -6,7 +6,7 @@
 namespace sketches::extended_sketch {
 
 MemoryState MemoryStateFactory::make_memory_state(const std::string& key) {
-    return m_key_to_state.emplace(key, make_memory_state(key)).first->second;
+    return m_key_to_state.emplace(key, create_memory_state(key)).first->second;
 }
 
 MemoryState MemoryStateFactory::get_memory_state(const std::string& key) const {

@@ -6,7 +6,7 @@
 namespace sketches::extended_sketch {
 
 Register RegisterFactory::make_register(const std::string& key) {
-    return m_key_to_state.emplace(key, make_register(key)).first->second;
+    return m_key_to_state.emplace(key, create_register(key)).first->second;
 }
 
 Register RegisterFactory::get_register(const std::string& key) const {

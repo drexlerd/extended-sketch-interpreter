@@ -13,10 +13,12 @@ namespace sketches::extended_sketch {
 ExtendedRuleImpl::ExtendedRuleImpl(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
-    const ConditionSet& feature_conditions)
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects)
     : m_memory_state_condition(memory_state_condition),
       m_memory_state_effect(memory_state_effect),
-      m_feature_conditions(feature_conditions) { }
+      m_feature_conditions(feature_conditions),
+      m_feature_effects(feature_effects) { }
 
 ExtendedRuleImpl::~ExtendedRuleImpl() = default;
 
@@ -24,6 +26,9 @@ int ExtendedRuleImpl::compute_evaluate_time_score() const {
     int score = 0;
     for (const auto& condition : m_feature_conditions) {
         score += condition->compute_evaluate_time_score();
+    }
+    for (const auto& effect : m_feature_effects) {
+        score += effect->compute_evaluate_time_score();
     }
     return score;
 }
@@ -46,6 +51,10 @@ const ConditionSet& ExtendedRuleImpl::get_feature_conditions() const {
     return m_feature_conditions;
 }
 
+const EffectSet& ExtendedRuleImpl::get_feature_effects() const {
+    return m_feature_effects;
+}
+
 
 LoadRuleImpl::LoadRuleImpl(
     const MemoryState& condition_memory_state,
@@ -54,8 +63,8 @@ LoadRuleImpl::LoadRuleImpl(
     const EffectSet& feature_effects,
     const Register& reg,
     const Concept& concept)
-    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions),
-      m_feature_effects(feature_effects), m_register(reg), m_concept(concept) { }
+    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
+      m_register(reg), m_concept(concept) { }
 
 LoadRuleImpl::~LoadRuleImpl() = default;
 
@@ -103,9 +112,10 @@ CallRuleImpl::CallRuleImpl(
     const MemoryState& condition_memory_state,
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const std::string& extended_sketch_name,
     const RegisterList& arguments)
-    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions),
+    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_extended_sketch_name(extended_sketch_name),
       m_arguments(arguments) { }
 
@@ -139,12 +149,14 @@ std::shared_ptr<CallRuleImpl> create_call_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const std::string& extended_sketch_name,
     const RegisterList& arguments) {
     return std::make_shared<CallRuleImpl>(
         memory_state_condition,
         memory_state_effect,
         feature_conditions,
+        feature_effects,
         extended_sketch_name,
         arguments);
 }
@@ -154,9 +166,10 @@ ActionRuleImpl::ActionRuleImpl(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const mimir::formalism::ActionSchema& action_schema,
     const RegisterList& arguments)
-    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions),
+    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions, feature_effects),
       m_action_schema(action_schema),
       m_arguments(arguments) { }
 
@@ -190,12 +203,14 @@ std::shared_ptr<ActionRuleImpl> create_action_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const mimir::formalism::ActionSchema& action_schema,
     const RegisterList& arguments) {
     return std::make_shared<ActionRuleImpl>(
         memory_state_condition,
         memory_state_effect,
         feature_conditions,
+        feature_effects,
         action_schema,
         arguments);
 }
@@ -206,17 +221,12 @@ IWSearchRuleImpl::IWSearchRuleImpl(
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
-    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions),
-      m_feature_effects(feature_effects) { }
+    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions, feature_effects) { }
 
 IWSearchRuleImpl::~IWSearchRuleImpl() = default;
 
 int IWSearchRuleImpl::compute_evaluate_time_score() const {
-    int score = ExtendedRuleImpl::compute_evaluate_time_score();
-    for (const auto& effect : m_feature_effects) {
-        score += effect->compute_evaluate_time_score();
-    }
-    return score;
+    return ExtendedRuleImpl::compute_evaluate_time_score();
 }
 
 void IWSearchRuleImpl::compute_repr(std::stringstream& out) const {

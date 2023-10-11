@@ -68,9 +68,9 @@ public:
 
 class FeatureConditionNode : public ASTNode {
 public:
-    NameNode* boolean_key;
+    NameNode* feature_name_node;
 
-    FeatureConditionNode(NameNode* boolean_key);
+    FeatureConditionNode(NameNode* feature_name_node);
     ~FeatureConditionNode() override;
 
     virtual std::shared_ptr<const dlplan::policy::BaseCondition> get_condition(Context& context) const = 0;
@@ -97,10 +97,9 @@ class EqualNumericalConditionNode : public FeatureConditionNode {
 
 class FeatureEffectNode : public ASTNode {
 public:
-    NameNode* effect_type_node;
-    NameNode* feature_key_node;
+    NameNode* feature_name_node;
 
-    FeatureEffectNode(NameNode* effect_type_node, NameNode* feature_key_node);
+    FeatureEffectNode(NameNode* feature_name_node);
     ~FeatureEffectNode() override;
 
     virtual std::shared_ptr<const dlplan::policy::BaseEffect> get_effect(Context& context) const = 0;
@@ -135,20 +134,35 @@ public:
     MemoryConditionNode* memory_condition_node;
     MemoryConditionNode* memory_effect_node;
     std::vector<FeatureConditionNode*> feature_condition_nodes;
+    std::vector<FeatureEffectNode*> feature_effect_nodes;
 
     RuleNode(
         MemoryConditionNode* memory_condition_node,
         MemoryConditionNode* memory_effect_node,
-        const std::vector<FeatureConditionNode*>& feature_condition_nodes);
+        const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        const std::vector<FeatureEffectNode*>& feature_effect_nodes);
     ~RuleNode();
 
     MemoryState get_memory_condition(Context& context) const;
     MemoryState get_memory_effect(Context& context) const;
     ConditionSet get_feature_conditions(Context& context) const;
+    EffectSet get_feature_effects(Context& context) const;
 };
 
 class LoadRuleNode : public RuleNode {
 public:
+    NameNode* register_name_node;
+    NameNode* concept_name_node;
+
+    LoadRuleNode(
+        MemoryConditionNode* memory_condition_node,
+        MemoryConditionNode* memory_effect_node,
+        const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        const std::vector<FeatureEffectNode*>& feature_effect_nodes,
+        NameNode* register_name_node,
+        NameNode* concept_name_node);
+    ~LoadRuleNode() override;
+
     LoadRule get_load_rule(Context& context) const;
 };
 
@@ -161,12 +175,14 @@ public:
         MemoryConditionNode* memory_condition_node,
         MemoryConditionNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        const std::vector<FeatureEffectNode*>& feature_effect_nodes,
         NameNode* sketch_name_node,
         const std::vector<NameNode*>& register_name_nodes);
     ~CallRuleNode() override;
 
     CallRule get_call_rule(Context& context) const;
 };
+
 
 class ActionRuleNode : public RuleNode {
 public:
@@ -177,6 +193,7 @@ public:
         MemoryConditionNode* memory_condition_node,
         MemoryConditionNode* memory_effect_node,
         const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        const std::vector<FeatureEffectNode*>& feature_effect_nodes,
         NameNode* action_name_node,
         const std::vector<NameNode*>& register_name_nodes);
     ~ActionRuleNode() override;

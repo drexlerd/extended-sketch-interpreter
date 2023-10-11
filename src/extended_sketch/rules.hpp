@@ -13,12 +13,14 @@ protected:
     MemoryState m_memory_state_condition;
     MemoryState m_memory_state_effect;
     ConditionSet m_feature_conditions;
+    EffectSet m_feature_effects;
 
 public:
     ExtendedRuleImpl(
         const MemoryState& memory_state_condition,
         const MemoryState& memory_state_effect,
-        const ConditionSet& feature_conditions);
+        const ConditionSet& feature_conditions,
+        const EffectSet& feature_effects);
     virtual ~ExtendedRuleImpl();
 
     bool evaluate_conditions(const ExtendedState& state) const;
@@ -30,11 +32,11 @@ public:
     const MemoryState& get_memory_state_condition() const;
     const MemoryState& get_memory_state_effect() const;
     const ConditionSet& get_feature_conditions() const;
+    const EffectSet& get_feature_effects() const;
 };
 
 class LoadRuleImpl : public ExtendedRuleImpl {
 protected:
-    EffectSet m_feature_effects;
     Register m_register;
     Concept m_concept;
 
@@ -74,6 +76,7 @@ public:
         const MemoryState& condition_memory_state,
         const MemoryState& effect_memory_state,
         const ConditionSet& feature_conditions,
+        const EffectSet& feature_effects,
         const std::string& extended_sketch_name,
         const RegisterList& arguments);
     ~CallRuleImpl() override;
@@ -86,6 +89,7 @@ extern std::shared_ptr<CallRuleImpl> create_call_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const std::string& extended_sketch_name,
     const RegisterList& arguments);
 
@@ -100,6 +104,7 @@ public:
         const MemoryState& memory_state_condition,
         const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
+        const EffectSet& feature_effects,
         const mimir::formalism::ActionSchema& action_schema,
         const RegisterList& arguments);
     ~ActionRuleImpl() override;
@@ -112,14 +117,12 @@ extern std::shared_ptr<ActionRuleImpl> create_action_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
     const mimir::formalism::ActionSchema& action_schema,
     const RegisterList& arguments);
 
 
 class IWSearchRuleImpl : public ExtendedRuleImpl {
-protected:
-    EffectSet m_feature_effects;
-
 public:
     IWSearchRuleImpl(
         const MemoryState& memory_state_condition,

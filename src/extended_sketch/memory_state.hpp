@@ -16,7 +16,7 @@ public:
     const std::string& get_key() const;
 };
 
-extern std::shared_ptr<MemoryStateImpl> make_memory_state(const std::string& key);
+extern std::shared_ptr<MemoryStateImpl> create_memory_state(const std::string& key);
 
 }
 
