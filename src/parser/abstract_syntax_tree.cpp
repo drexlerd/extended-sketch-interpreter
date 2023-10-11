@@ -7,6 +7,7 @@
 #include "../extended_sketch/memory_state.hpp"
 #include "../extended_sketch/register.hpp"
 #include "../extended_sketch/rules.hpp"
+#include "../extended_sketch/features.hpp"
 #include "../extended_sketch/extended_sketch.hpp"
 
 
@@ -108,40 +109,11 @@ PositiveBooleanConditionNode::PositiveBooleanConditionNode(
 
 std::shared_ptr<const dlplan::policy::BaseCondition>
 PositiveBooleanConditionNode::get_condition(Context& context) const {
-    return context.policy_builder->add_pos_condition(context.boolean_factory.get_boolean(boolean_key->get_name()));
+    return context.policy_builder->add_pos_condition(context.boolean_factory.get_boolean(boolean_key->get_name())->get_boolean());
 }
 
 
-/* ActionRuleNode */
-ActionRuleNode::ActionRuleNode(
-    MemoryConditionNode* memory_condition_node,
-    MemoryConditionNode* memory_effect_node,
-    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
-    NameNode* action_name_node,
-    const std::vector<NameNode*>& register_name_nodes)
-    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
-      action_name_node(action_name_node),
-      register_name_nodes(register_name_nodes) { }
-
-ActionRuleNode::~ActionRuleNode() {
-    delete action_name_node;
-    for (auto node : register_name_nodes) {
-        delete node;
-    }
-}
-
-ActionRule ActionRuleNode::get_action_rule(
-    Context& context,
-    const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const {
-    const auto name = action_name_node->get_name();
-    auto it = action_schemas.find(name);
-    if (it == action_schemas.end()) {
-        throw std::runtime_error("ActionRuleNode::get_action_rule - no action schema exists with name " + name);
-    }
-
-}
-
-
+/* RuleNode */
 RuleNode::RuleNode(
     MemoryConditionNode* memory_condition_node,
     MemoryConditionNode* memory_effect_node,
@@ -174,6 +146,58 @@ ConditionSet RuleNode::get_feature_conditions(Context& context) const {
     return result;
 }
 
+
+/* CallRuleNode */
+CallRuleNode::CallRuleNode(
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    NameNode* sketch_name_node,
+    const std::vector<NameNode*>& register_name_nodes)
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
+      sketch_name_node(sketch_name_node),
+      register_name_nodes(register_name_nodes) { }
+
+CallRuleNode::~CallRuleNode() {
+    delete sketch_name_node;
+    for (auto& node : register_name_nodes) {
+        delete node;
+    }
+}
+
+CallRule CallRuleNode::get_call_rule(Context& context) const {
+}
+
+
+/* ActionRuleNode */
+ActionRuleNode::ActionRuleNode(
+    MemoryConditionNode* memory_condition_node,
+    MemoryConditionNode* memory_effect_node,
+    const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+    NameNode* action_name_node,
+    const std::vector<NameNode*>& register_name_nodes)
+    : RuleNode(memory_condition_node, memory_effect_node, feature_condition_nodes),
+      action_name_node(action_name_node),
+      register_name_nodes(register_name_nodes) { }
+
+ActionRuleNode::~ActionRuleNode() {
+    delete action_name_node;
+    for (auto node : register_name_nodes) {
+        delete node;
+    }
+}
+
+ActionRule ActionRuleNode::get_action_rule(
+    Context& context,
+    const std::map<std::string, mimir::formalism::ActionSchema>& action_schemas) const {
+    const auto name = action_name_node->get_name();
+    auto it = action_schemas.find(name);
+    if (it == action_schemas.end()) {
+        throw std::runtime_error("ActionRuleNode::get_action_rule - no action schema exists with name " + name);
+    }
+}
+
+
 /* IWSearchRuleNode */
 IWSearchRuleNode::IWSearchRuleNode(
     MemoryConditionNode* memory_condition_node,
@@ -195,7 +219,7 @@ IWSearchRule IWSearchRuleNode::get_iwsearch_rule(Context& context) const {
     for (const auto& node : feature_effect_nodes) {
         feature_effects.insert(node->get_effect(context));
     }
-    return make_iwsearch_rule(
+    return create_iwsearch_rule(
         get_memory_condition(context),
         get_memory_effect(context),
         get_feature_conditions(context),
@@ -262,6 +286,7 @@ IWSearchRule LoadCallActionOrIWSearchRuleNode::get_iwsearch_rule(Context& contex
 
 /* ExtendedSketchNode */
 ExtendedSketchNode::ExtendedSketchNode(
+    NameNode* name_node,
     const std::vector<NameNode*>& memory_state_name_nodes,
     NameNode* initial_memory_state_name_node,
     const std::vector<NameNode*>& register_name_nodes,
@@ -269,7 +294,8 @@ ExtendedSketchNode::ExtendedSketchNode(
     const std::vector<NameAndStringNode*>& numerical_name_and_string_nodes,
     const std::vector<NameAndStringNode*>& concept_name_and_string_nodes,
     const std::vector<LoadCallActionOrIWSearchRuleNode*>& load_call_action_or_iwsearch_rule_nodes)
-    : memory_state_name_nodes(memory_state_name_nodes),
+    : name_node(name_node),
+      memory_state_name_nodes(memory_state_name_nodes),
       initial_memory_state_name_node(initial_memory_state_name_node),
       register_name_nodes(register_name_nodes),
       boolean_name_and_string_nodes(boolean_name_and_string_nodes),
@@ -278,6 +304,7 @@ ExtendedSketchNode::ExtendedSketchNode(
       load_call_action_or_iwsearch_rule_nodes(load_call_action_or_iwsearch_rule_nodes) {}
 
 ExtendedSketchNode::~ExtendedSketchNode() {
+    delete name_node;
     for (auto node : memory_state_name_nodes) {
         delete node;
     }
@@ -300,6 +327,7 @@ ExtendedSketchNode::~ExtendedSketchNode() {
 }
 
 ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
+    std::string name = name_node->get_name();
     MemoryStateMap memory_states;
     for (const auto& node : memory_state_name_nodes) {
         std::string name = node->get_name();
@@ -353,12 +381,13 @@ ExtendedSketch ExtendedSketchNode::get_extended_sketch(Context& context) const {
         if (rule) iwsearch_rules.push_back(rule);
     }
     return make_extended_sketch(
-            std::move(memory_states),
-            std::move(initial_memory_state),
-            std::move(registers),
-            std::move(booleans),
-            std::move(numericals),
-            std::move(concepts),
+            name,
+            memory_states,
+            initial_memory_state,
+            registers,
+            booleans,
+            numericals,
+            concepts,
             LoadRuleList(),
             CallRuleList(),
             ActionRuleList(),

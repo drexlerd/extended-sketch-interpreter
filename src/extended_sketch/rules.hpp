@@ -23,7 +23,7 @@ public:
 
     bool evaluate_conditions(const ExtendedState& state) const;
 
-    virtual int compute_evaluate_time_score() const = 0;
+    virtual int compute_evaluate_time_score() const;
     std::string compute_repr() const;
     virtual void compute_repr(std::stringstream& out) const = 0;
 
@@ -33,41 +33,62 @@ public:
 };
 
 class LoadRuleImpl : public ExtendedRuleImpl {
-private:
-    // LoadEffect = register + concept
+protected:
+    EffectSet m_feature_effects;
+    Register m_register;
+    Concept m_concept;
+
 public:
     LoadRuleImpl(
         const MemoryState& condition_memory_state,
         const MemoryState& effect_memory_state,
-        const ConditionSet& conditions
-        /* load effect*/);
+        const ConditionSet& feature_conditions,
+        const EffectSet& feature_effects,
+        const Register& reg,
+        const Concept& concept);
     ~LoadRuleImpl() override;
-
-    /// @brief Computes the successor state when applying the rule in the given state.
-    ExtendedState apply(const ExtendedState& state);
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
 
+extern std::shared_ptr<LoadRuleImpl> create_load_rule(
+    const MemoryState& memory_state_condition,
+    const MemoryState& memory_state_effect,
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
+    const Register& reg,
+    const Concept& concept);
+
+
 class CallRuleImpl : public ExtendedRuleImpl {
-private:
-    ExtendedSketch m_extended_sketch;
+protected:
+    // Note: do we want to throw an error if a sketch does
+    // not exist instead of storing a name and crashing at runtime?
+    // Maybe we should do a dry parser run to read names.
+    std::string m_extended_sketch_name;
+    RegisterList m_arguments;
 
 public:
     CallRuleImpl(
         const MemoryState& condition_memory_state,
         const MemoryState& effect_memory_state,
-        const ConditionSet& conditions
-        /* call effect*/);
+        const ConditionSet& feature_conditions,
+        const std::string& extended_sketch_name,
+        const RegisterList& arguments);
     ~CallRuleImpl() override;
-
-    /// @brief Calls the extended sketch.
-    ExtendedState apply(const ExtendedState& state);
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
+
+extern std::shared_ptr<CallRuleImpl> create_call_rule(
+    const MemoryState& memory_state_condition,
+    const MemoryState& memory_state_effect,
+    const ConditionSet& feature_conditions,
+    const std::string& extended_sketch_name,
+    const RegisterList& arguments);
+
 
 class ActionRuleImpl : public ExtendedRuleImpl {
 protected:
@@ -83,12 +104,17 @@ public:
         const RegisterList& arguments);
     ~ActionRuleImpl() override;
 
-    /// @brief Computes a ground action and applies it
-    ExtendedState apply(const ExtendedState& state);
-
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
+
+extern std::shared_ptr<ActionRuleImpl> create_action_rule(
+    const MemoryState& memory_state_condition,
+    const MemoryState& memory_state_effect,
+    const ConditionSet& feature_conditions,
+    const mimir::formalism::ActionSchema& action_schema,
+    const RegisterList& arguments);
+
 
 class IWSearchRuleImpl : public ExtendedRuleImpl {
 protected:
@@ -106,7 +132,7 @@ public:
     void compute_repr(std::stringstream& out) const override;
 };
 
-extern std::shared_ptr<IWSearchRuleImpl> make_iwsearch_rule(
+extern std::shared_ptr<IWSearchRuleImpl> create_iwsearch_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,

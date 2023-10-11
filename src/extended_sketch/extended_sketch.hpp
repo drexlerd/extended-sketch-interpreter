@@ -9,6 +9,8 @@
 namespace sketches::extended_sketch {
 class ExtendedSketchImpl {
 private:
+    std::string m_name;
+
     MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
 
@@ -25,54 +27,33 @@ private:
 
 public:
     ExtendedSketchImpl(
-        MemoryStateMap&& memory_states,
-        MemoryState&& initial_memory_state,
-        RegisterMap&& registers,
-        BooleanMap&& booleans,
-        NumericalMap&& numericals,
-        ConceptMap&& concepts,
-        LoadRuleList&& load_rules,
-        CallRuleList&& call_rules,
-        ActionRuleList&& action_rules,
-        IWSearchRuleList&& iwsearch_rules);
+        const std::string& name,
+        const MemoryStateMap& memory_states,
+        const MemoryState& initial_memory_state,
+        const RegisterMap& registers,
+        const BooleanMap& booleans,
+        const NumericalMap& numericals,
+        const ConceptMap& concepts,
+        const LoadRuleList& load_rules,
+        const CallRuleList& call_rules,
+        const ActionRuleList& action_rules,
+        const IWSearchRuleList& iwsearch_rules);
 
-    /// INTERNAL MEMORY RULES ///
-
-    /// @brief Returns applicable load rule given extended state with internal memory state.
-    /// @param state
-    /// @return
-    LoadRule find_applicable_load_rule(const ExtendedState& state) const;
-
-    /// @brief Returns applicable call rule given extended state with internal memory state.
-    /// @param state
-    /// @return
-    CallRule find_applicable_call_rule(const ExtendedState& state) const;
-
-    /// EXTERNAL MEMORY RULES ///
-
-    /// @brief Returns compatible action rule given extended state with external memory state.
-    /// @param state
-    /// @return
-    ActionRule find_compatible_action_rule(const ExtendedState& state) const;
-
-    /// @brief Returns compatible iwsearch rule given extended source and targets states with external memory state.
-    /// @param source
-    /// @param target
-    /// @return
-    ActionRule find_compatible_iwsearch_rule(const ExtendedState& source, const ExtendedState& target) const;
+    const std::string& get_name() const;
 };
 
 extern std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
-    MemoryStateMap&& memory_states,
-    MemoryState&& initial_memory_state,
-    RegisterMap&& registers,
-    BooleanMap&& booleans,
-    NumericalMap&& numericals,
-    ConceptMap&& concepts,
-    LoadRuleList&& load_rules,
-    CallRuleList&& call_rules,
-    ActionRuleList&& action_rules,
-    IWSearchRuleList&& iwsearch_rules);
+    const std::string& name,
+    const MemoryStateMap& memory_states,
+    const MemoryState& initial_memory_state,
+    const RegisterMap& registers,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts,
+    const LoadRuleList& load_rules,
+    const CallRuleList& call_rules,
+    const ActionRuleList& action_rules,
+    const IWSearchRuleList& iwsearch_rules);
 
 }
 

@@ -1,4 +1,5 @@
 (:extended_sketch
+(:name gripper)
 (:memory_states (m0 m1 m2))
 (:initial_memory_state m0)
 (:registers (r0 r1 r2))

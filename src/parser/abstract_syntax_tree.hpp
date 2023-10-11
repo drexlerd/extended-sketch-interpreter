@@ -154,6 +154,17 @@ public:
 
 class CallRuleNode : public RuleNode {
 public:
+    NameNode* sketch_name_node;
+    std::vector<NameNode*> register_name_nodes;
+
+    CallRuleNode(
+        MemoryConditionNode* memory_condition_node,
+        MemoryConditionNode* memory_effect_node,
+        const std::vector<FeatureConditionNode*>& feature_condition_nodes,
+        NameNode* sketch_name_node,
+        const std::vector<NameNode*>& register_name_nodes);
+    ~CallRuleNode() override;
+
     CallRule get_call_rule(Context& context) const;
 };
 
@@ -211,6 +222,7 @@ public:
 
 class ExtendedSketchNode : public ASTNode {
 public:
+    NameNode* name_node;
     std::vector<NameNode*> memory_state_name_nodes;
     NameNode* initial_memory_state_name_node;
     std::vector<NameNode*> register_name_nodes;
@@ -220,6 +232,7 @@ public:
     std::vector<LoadCallActionOrIWSearchRuleNode*> load_call_action_or_iwsearch_rule_nodes;
 
     ExtendedSketchNode(
+        NameNode* name_node,
         const std::vector<NameNode*>& memory_state_name_nodes,
         NameNode* initial_memory_state_name_node,
         const std::vector<NameNode*>& register_name_nodes,

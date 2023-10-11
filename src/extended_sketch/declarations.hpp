@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../external/dlplan/include/dlplan/core.h"
 #include "../external/dlplan/include/dlplan/policy.h"
 
 
@@ -20,15 +19,18 @@ namespace sketches::extended_sketch {
     using RegisterList = std::vector<Register>;
     using RegisterMap = std::unordered_map<std::string, Register>;
 
-    using Boolean = std::shared_ptr<const dlplan::core::Boolean>;
+    class BooleanImpl;
+    using Boolean = std::shared_ptr<BooleanImpl>;
     using BooleanList = std::vector<Boolean>;
     using BooleanMap = std::unordered_map<std::string, Boolean>;
 
-    using Numerical = std::shared_ptr<const dlplan::core::Numerical>;
+    class NumericalImpl;
+    using Numerical = std::shared_ptr<NumericalImpl>;
     using NumericalList = std::vector<Numerical>;
     using NumericalMap = std::unordered_map<std::string, Numerical>;
 
-    using Concept = std::shared_ptr<const dlplan::core::Concept>;
+    class ConceptImpl;
+    using Concept = std::shared_ptr<ConceptImpl>;
     using ConceptList = std::vector<Concept>;
     using ConceptMap = std::unordered_map<std::string, Concept>;
 

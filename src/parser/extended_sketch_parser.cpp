@@ -65,6 +65,7 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
         using qi::_5;
         using qi::_6;
         using qi::_7;
+        using qi::_8;
         using qi::_val;
         using spirit::double_;
         using spirit::int_;
@@ -100,6 +101,7 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
 
         // Domain
         EXTENDED_SKETCH_DESCRIPTION = (lit('(') > lit(":extended_sketch")
+                                  > lit('(') > lit(":name") > NAME > lit(')')
                                   > lit('(') > lit(":memory_states") > lit('(') > *NAME > lit(')') > lit(')')
                                   > lit('(') > lit(":initial_memory_state") > NAME > lit(')')
                                   > lit('(') > lit(":registers") > lit('(') > *NAME > lit(')') > lit(')')
@@ -107,7 +109,7 @@ struct ExtendedSketchGrammar : public qi::grammar<std::string::iterator, Extende
                                   > lit('(') > lit(":numericals") > *NAME_AND_STRING > lit(')')
                                   > lit('(') > lit(":concepts") > *NAME_AND_STRING > lit(')')
                                   >> *LOAD_CALL_ACTION_OR_IWSEARCH_RULE
-                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6, _7)];
+                                  > lit(')'))[_val = new_<ExtendedSketchNode>(_1, _2, _3, _4, _5, _6, _7, _8)];
     }
 };
 
