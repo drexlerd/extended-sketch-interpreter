@@ -6,7 +6,7 @@
 
 #include <ostream>
 
-namespace rexpr { namespace ast
+namespace sketches::extended_sketch { namespace ast
 {
     ///////////////////////////////////////////////////////////////////////////
     //  Print out the rexpr tree

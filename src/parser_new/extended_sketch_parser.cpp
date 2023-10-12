@@ -10,6 +10,7 @@
 #include "rexpr.hpp"
 #include "error_handler.hpp"
 #include "config.hpp"
+#include "printer.hpp"
 
 
 namespace sketches::extended_sketch::parser {

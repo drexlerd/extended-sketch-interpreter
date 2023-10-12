@@ -6,7 +6,4 @@ namespace sketches::extended_sketch { namespace parser
 {
     BOOST_SPIRIT_INSTANTIATE(
         rexpr_type, iterator_type, context_type)
-
-    BOOST_SPIRIT_INSTANTIATE(
-        extended_sketch_type, iterator_type, context_type)
 }}
