@@ -1,4 +1,4 @@
 (:extended_sketch
 (:name gripper)
-(:call_rule )
+(:load_rule (:conditions))
 )

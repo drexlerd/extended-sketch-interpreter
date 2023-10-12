@@ -23,6 +23,8 @@ namespace sketches::extended_sketch { namespace ast
     struct Registers;
     struct Boolean;
     struct Booleans;
+    struct Conditions;
+    struct Effects;
     struct LoadRule;
     struct CallRule;
     struct ActionRule;
@@ -37,6 +39,10 @@ namespace sketches::extended_sketch { namespace ast
     };
 
     struct QuotedString : x3::position_tagged {
+        std::string name;
+    };
+
+    struct Identifier : x3::position_tagged {
         std::string name;
     };
 
@@ -65,8 +71,37 @@ namespace sketches::extended_sketch { namespace ast
         std::vector<Boolean> booleans;
     };
 
-    struct LoadRule : x3::position_tagged {
+    struct MemoryCondition : x3::position_tagged {
+        MemoryState state;
+    };
 
+    struct MemoryEffect : x3::position_tagged {
+        MemoryState state;
+    };
+
+    struct FeatureCondition : x3::position_tagged {
+        Identifier type;
+        Name key;
+    };
+
+    struct FeatureEffect : x3::position_tagged {
+        Identifier type;
+        Name key;
+    };
+
+    struct Conditions : x3::position_tagged {
+        MemoryState memory_condition;
+        std::vector<FeatureCondition> feature_conditions;
+    };
+
+    struct Effects : x3::position_tagged {
+        MemoryState memory_effect;
+        std::vector<FeatureEffect> feature_effects;
+    };
+
+    struct LoadRule : x3::position_tagged {
+        Conditions conditions;
+        Effects effects;
     };
 
     struct CallRule : x3::position_tagged {

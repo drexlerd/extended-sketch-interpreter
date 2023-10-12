@@ -45,6 +45,9 @@ namespace sketches::extended_sketch { namespace parser
         //id_map["rexpr"] = "RExpression";
         //id_map["rexpr_value"] = "Value";
         //id_map["rexpr_key_value"] = "Key value pair";
+        id_map["effects"] = "effects";
+        id_map["conditions"] = "conditions";
+        id_map["load_rule"] = "load rule";
     }
 
     template <typename Iterator, typename Exception, typename Context>

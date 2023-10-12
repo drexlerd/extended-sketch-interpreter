@@ -34,6 +34,8 @@ namespace sketches::extended_sketch { namespace parser
     struct RegistersClass;
     struct BooleanClass;
     struct BooleansClass;
+    struct ConditionsClass;
+    struct EffectsClass;
     struct LoadRuleClass;
     struct CallRuleClass;
     struct ActionRuleClass;
@@ -70,6 +72,12 @@ namespace sketches::extended_sketch { namespace parser
 
     x3::rule<BooleansClass, ast::Booleans> const
         booleans = "booleans";
+
+    x3::rule<ConditionsClass, ast::Conditions> const
+        conditions = "conditions";
+
+    x3::rule<EffectsClass, ast::Effects> const
+        effects = "effects";
 
     x3::rule<LoadRuleClass, ast::LoadRule> const
         load_rule = "load_rule";
@@ -112,7 +120,11 @@ namespace sketches::extended_sketch { namespace parser
 
     const auto booleans_def = "";
 
-    const auto load_rule_def = lit('(') >> lit(":load_rule") >> lit(')');
+    const auto conditions_def = lit('(') > lit(":conditions") > lit(')');
+
+    const auto effects_def =  lit('(') > lit(":effects") > lit(')');
+
+    const auto load_rule_def = lit('(') >> lit(":load_rule") > conditions > effects > lit(')');
 
     const auto call_rule_def = lit('(') >> lit(":call_rule") >> lit(')');
 
@@ -130,7 +142,7 @@ namespace sketches::extended_sketch { namespace parser
         > rules
         > lit(')');
 
-    BOOST_SPIRIT_DEFINE(name, quoted_string_, memory_state, memory_states, reg, regs, boolean, booleans, load_rule, call_rule, action_rule, search_rule, rule, rules, extended_sketch)
+    BOOST_SPIRIT_DEFINE(name, quoted_string_, memory_state, memory_states, reg, regs, boolean, booleans, conditions, effects, load_rule, call_rule, action_rule, search_rule, rule, rules, extended_sketch)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
@@ -144,6 +156,8 @@ namespace sketches::extended_sketch { namespace parser
     struct RegistersClass : x3::annotate_on_success {};
     struct BooleanClass : x3::annotate_on_success {};
     struct BooleansClass : x3::annotate_on_success {};
+    struct ConditionsClass : x3::annotate_on_success {};
+    struct EffectsClass : x3::annotate_on_success {};
     struct LoadRuleClass : x3::annotate_on_success {};
     struct CallRuleClass : x3::annotate_on_success {};
     struct ActionRuleClass : x3::annotate_on_success {};
