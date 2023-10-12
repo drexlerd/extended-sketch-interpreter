@@ -21,11 +21,8 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::LoadRule)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::CallRule)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionRule)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::SearchRule)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rule)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rules, rules)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, rules)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::rexpr, entries)
 
 
 #endif

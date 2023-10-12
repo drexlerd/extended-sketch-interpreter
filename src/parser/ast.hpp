@@ -81,7 +81,12 @@ namespace sketches::extended_sketch { namespace ast
 
     };
 
-    struct Rule : x3::position_tagged, x3::variant<LoadRule, CallRule, ActionRule, SearchRule> {
+    struct Rule : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<LoadRule>,
+            x3::forward_ast<CallRule>,
+            x3::forward_ast<ActionRule>,
+            x3::forward_ast<SearchRule>> {
         using base_type::base_type;
         using base_type::operator=;
     };
@@ -93,25 +98,6 @@ namespace sketches::extended_sketch { namespace ast
     struct ExtendedSketch : x3::position_tagged {
         Name name;
         Rules rules;
-    };
-
-    struct rexpr;
-
-    struct rexpr_value : x3::variant<
-            std::string
-          , x3::forward_ast<rexpr>
-        >
-    {
-        using base_type::base_type;
-        using base_type::operator=;
-    };
-
-    typedef std::map<std::string, rexpr_value> rexpr_map;
-    typedef std::pair<std::string, rexpr_value> rexpr_key_value;
-
-    struct rexpr : x3::position_tagged
-    {
-        rexpr_map entries;
     };
 }}
 

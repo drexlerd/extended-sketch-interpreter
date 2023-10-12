@@ -32,7 +32,7 @@ ExtendedSketch ExtendedSketchParser::parse(
         iterator_type const end(source.end());
 
         // Our AST
-        sketches::extended_sketch::ast::rexpr ast;
+        sketches::extended_sketch::ast::ExtendedSketch ast;
 
         // Our error handler
         using boost::spirit::x3::with;
@@ -47,7 +47,7 @@ ExtendedSketch ExtendedSketchParser::parse(
             // it later on in our on_error and on_sucess handlers
             with<error_handler_tag>(std::ref(error_handler))
             [
-                sketches::extended_sketch::rexpr()
+                sketches::extended_sketch::extended_sketch()
             ];
 
         // Go forth and parse!

@@ -13,14 +13,6 @@ namespace sketches::extended_sketch
     ///////////////////////////////////////////////////////////////////////////
     // rexpr public interface
     ///////////////////////////////////////////////////////////////////////////
-    namespace parser
-    {
-        struct rexpr_class;
-        typedef
-            x3::rule<rexpr_class, ast::rexpr>
-        rexpr_type;
-        BOOST_SPIRIT_DECLARE(rexpr_type)
-    }
     namespace parser {
         struct ExtendedSketchClass;
         typedef
@@ -28,8 +20,6 @@ namespace sketches::extended_sketch
         extended_sketch_type;
         BOOST_SPIRIT_DECLARE(extended_sketch_type)
     }
-
-    parser::rexpr_type const& rexpr();
     parser::extended_sketch_type const& extended_sketch();
 }
 

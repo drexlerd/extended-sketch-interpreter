@@ -18,6 +18,7 @@ namespace sketches::extended_sketch { namespace parser
     using x3::lit;
     using x3::lexeme;
 
+    using ascii::alnum;
     using ascii::char_;
     using ascii::string;
 
@@ -41,9 +42,6 @@ namespace sketches::extended_sketch { namespace parser
     struct RulesClass;
     struct ExtendedSketchClass;
 
-    struct rexpr_value_class;
-    struct rexpr_key_value_class;
-    struct rexpr_inner_class;
 
     ///////////////////////////////////////////////////////////////////////////
     // Rules
@@ -91,43 +89,14 @@ namespace sketches::extended_sketch { namespace parser
     x3::rule<RulesClass, ast::Rules> const
         rules = "rules";
 
-    x3::rule<ExtendedSketchClass, ast::ExtendedSketch> const
-        extended_sketch = "extended_sketch";
+    extended_sketch_type const extended_sketch = "extended_sketch";
 
-
-    x3::rule<rexpr_value_class, ast::rexpr_value> const
-        rexpr_value = "rexpr_value";
-
-    x3::rule<rexpr_key_value_class, ast::rexpr_key_value> const
-        rexpr_key_value = "rexpr_key_value";
-
-    x3::rule<rexpr_inner_class, ast::rexpr> const
-        rexpr_inner = "rexpr";
-
-    rexpr_type const rexpr = "rexpr";
 
     ///////////////////////////////////////////////////////////////////////////
     // Grammar
     ///////////////////////////////////////////////////////////////////////////
 
-    auto const quoted_string =
-        lexeme['"' >> *(char_ - '"') >> '"'];
-
-    auto const rexpr_value_def =
-        quoted_string | rexpr_inner;
-
-    auto const rexpr_key_value_def =
-        quoted_string > '=' > rexpr_value;
-
-    auto const rexpr_inner_def =
-        '{' > *rexpr_key_value > '}';
-
-    auto const rexpr_def = rexpr_inner_def;
-
-    BOOST_SPIRIT_DEFINE(rexpr_value, rexpr, rexpr_inner, rexpr_key_value)
-
-
-    const auto name_def = lexeme[+char_];
+    const auto name_def = lit('(') > lit(":name") > lexeme[+(char_ - lit(')'))] > lit(')');
 
     const auto quoted_string__def = "";
 
@@ -143,16 +112,15 @@ namespace sketches::extended_sketch { namespace parser
 
     const auto booleans_def = "";
 
-    const auto load_rule_def = lit('(') > lit(":load_rule") > lit(')');
+    const auto load_rule_def = lit('(') >> lit(":load_rule") >> lit(')');
 
-    const auto call_rule_def = lit('(') > lit(":call_rule") > lit(')');
+    const auto call_rule_def = lit('(') >> lit(":call_rule") >> lit(')');
 
-    const auto action_rule_def = lit('(') > lit(":action_rule") > lit(')');
+    const auto action_rule_def = lit('(') >> lit(":action_rule") >> lit(')');
 
-    const auto search_rule_def = lit('(') > lit(":search_rule") > lit(')');
+    const auto search_rule_def = lit('(') >> lit(":search_rule") >> lit(')');
 
-    const auto rule_def =
-        load_rule | call_rule | action_rule | search_rule;
+    const auto rule_def = load_rule | call_rule | action_rule | search_rule;
 
     const auto rules_def = *rule;
 
@@ -162,46 +130,31 @@ namespace sketches::extended_sketch { namespace parser
         > rules
         > lit(')');
 
-    BOOST_SPIRIT_DEFINE(name, quoted_string_, memory_state, memory_states, reg, regs, boolean, booleans, rule, load_rule, call_rule, action_rule, search_rule, rules, extended_sketch)
+    BOOST_SPIRIT_DEFINE(name, quoted_string_, memory_state, memory_states, reg, regs, boolean, booleans, load_rule, call_rule, action_rule, search_rule, rule, rules, extended_sketch)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
     ///////////////////////////////////////////////////////////////////////////
 
-    struct NameClass : x3::annotate_on_success, error_handler_base {};
-    struct QuotedStringClass : x3::annotate_on_success, error_handler_base {};
-    struct MemoryStateClass : x3::annotate_on_success, error_handler_base {};
-    struct MemoryStatesClass : x3::annotate_on_success, error_handler_base {};
-    struct RegisterClass : x3::annotate_on_success, error_handler_base {};
-    struct RegistersClass : x3::annotate_on_success, error_handler_base {};
-    struct BooleanClass : x3::annotate_on_success, error_handler_base {};
-    struct BooleansClass : x3::annotate_on_success, error_handler_base {};
-    struct LoadRuleClass : x3::annotate_on_success, error_handler_base {};
-    struct CallRuleClass : x3::annotate_on_success, error_handler_base {};
-    struct ActionRuleClass : x3::annotate_on_success, error_handler_base {};
-    struct SearchRuleClass : x3::annotate_on_success, error_handler_base {};
-    struct RuleClass : x3::annotate_on_success, error_handler_base {};
-    struct RulesClass : x3::annotate_on_success, error_handler_base {};
+    struct NameClass : x3::annotate_on_success {};
+    struct QuotedStringClass : x3::annotate_on_success {};
+    struct MemoryStateClass : x3::annotate_on_success {};
+    struct MemoryStatesClass : x3::annotate_on_success {};
+    struct RegisterClass : x3::annotate_on_success {};
+    struct RegistersClass : x3::annotate_on_success {};
+    struct BooleanClass : x3::annotate_on_success {};
+    struct BooleansClass : x3::annotate_on_success {};
+    struct LoadRuleClass : x3::annotate_on_success {};
+    struct CallRuleClass : x3::annotate_on_success {};
+    struct ActionRuleClass : x3::annotate_on_success {};
+    struct SearchRuleClass : x3::annotate_on_success {};
+    struct RuleClass : x3::annotate_on_success {};
+    struct RulesClass : x3::annotate_on_success {};
     struct ExtendedSketchClass : x3::annotate_on_success, error_handler_base {};
-
-
-    // We want these to be annotated with the iterator position.
-    struct rexpr_value_class : x3::annotate_on_success {};
-    struct rexpr_key_value_class : x3::annotate_on_success {};
-    struct rexpr_inner_class : x3::annotate_on_success {};
-
-    // We want error-handling only for the start (outermost) rexpr
-    // rexpr is the same as rexpr_inner but without error-handling (see error_handler.hpp)
-    struct rexpr_class : x3::annotate_on_success, error_handler_base {};
 }}
 
 namespace sketches::extended_sketch
 {
-    parser::rexpr_type const& rexpr()
-    {
-        return parser::rexpr;
-    }
-
     parser::extended_sketch_type const& extended_sketch()
     {
         return parser::extended_sketch;

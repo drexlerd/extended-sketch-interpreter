@@ -42,9 +42,9 @@ namespace sketches::extended_sketch { namespace parser
 
     inline error_handler_base::error_handler_base()
     {
-        id_map["rexpr"] = "RExpression";
-        id_map["rexpr_value"] = "Value";
-        id_map["rexpr_key_value"] = "Key value pair";
+        //id_map["rexpr"] = "RExpression";
+        //id_map["rexpr_value"] = "Value";
+        //id_map["rexpr_key_value"] = "Key value pair";
     }
 
     template <typename Iterator, typename Exception, typename Context>
