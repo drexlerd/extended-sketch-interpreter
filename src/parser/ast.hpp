@@ -284,9 +284,9 @@ namespace sketches::extended_sketch { namespace ast
         MemoryStatesEntry memory_states;
         InitialMemoryStateEntry initial_memory_state;
         RegistersEntry registers;
-        // BooleansEntry booleans;
-        //NumericalsEntry numericals;
-        //ConceptsEntry concepts;
+        BooleansEntry booleans;
+        NumericalsEntry numericals;
+        ConceptsEntry concepts;
         //Rules rules;
     };
 }}

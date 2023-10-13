@@ -23,15 +23,15 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::RegisterDefinition, ke
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::RegisterReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::RegistersEntry, definitions)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::BooleanDefinition, key)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::BooleanDefinition, key, repr)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::BooleanReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::BooleansEntry, definitions)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::NumericalDefinition, key)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::NumericalDefinition, key, repr)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::NumericalReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::NumericalsEntry, definitions)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ConceptDefinition, key)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ConceptDefinition, key, repr)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ConceptReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ConceptsEntry, definitions)
 
@@ -58,6 +58,6 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionRuleEntry, memor
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::SearchRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rules, rules)
 // BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts, rules)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts)
 
 #endif

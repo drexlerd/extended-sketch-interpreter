@@ -311,9 +311,9 @@ namespace sketches::extended_sketch { namespace parser
         >> memory_states_entry
         >> initial_memory_state_entry
         >> registers_entry
-        // >> booleans_entry
-        //>> numericals_entry
-        //>> concepts_entry
+        >> booleans_entry
+        >> numericals_entry
+        >> concepts_entry
         //>> rules
         > lit(')');
 
