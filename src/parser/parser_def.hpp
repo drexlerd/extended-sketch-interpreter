@@ -33,6 +33,7 @@ namespace sketches::extended_sketch { namespace parser
     struct MemoryStateDefinitionClass;
     struct MemoryStateReferenceClass;
     struct MemoryStatesEntryClass;
+    struct InitialMemoryStateEntryClass;
     struct RegisterDefinitionClass;
     struct RegisterReferenceClass;
     struct RegistersEntryClass;
@@ -91,6 +92,9 @@ namespace sketches::extended_sketch { namespace parser
 
     x3::rule<MemoryStatesEntryClass, ast::MemoryStatesEntry> const
         memory_states_entry = "memory_states_entry";
+
+    x3::rule<InitialMemoryStateEntryClass, ast::InitialMemoryStateEntry> const
+        initial_memory_state_entry = "initial_memory_state_entry";
 
     x3::rule<RegisterDefinitionClass, ast::RegisterDefinition> const
         register_definition = "register_definition";
@@ -241,15 +245,16 @@ namespace sketches::extended_sketch { namespace parser
         > lit(')');
 */
 
-    const auto name_def = alpha >> *(alpha | char_('-') | char_('_'));
+    const auto name_def = alpha >> *(alnum | char_('-') | char_('_'));
     const auto quoted_string_def = lexeme[lit('"') >> +(char_ - lit('"')) >> lit('"')];
     const auto name_entry_def = lit('(') > lit(":name") > name > lit(')');
     const auto memory_state_definition_def = name;
     const auto memory_state_reference_def = name;
-    const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > *memory_state_definition > lit(')');
+    const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > lit('(') > *memory_state_definition > lit(')') > lit(')');
+    const auto initial_memory_state_entry_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
     const auto register_definition_def = name;
     const auto register_reference_def = name;
-    const auto registers_entry_def = lit('(') >> lit(":registers") > *register_definition > lit(')');
+    const auto registers_entry_def = lit('(') >> lit(":registers") > lit('(') > *register_definition > lit(')') > lit(')');
     const auto boolean_definition_def = lit('(') >> name >> quoted_string >> lit(')');
     const auto boolean_reference_def = name;
     const auto booleans_entry_def = lit('(') >> lit(":booleans") > *boolean_definition > lit(')');
@@ -304,15 +309,16 @@ namespace sketches::extended_sketch { namespace parser
         > lit(":extended_sketch")
         >> name_entry
         >> memory_states_entry
+        >> initial_memory_state_entry
         >> registers_entry
-        >> booleans_entry
-        >> numericals_entry
-        >> concepts_entry
-        >> rules
+        // >> booleans_entry
+        //>> numericals_entry
+        //>> concepts_entry
+        //>> rules
         > lit(')');
 
     BOOST_SPIRIT_DEFINE(name, quoted_string, name_entry,
-        memory_state_definition, memory_state_reference, memory_states_entry,
+        memory_state_definition, memory_state_reference, memory_states_entry, initial_memory_state_entry,
         register_definition, register_reference, registers_entry,
         boolean_definition, boolean_reference, booleans_entry,
         numerical_definition, numerical_reference, numericals_entry,
@@ -335,6 +341,7 @@ namespace sketches::extended_sketch { namespace parser
     struct MemoryStateDefinitionClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesEntryClass : x3::annotate_on_success {};
+    struct InitialMemoryStateEntryClass : x3::annotate_on_success {};
     struct RegisterDefinitionClass : x3::annotate_on_success {};
     struct RegisterReferenceClass : x3::annotate_on_success {};
     struct RegistersEntryClass : x3::annotate_on_success {};

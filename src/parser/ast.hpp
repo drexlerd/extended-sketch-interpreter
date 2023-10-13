@@ -20,6 +20,7 @@ namespace sketches::extended_sketch { namespace ast
     struct MemoryStateDefinition;
     struct MemoryStateReference;
     struct MemoryStatesEntry;
+    struct InitialMemoryStateEntry;
     struct RegisterDefinition;
     struct RegisterReference;
     struct RegistersEntry;
@@ -82,6 +83,10 @@ namespace sketches::extended_sketch { namespace ast
 
     struct MemoryStatesEntry : x3::position_tagged {
         std::vector<MemoryStateDefinition> definitions;
+    };
+
+    struct InitialMemoryStateEntry : x3::position_tagged {
+        MemoryStateReference reference;
     };
 
 
@@ -277,11 +282,12 @@ namespace sketches::extended_sketch { namespace ast
     struct ExtendedSketch : x3::position_tagged {
         NameEntry name;
         MemoryStatesEntry memory_states;
+        InitialMemoryStateEntry initial_memory_state;
         RegistersEntry registers;
-        BooleansEntry booleans;
-        NumericalsEntry numericals;
-        ConceptsEntry concepts;
-        Rules rules;
+        // BooleansEntry booleans;
+        //NumericalsEntry numericals;
+        //ConceptsEntry concepts;
+        //Rules rules;
     };
 }}
 

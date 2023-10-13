@@ -8,7 +8,7 @@
 
 #include "../external/mimir/pddl/domain_parser.hpp"
 #include "../external/mimir/pddl/problem_parser.hpp"
-#include "../parser/extended_sketch_parser.hpp"
+#include "../parser/parser.hpp"
 #include "../extended_sketch/declarations.hpp"
 
 using namespace std;
