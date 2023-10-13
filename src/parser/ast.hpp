@@ -287,7 +287,7 @@ namespace sketches::extended_sketch { namespace ast
         BooleansEntry booleans;
         NumericalsEntry numericals;
         ConceptsEntry concepts;
-        //Rules rules;
+        Rules rules;
     };
 }}
 

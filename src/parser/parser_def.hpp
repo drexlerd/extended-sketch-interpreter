@@ -205,102 +205,62 @@ namespace sketches::extended_sketch { namespace parser
     // Grammar
     ///////////////////////////////////////////////////////////////////////////
 
-/*
-    const auto name_def = lit('(') > lit(":name") > lexeme[+(char_ - lit(')'))] > lit(')');
-
-    const auto quoted_string__def = "";
-
-    const auto memory_state_def = "";
-
-    const auto memory_states_def = "";
-
-    const auto reg_def = "";
-
-    const auto regs_def = "";
-
-    const auto boolean_def = "";
-
-    const auto booleans_def = "";
-
-    const auto conditions_def = lit('(') > lit(":conditions") > lit(')');
-
-    const auto effects_def =  lit('(') > lit(":effects") > lit(')');
-
-    const auto load_rule_def = lit('(') >> lit(":load_rule") > conditions > effects > lit(')');
-
-    const auto call_rule_def = lit('(') >> lit(":call_rule") >> lit(')');
-
-    const auto action_rule_def = lit('(') >> lit(":action_rule") >> lit(')');
-
-    const auto search_rule_def = lit('(') >> lit(":search_rule") >> lit(')');
-
-    const auto rule_def = load_rule | call_rule | action_rule | search_rule;
-
-    const auto rules_def = *rule;
-
-    const auto extended_sketch_def = lit('(')
-        > lit(":extended_sketch")
-        > name
-        > rules
-        > lit(')');
-*/
-
-    const auto name_def = alpha >> *(alnum | char_('-') | char_('_'));
+    const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
     const auto quoted_string_def = lexeme[lit('"') >> +(char_ - lit('"')) >> lit('"')];
     const auto name_entry_def = lit('(') > lit(":name") > name > lit(')');
     const auto memory_state_definition_def = name;
     const auto memory_state_reference_def = name;
-    const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > lit('(') > *memory_state_definition > lit(')') > lit(')');
+    const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state_definition > lit(')') > lit(')');
     const auto initial_memory_state_entry_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
     const auto register_definition_def = name;
     const auto register_reference_def = name;
     const auto registers_entry_def = lit('(') >> lit(":registers") > lit('(') > *register_definition > lit(')') > lit(')');
-    const auto boolean_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto boolean_definition_def = lit('(') >> name > quoted_string > lit(')');
     const auto boolean_reference_def = name;
     const auto booleans_entry_def = lit('(') >> lit(":booleans") > *boolean_definition > lit(')');
-    const auto numerical_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto numerical_definition_def = lit('(') >> name > quoted_string > lit(')');
     const auto numerical_reference_def = name;
     const auto numericals_entry_def = lit('(') >> lit(":numericals") > *numerical_definition > lit(')');
-    const auto concept_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto concept_definition_def = lit('(') >> name > quoted_string > lit(')');
     const auto concept_reference_def = name;
     const auto concepts_entry_def = lit('(') >> lit(":concepts") > *concept_definition > lit(')');
     const auto memory_condition_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
     const auto memory_effect_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
-    const auto positive_boolean_condition_entry_def = lit('(') >> lit(":c_b_pos") >> boolean_reference >> lit(')');
-    const auto negative_boolean_condition_entry_def = lit('(') >> lit(":c_b_neg") >> boolean_reference >> lit(')');
-    const auto greater_numerical_condition_entry_def = lit('(') >> lit(":c_n_gt") >> numerical_reference >> lit(')');
-    const auto equal_numerical_condition_entry_def = lit('(') >> lit(":c_n_eq") >> numerical_reference >> lit(')');
-    const auto positive_boolean_effect_entry_def = lit('(') >> lit(":e_b_pos") >> boolean_reference >> lit(')');
-    const auto negative_boolean_effect_entry_def = lit('(') >> lit(":e_b_neg") >> boolean_reference >> lit(')');
-    const auto unchanged_boolean_effect_entry_def = lit('(') >> lit(":e_b_bot") >> boolean_reference >> lit(')');
-    const auto increment_numerical_effect_entry_def = lit('(') >> lit(":e_n_inc") >> numerical_reference >> lit(')');
-    const auto decrement_numerical_effect_entry_def = lit('(') >> lit(":e_n_dec") >> numerical_reference >> lit(')');
-    const auto unchanged_numerical_effect_entry_def = lit('(') >> lit(":e_n_bot") >> numerical_reference >> lit(')');
+    const auto positive_boolean_condition_entry_def = lit('(') >> lit(":c_b_pos") > boolean_reference >> lit(')');
+    const auto negative_boolean_condition_entry_def = lit('(') >> lit(":c_b_neg") > boolean_reference >> lit(')');
+    const auto greater_numerical_condition_entry_def = lit('(') >> lit(":c_n_gt") > numerical_reference >> lit(')');
+    const auto equal_numerical_condition_entry_def = lit('(') >> lit(":c_n_eq") > numerical_reference >> lit(')');
+    const auto positive_boolean_effect_entry_def = lit('(') >> lit(":e_b_pos") > boolean_reference >> lit(')');
+    const auto negative_boolean_effect_entry_def = lit('(') >> lit(":e_b_neg") > boolean_reference >> lit(')');
+    const auto unchanged_boolean_effect_entry_def = lit('(') >> lit(":e_b_bot") > boolean_reference >> lit(')');
+    const auto increment_numerical_effect_entry_def = lit('(') >> lit(":e_n_inc") > numerical_reference >> lit(')');
+    const auto decrement_numerical_effect_entry_def = lit('(') >> lit(":e_n_dec") > numerical_reference >> lit(')');
+    const auto unchanged_numerical_effect_entry_def = lit('(') >> lit(":e_n_bot") > numerical_reference >> lit(')');
     const auto feature_condition_entry_def =
         positive_boolean_condition_entry | negative_boolean_condition_entry | greater_numerical_condition_entry | equal_numerical_condition_entry;
     const auto feature_effect_entry_def =
         positive_boolean_effect_entry | negative_boolean_effect_entry | unchanged_boolean_effect_entry | increment_numerical_effect_entry | decrement_numerical_effect_entry | unchanged_numerical_effect_entry;
     const auto load_rule_entry_def =
         lit('(') >> lit(":load_rule")
-            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
-            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> lit("load") >> lit('(') >> register_reference >> concept_reference >> lit(')') >> lit(')') >> lit(')')
+            > lit('(') > lit(":conditions") > memory_condition_entry > *feature_condition_entry > lit(')')
+            > lit('(') > lit(":effects") > memory_effect_entry > *feature_effect_entry > lit('(') > lit("load") > lit('(') > register_reference > concept_reference > lit(')') > lit(')') > lit(')')
         >> lit(')');
     const auto module_reference_def = name;
     const auto call_rule_entry_def =
         lit('(') >> lit(":call_rule")
-            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
-            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> module_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
+            > lit('(') > lit(":conditions") > memory_condition_entry > *feature_condition_entry > lit(')')
+            > lit('(') > lit(":effects") > memory_effect_entry > *feature_effect_entry > lit('(') >> module_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
         >> lit(')');
     const auto action_reference_def = name;
     const auto action_rule_entry_def =
         lit('(') >> lit(":action_rule")
-            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
-            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> action_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
+            > lit('(') > lit(":conditions") > memory_condition_entry > *feature_condition_entry > lit(')')
+            > lit('(') > lit(":effects") > memory_effect_entry > *feature_effect_entry > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')') > lit(')')
         >> lit(')');
     const auto search_rule_entry_def =
         lit('(') >> lit(":search_rule")
-            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
-            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit(')')
+            > lit('(') > ":conditions" > memory_condition_entry > *feature_condition_entry > lit(')')
+            > lit('(') > lit(":effects") > memory_effect_entry > *feature_effect_entry > lit(')')
         >> lit(')');
     const auto rule_entry_def =
         load_rule_entry | call_rule_entry | action_rule_entry | search_rule_entry;
@@ -314,7 +274,7 @@ namespace sketches::extended_sketch { namespace parser
         >> booleans_entry
         >> numericals_entry
         >> concepts_entry
-        //>> rules
+        >> rules
         > lit(')');
 
     BOOST_SPIRIT_DEFINE(name, quoted_string, name_entry,

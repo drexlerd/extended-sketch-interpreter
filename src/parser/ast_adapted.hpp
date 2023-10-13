@@ -57,7 +57,6 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionReference, refer
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, action_reference, register_references)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::SearchRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rules, rules)
-// BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts, rules)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts, rules)
 
 #endif
