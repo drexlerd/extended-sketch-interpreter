@@ -31,7 +31,7 @@ const std::string& ExtendedSketchImpl::get_name() const {
     return m_name;
 }
 
-std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
+std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const std::string& name,
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,

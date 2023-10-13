@@ -42,7 +42,7 @@ public:
     const std::string& get_name() const;
 };
 
-extern std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
+extern std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const std::string& name,
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
