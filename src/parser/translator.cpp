@@ -3,177 +3,194 @@
 #include <sstream>
 
 #include "../extended_sketch/memory_state.hpp"
+#include "../extended_sketch/register.hpp"
+#include "../extended_sketch/features.hpp"
 
 
 namespace sketches::extended_sketch::parser {
 
-std::string Translator::translate(Context& context, const ast::Name& node) const {
+static std::string translate(Context& context, const error_handler_type& error_handler, const ast::Name& node) {
     std::stringstream ss;
     ss << node.alphabetical;
-    ss << node.suffix;
+    ss << node.suffix;;
     return ss.str();
 }
 
-std::string Translator::translate(Context& context, const ast::QuotedString& node) const {
+static std::string translate(Context& context, const error_handler_type& error_handler, const ast::QuotedString& node) {
     return node.characters;
 }
 
-std::string Translator::translate(Context& context, const ast::NameEntry& node) const {
-    return translate(context, node.name);
+static std::string translate(Context& context, const error_handler_type& error_handler, const ast::NameEntry& node) {
+    return translate(context, error_handler, node.name);
 }
 
-MemoryState Translator::translate(Context& context, const ast::MemoryStateDefinition& node) const {
-    return context.memory_state_factory.make_memory_state(translate(context, node.key));
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStateDefinition& node) {
+    return context.memory_state_factory.make_memory_state(translate(context, error_handler, node.key));
 }
 
-MemoryState Translator::translate(Context& context, const ast::MemoryStateReference& node) const {
-    return context.memory_state_factory.get_memory_state(translate(context, node.key));
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStateReference& node) {
+    std::string key = translate(context, error_handler, node.key);
+    auto memory_state = context.memory_state_factory.get_memory_state(key);
+    if (!memory_state) {
+        error_handler(node, "undefined memory state " + key);
+    }
+    return memory_state;
 }
 
-MemoryStateMap Translator::translate(Context& context, const ast::MemoryStatesEntry& node) const {
+static MemoryStateMap translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStatesEntry& node) {
     MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
-        auto memory_state = translate(context, child);
+        auto memory_state = translate(context, error_handler, child);
         memory_states.emplace(memory_state->get_key(), memory_state);
     }
     return memory_states;
 }
 
-Register Translator::translate(Context& context, const ast::RegisterDefinition& node) const {
-    return context.register_factory.make_register(translate(context, node.key));
+static Register translate(Context& context, const error_handler_type& error_handler, const ast::RegisterDefinition& node) {
+    return context.register_factory.make_register(translate(context, error_handler, node.key));
 }
 
-Register Translator::translate(Context& context, const ast::RegisterReference& node) const {
-    return context.register_factory.get_register(translate(context, node.key));
+static Register translate(Context& context, const error_handler_type& error_handler, const ast::RegisterReference& node) {
+    std::string key = translate(context, error_handler, node.key);
+    auto register_ = context.register_factory.get_register(key);
+    if (!register_) {
+        error_handler(node, "undefined register state " + key);
+    }
+    return register_;
 }
 
-RegisterMap Translator::translate(Context& context, const ast::RegistersEntry& node) const {
-
+static RegisterMap translate(Context& context, const error_handler_type& error_handler, const ast::RegistersEntry& node) {
+    RegisterMap registers;
+    for (const auto& child : node.definitions) {
+        auto register_ = translate(context, error_handler, child);
+        registers.emplace(register_->get_key(), register_);
+    }
+    return registers;
 }
 
-Boolean Translator::translate(Context& context, const ast::BooleanDefinition& node) const {
-
-}
-
-Boolean Translator::translate(Context& context, const ast::BooleanReference& node) const {
-
-}
-
-BooleanMap Translator::translate(Context& context, const ast::BooleansEntry& node) const {
-
-}
-
-Numerical Translator::translate(Context& context, const ast::NumericalDefinition& node) const {
-
-}
-
-Numerical Translator::translate(Context& context, const ast::NumericalReference& node) const {
+static Boolean translate(Context& context, const error_handler_type& error_handler, const ast::BooleanDefinition& node) {
 
 }
 
-NumericalMap Translator::translate(Context& context, const ast::NumericalsEntry& node) const {
+static Boolean translate(Context& context, const error_handler_type& error_handler, const ast::BooleanReference& node) {
 
 }
 
-Concept Translator::translate(Context& context, const ast::ConceptDefinition& node) const {
+static BooleanMap translate(Context& context, const error_handler_type& error_handler, const ast::BooleansEntry& node) {
 
 }
 
-Concept Translator::translate(Context& context, const ast::ConceptReference& node) const {
+static Numerical translate(Context& context, const error_handler_type& error_handler, const ast::NumericalDefinition& node) {
 
 }
 
-ConceptMap Translator::translate(Context& context, const ast::ConceptsEntry& node) const {
+static Numerical translate(Context& context, const error_handler_type& error_handler, const ast::NumericalReference& node) {
 
 }
 
-MemoryState Translator::translate(Context& context, const ast::MemoryConditionEntry& node) const {
+static NumericalMap translate(Context& context, const error_handler_type& error_handler, const ast::NumericalsEntry& node) {
 
 }
 
-MemoryState Translator::translate(Context& context, const ast::MemoryEffectEntry& node) const {
+static Concept translate(Context& context, const error_handler_type& error_handler, const ast::ConceptDefinition& node) {
 
 }
 
-Condition Translator::translate(Context& context, const ast::PositiveBooleanConditionEntry& node) const {
+static Concept translate(Context& context, const error_handler_type& error_handler, const ast::ConceptReference& node) {
 
 }
 
-Condition Translator::translate(Context& context, const ast::NegativeBooleanConditionEntry& node) const {
+static ConceptMap translate(Context& context, const error_handler_type& error_handler, const ast::ConceptsEntry& node) {
 
 }
 
-Condition Translator::translate(Context& context, const ast::GreaterNumericalConditionEntry& node) const {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryConditionEntry& node) {
 
 }
 
-Condition Translator::translate(Context& context, const ast::EqualNumericalConditionEntry& node) const {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryEffectEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::PositiveBooleanEffectEntry& node) const {
+static Condition translate(Context& context, const error_handler_type& error_handler, const ast::PositiveBooleanConditionEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::NegativeBooleanEffectEntry& node) const {
+static Condition translate(Context& context, const error_handler_type& error_handler, const ast::NegativeBooleanConditionEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::UnchangedBooleanEffectEntry& node) const {
+static Condition translate(Context& context, const error_handler_type& error_handler, const ast::GreaterNumericalConditionEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::IncrementNumericalEffectEntry& node) const {
+static Condition translate(Context& context, const error_handler_type& error_handler, const ast::EqualNumericalConditionEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::DecrementNumericalEffectEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::PositiveBooleanEffectEntry& node) {
 
 }
 
-Effect Translator::translate(Context& context, const ast::UnchangedNumericalEffectEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::NegativeBooleanEffectEntry& node) {
 
 }
 
-
-Condition Translator::translate(Context& context, const ast::FeatureConditionEntry& node) const {
-
-}
-
-Effect Translator::translate(Context& context, const ast::FeatureEffectEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::UnchangedBooleanEffectEntry& node) {
 
 }
 
-
-LoadRule Translator::translate(Context& context, const ast::LoadRuleEntry& node) const {
-
-}
-
-CallRule Translator::translate(Context& context, const ast::CallRuleEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::IncrementNumericalEffectEntry& node) {
 
 }
 
-ActionRule Translator::translate(Context& context, const ast::ActionRuleEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::DecrementNumericalEffectEntry& node) {
 
 }
 
-SearchRule Translator::translate(Context& context, const ast::SearchRuleEntry& node) const {
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::UnchangedNumericalEffectEntry& node) {
 
 }
 
 
-std::variant<LoadRule, CallRule, ActionRule, SearchRule>
-Translator::translate(Context& context, const ast::RuleEntry& node) const {
+static Condition translate(Context& context, const error_handler_type& error_handler, const ast::FeatureConditionEntry& node) {
+
+}
+
+static Effect translate(Context& context, const error_handler_type& error_handler, const ast::FeatureEffectEntry& node) {
 
 }
 
 
-std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
-Translator::translate(Context& context, const ast::Rules& node) const {
+static LoadRule translate(Context& context, const error_handler_type& error_handler, const ast::LoadRuleEntry& node) {
 
 }
 
-ExtendedSketch Translator::translate(Context& context, const ast::ExtendedSketch& node) const {
+static CallRule translate(Context& context, const error_handler_type& error_handler, const ast::CallRuleEntry& node) {
+
+}
+
+static ActionRule translate(Context& context, const error_handler_type& error_handler, const ast::ActionRuleEntry& node) {
+
+}
+
+static SearchRule translate(Context& context, const error_handler_type& error_handler, const ast::SearchRuleEntry& node) {
+
+}
+
+
+static std::variant<LoadRule, CallRule, ActionRule, SearchRule>
+translate(Context& context, const error_handler_type& error_handler, const ast::RuleEntry& node) {
+
+}
+
+
+static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
+translate(Context& context, const error_handler_type& error_handler, const ast::Rules& node) {
+
+}
+
+ExtendedSketch translate(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node) {
 
 }
 

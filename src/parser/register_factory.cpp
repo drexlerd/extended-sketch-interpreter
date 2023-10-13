@@ -12,7 +12,7 @@ Register RegisterFactory::make_register(const std::string& key) {
 Register RegisterFactory::get_register(const std::string& key) const {
     auto find = m_key_to_state.find(key);
     if (find == m_key_to_state.end()) {
-        throw std::runtime_error("RegisterFactory::get_register - no register exists for key: " + key);
+        return nullptr;
     }
     return find->second;
 }

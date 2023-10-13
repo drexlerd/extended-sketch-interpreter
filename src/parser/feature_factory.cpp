@@ -14,7 +14,7 @@ Boolean BooleanFactory::make_boolean(const std::string& key, const std::string& 
 Boolean BooleanFactory::get_boolean(const std::string& key) const {
     auto find = m_key_to_boolean.find(key);
     if (find == m_key_to_boolean.end()) {
-        throw std::runtime_error("BooleanFactory::get_boolean - no boolean exists for key: " + key);
+        return nullptr;
     }
     return find->second;
 }
@@ -30,7 +30,7 @@ Numerical NumericalFactory::make_numerical(const std::string& key, const std::st
 Numerical NumericalFactory::get_numerical(const std::string& key) const {
     auto find = m_key_to_numerical.find(key);
     if (find == m_key_to_numerical.end()) {
-        throw std::runtime_error("NumericalFactory::get_numerical - no numerical exists for key: " + key);
+        return nullptr;
     }
     return find->second;
 }
@@ -46,7 +46,7 @@ Concept ConceptFactory::make_concept(const std::string& key, const std::string& 
 Concept ConceptFactory::get_concept(const std::string& key) const {
     auto find = m_key_to_concept.find(key);
     if (find == m_key_to_concept.end()) {
-        throw std::runtime_error("ConceptFactory::get_concept - no concept exists for key: " + key);
+        return nullptr;
     }
     return find->second;
 }

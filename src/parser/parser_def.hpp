@@ -224,8 +224,8 @@ namespace sketches::extended_sketch { namespace parser
     const auto concept_definition_def = lit('(') >> name > quoted_string > lit(')');
     const auto concept_reference_def = name;
     const auto concepts_entry_def = lit('(') >> lit(":concepts") > *concept_definition > lit(')');
-    const auto memory_condition_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
-    const auto memory_effect_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
+    const auto memory_condition_entry_def = lit('(') > lit(":memory") > memory_state_reference > lit(')');
+    const auto memory_effect_entry_def = lit('(') > lit(":memory") > memory_state_reference > lit(')');
     const auto positive_boolean_condition_entry_def = lit('(') >> lit(":c_b_pos") > boolean_reference >> lit(')');
     const auto negative_boolean_condition_entry_def = lit('(') >> lit(":c_b_neg") > boolean_reference >> lit(')');
     const auto greater_numerical_condition_entry_def = lit('(') >> lit(":c_n_gt") > numerical_reference >> lit(')');

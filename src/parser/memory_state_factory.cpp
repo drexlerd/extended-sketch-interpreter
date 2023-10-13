@@ -12,7 +12,7 @@ MemoryState MemoryStateFactory::make_memory_state(const std::string& key) {
 MemoryState MemoryStateFactory::get_memory_state(const std::string& key) const {
     auto find = m_key_to_state.find(key);
     if (find == m_key_to_state.end()) {
-        throw std::runtime_error("MemoryStateFactory::get_memory_state - no memory state exists for key: " + key);
+        return nullptr;
     }
     return find->second;
 }
