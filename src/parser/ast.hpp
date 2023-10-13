@@ -1,12 +1,11 @@
 #ifndef SRC_PARSER_AST_HPP_
 #define SRC_PARSER_AST_HPP_
 
+#include <vector>
 
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
-#include <map>
-#include <vector>
 
 namespace sketches::extended_sketch { namespace ast
 {
@@ -17,19 +16,41 @@ namespace sketches::extended_sketch { namespace ast
 
     struct Name;
     struct QuotedString;
-    struct MemoryState;
-    struct MemoryStates;
-    struct Register;
-    struct Registers;
-    struct Boolean;
-    struct Booleans;
-    struct Conditions;
-    struct Effects;
-    struct LoadRule;
-    struct CallRule;
-    struct ActionRule;
-    struct SearchRule;
-    struct Rule;
+    struct NameEntry;
+    struct MemoryStateDefinition;
+    struct MemoryStateReference;
+    struct MemoryStatesEntry;
+    struct RegisterDefinition;
+    struct RegisterReference;
+    struct RegistersEntry;
+    struct BooleanDefinition;
+    struct BooleanReference;
+    struct BooleansEntry;
+    struct NumericalDefinition;
+    struct NumericalReference;
+    struct NumericalsEntry;
+    struct ConceptDefinition;
+    struct ConceptReference;
+    struct ConceptsEntry;
+    struct MemoryConditionEntry;
+    struct MemoryEffectEntry;
+    struct PositiveBooleanConditionEntry;
+    struct NegativeBooleanConditionEntry;
+    struct GreaterNumericalConditionEntry;
+    struct EqualNumericalConditionEntry;
+    struct PositiveBooleanEffectEntry;
+    struct NegativeBooleanEffectEntry;
+    struct UnchangedBooleanEffectEntry;
+    struct IncrementNumericalEffectEntry;
+    struct DecrementNumericalEffectEntry;
+    struct UnchangedNumericalEffectEntry;
+    struct FeatureConditionsEntry;
+    struct FeatureEffectsEntry;
+    struct LoadRuleEntry;
+    struct CallRuleEntry;
+    struct ActionRuleEntry;
+    struct SearchRuleEntry;
+    struct RuleEntry;
     struct Rules;
     struct ExtendedSketch;
 
@@ -149,7 +170,7 @@ namespace sketches::extended_sketch { namespace ast
         NumericalReference reference;
     };
 
-    struct FeatureCondition : x3::position_tagged,
+    struct FeatureConditionEntry : x3::position_tagged,
         x3::variant<
             x3::forward_ast<PositiveBooleanConditionEntry>,
             x3::forward_ast<NegativeBooleanConditionEntry>,
@@ -159,52 +180,52 @@ namespace sketches::extended_sketch { namespace ast
         using base_type::operator=;
     };
 
-    struct PositiveBooleanEffect : x3::position_tagged {
+    struct PositiveBooleanEffectEntry : x3::position_tagged {
         BooleanReference reference;
     };
 
-    struct NegativeBooleanEffect : x3::position_tagged {
+    struct NegativeBooleanEffectEntry : x3::position_tagged {
         BooleanReference reference;
     };
 
-    struct UnchangedBooleanEffect : x3::position_tagged {
+    struct UnchangedBooleanEffectEntry : x3::position_tagged {
         BooleanReference reference;
     };
 
-    struct IncrementNumericalEffect : x3::position_tagged {
+    struct IncrementNumericalEffectEntry : x3::position_tagged {
         NumericalReference reference;
     };
 
-    struct DecrementNumericalEffect : x3::position_tagged {
+    struct DecrementNumericalEffectEntry : x3::position_tagged {
         NumericalReference reference;
     };
 
-    struct UnchangedNumericalEffect : x3::position_tagged {
+    struct UnchangedNumericalEffectEntry : x3::position_tagged {
         NumericalReference reference;
     };
 
-    struct FeatureEffect : x3::position_tagged,
+    struct FeatureEffectEntry : x3::position_tagged,
         x3::variant<
-            x3::forward_ast<PositiveBooleanEffect>,
-            x3::forward_ast<NegativeBooleanEffect>,
-            x3::forward_ast<UnchangedBooleanEffect>,
-            x3::forward_ast<IncrementNumericalEffect>,
-            x3::forward_ast<DecrementNumericalEffect>,
-            x3::forward_ast<UnchangedNumericalEffect>> {
+            x3::forward_ast<PositiveBooleanEffectEntry>,
+            x3::forward_ast<NegativeBooleanEffectEntry>,
+            x3::forward_ast<UnchangedBooleanEffectEntry>,
+            x3::forward_ast<IncrementNumericalEffectEntry>,
+            x3::forward_ast<DecrementNumericalEffectEntry>,
+            x3::forward_ast<UnchangedNumericalEffectEntry>> {
         using base_type::base_type;
         using base_type::operator=;
     };
 
     struct FeatureConditionsEntry : x3::position_tagged {
-        std::vector<FeatureCondition> feature_conditions;
+        std::vector<FeatureConditionEntry> feature_conditions;
     };
 
     struct FeatureEffectsEntry : x3::position_tagged {
-        std::vector<FeatureEffect> feature_effects;
+        std::vector<FeatureEffectEntry> feature_effects;
     };
 
     /* Rules */
-    struct LoadRule : x3::position_tagged {
+    struct LoadRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         FeatureConditionsEntry feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -217,7 +238,7 @@ namespace sketches::extended_sketch { namespace ast
         Name reference;
     };
 
-    struct CallRule : x3::position_tagged {
+    struct CallRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         FeatureConditionsEntry feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -230,7 +251,7 @@ namespace sketches::extended_sketch { namespace ast
         Name reference;
     };
 
-    struct ActionRule : x3::position_tagged {
+    struct ActionRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         FeatureConditionsEntry feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -239,7 +260,7 @@ namespace sketches::extended_sketch { namespace ast
         FeatureEffectsEntry feature_effects;
     };
 
-    struct SearchRule : x3::position_tagged {
+    struct SearchRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         FeatureConditionsEntry feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -248,16 +269,16 @@ namespace sketches::extended_sketch { namespace ast
 
     struct RuleEntry : x3::position_tagged,
         x3::variant<
-            x3::forward_ast<LoadRule>,
-            x3::forward_ast<CallRule>,
-            x3::forward_ast<ActionRule>,
-            x3::forward_ast<SearchRule>> {
+            x3::forward_ast<LoadRuleEntry>,
+            x3::forward_ast<CallRuleEntry>,
+            x3::forward_ast<ActionRuleEntry>,
+            x3::forward_ast<SearchRuleEntry>> {
         using base_type::base_type;
         using base_type::operator=;
     };
 
     struct Rules : x3::position_tagged {
-        std::vector<Rule> rules;
+        std::vector<RuleEntry> rules;
     };
 
     /* Sketch */
