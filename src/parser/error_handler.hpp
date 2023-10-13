@@ -53,7 +53,7 @@ namespace sketches::extended_sketch { namespace parser
     template <typename Iterator, typename Exception, typename Context>
     inline x3::error_handler_result
     error_handler_base::on_error(
-        Iterator& first, Iterator const& last
+        Iterator&, Iterator const&
       , Exception const& x, Context const& context)
     {
         std::string which = x.which();

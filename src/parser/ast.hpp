@@ -33,90 +33,220 @@ namespace sketches::extended_sketch { namespace ast
     struct Rules;
     struct ExtendedSketch;
 
-
+    /* Basic character compounds */
     struct Name : x3::position_tagged {
-        std::string name;
+        char alphabetical;
+        std::string suffix;
     };
 
     struct QuotedString : x3::position_tagged {
-        std::string name;
+        std::string characters;
     };
 
-    struct Identifier : x3::position_tagged {
-        std::string name;
+
+    /* Name entry */
+    struct NameEntry : x3::position_tagged {
+        Name name;
     };
 
-    struct MemoryState : x3::position_tagged {
+
+    /* Memory state entry and references */
+    struct MemoryStateDefinition : x3::position_tagged {
         Name key;
     };
 
-    struct MemoryStates : x3::position_tagged {
-        std::vector<MemoryState> states;
-    };
-
-    struct Register : x3::position_tagged {
+    struct MemoryStateReference : x3::position_tagged {
         Name key;
     };
 
-    struct Registers : x3::position_tagged {
-        std::vector<Register> registers;
+    struct MemoryStatesEntry : x3::position_tagged {
+        std::vector<MemoryStateDefinition> definitions;
     };
 
-    struct Boolean : x3::position_tagged {
+
+    /* Register entry and references */
+    struct RegisterDefinition : x3::position_tagged {
+        Name key;
+    };
+
+    struct RegisterReference : x3::position_tagged {
+        Name key;
+    };
+
+    struct RegistersEntry : x3::position_tagged {
+        std::vector<RegisterDefinition> definitions;
+    };
+
+
+    /* Boolean entry and references */
+    struct BooleanDefinition : x3::position_tagged {
         Name key;
         QuotedString repr;
     };
 
-    struct Booleans : x3::position_tagged {
-        std::vector<Boolean> booleans;
-    };
-
-    struct MemoryCondition : x3::position_tagged {
-        MemoryState state;
-    };
-
-    struct MemoryEffect : x3::position_tagged {
-        MemoryState state;
-    };
-
-    struct FeatureCondition : x3::position_tagged {
-        Identifier type;
+    struct BooleanReference : x3::position_tagged {
         Name key;
     };
 
-    struct FeatureEffect : x3::position_tagged {
-        Identifier type;
+    struct BooleansEntry : x3::position_tagged {
+        std::vector<BooleanDefinition> definitions;
+    };
+
+
+    /* Numerical entry and references */
+    struct NumericalDefinition : x3::position_tagged {
+        Name key;
+        QuotedString repr;
+    };
+
+    struct NumericalReference : x3::position_tagged {
         Name key;
     };
 
-    struct Conditions : x3::position_tagged {
-        MemoryState memory_condition;
+    struct NumericalsEntry : x3::position_tagged {
+        std::vector<NumericalDefinition> definitions;
+    };
+
+
+    /* Concept entry and references */
+    struct ConceptDefinition : x3::position_tagged {
+        Name key;
+        QuotedString repr;
+    };
+
+    struct ConceptReference : x3::position_tagged {
+        Name key;
+    };
+
+    struct ConceptsEntry : x3::position_tagged {
+        std::vector<ConceptDefinition> definitions;
+    };
+
+
+    /* Condition and effects */
+    struct MemoryConditionEntry : x3::position_tagged {
+        MemoryStateReference reference;
+    };
+
+    struct MemoryEffectEntry : x3::position_tagged {
+        MemoryStateReference reference;
+    };
+
+
+    struct PositiveBooleanConditionEntry : x3::position_tagged {
+        BooleanReference reference;
+    };
+
+    struct NegativeBooleanConditionEntry : x3::position_tagged {
+        BooleanReference reference;
+    };
+
+    struct GreaterNumericalConditionEntry : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct EqualNumericalConditionEntry : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct FeatureCondition : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<PositiveBooleanConditionEntry>,
+            x3::forward_ast<NegativeBooleanConditionEntry>,
+            x3::forward_ast<GreaterNumericalConditionEntry>,
+            x3::forward_ast<EqualNumericalConditionEntry>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
+    struct PositiveBooleanEffect : x3::position_tagged {
+        BooleanReference reference;
+    };
+
+    struct NegativeBooleanEffect : x3::position_tagged {
+        BooleanReference reference;
+    };
+
+    struct UnchangedBooleanEffect : x3::position_tagged {
+        BooleanReference reference;
+    };
+
+    struct IncrementNumericalEffect : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct DecrementNumericalEffect : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct UnchangedNumericalEffect : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct FeatureEffect : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<PositiveBooleanEffect>,
+            x3::forward_ast<NegativeBooleanEffect>,
+            x3::forward_ast<UnchangedBooleanEffect>,
+            x3::forward_ast<IncrementNumericalEffect>,
+            x3::forward_ast<DecrementNumericalEffect>,
+            x3::forward_ast<UnchangedNumericalEffect>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
+    struct FeatureConditionsEntry : x3::position_tagged {
         std::vector<FeatureCondition> feature_conditions;
     };
 
-    struct Effects : x3::position_tagged {
-        MemoryState memory_effect;
+    struct FeatureEffectsEntry : x3::position_tagged {
         std::vector<FeatureEffect> feature_effects;
     };
 
+    /* Rules */
     struct LoadRule : x3::position_tagged {
-        Conditions conditions;
-        Effects effects;
+        MemoryConditionEntry memory_condition;
+        FeatureConditionsEntry feature_conditions;
+        MemoryEffectEntry memory_effect;
+        RegisterReference register_reference;
+        ConceptReference concept_reference;
+        FeatureEffectsEntry feature_effects;
+    };
+
+    struct ModuleReference : x3::position_tagged {
+        Name reference;
     };
 
     struct CallRule : x3::position_tagged {
+        MemoryConditionEntry memory_condition;
+        FeatureConditionsEntry feature_conditions;
+        MemoryEffectEntry memory_effect;
+        ModuleReference module_reference;
+        std::vector<RegisterReference> register_references;
+        FeatureEffectsEntry feature_effects;
+    };
 
+    struct ActionReference : x3::position_tagged {
+        Name reference;
     };
 
     struct ActionRule : x3::position_tagged {
-
+        MemoryConditionEntry memory_condition;
+        FeatureConditionsEntry feature_conditions;
+        MemoryEffectEntry memory_effect;
+        ActionReference action_reference;
+        std::vector<RegisterReference> register_references;
+        FeatureEffectsEntry feature_effects;
     };
 
     struct SearchRule : x3::position_tagged {
-
+        MemoryConditionEntry memory_condition;
+        FeatureConditionsEntry feature_conditions;
+        MemoryEffectEntry memory_effect;
+        FeatureEffectsEntry feature_effects;
     };
 
-    struct Rule : x3::position_tagged,
+    struct RuleEntry : x3::position_tagged,
         x3::variant<
             x3::forward_ast<LoadRule>,
             x3::forward_ast<CallRule>,
@@ -126,12 +256,18 @@ namespace sketches::extended_sketch { namespace ast
         using base_type::operator=;
     };
 
-    struct Rules {
+    struct Rules : x3::position_tagged {
         std::vector<Rule> rules;
     };
 
+    /* Sketch */
     struct ExtendedSketch : x3::position_tagged {
-        Name name;
+        NameEntry name;
+        MemoryStatesEntry memory_states;
+        RegistersEntry registers;
+        BooleansEntry booleans;
+        NumericalsEntry numericals;
+        ConceptsEntry concepts;
         Rules rules;
     };
 }}
