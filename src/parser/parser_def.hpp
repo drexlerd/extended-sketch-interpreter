@@ -18,6 +18,7 @@ namespace sketches::extended_sketch { namespace parser
     using x3::lit;
     using x3::lexeme;
 
+    using ascii::alpha;
     using ascii::alnum;
     using ascii::char_;
     using ascii::string;
@@ -56,10 +57,12 @@ namespace sketches::extended_sketch { namespace parser
     struct IncrementNumericalEffectEntryClass;
     struct DecrementNumericalEffectEntryClass;
     struct UnchangedNumericalEffectEntryClass;
-    struct FeatureConditionsEntryClass;
-    struct FeatureEffectsEntryClass;
+    struct FeatureConditionEntryClass;
+    struct FeatureEffectEntryClass;
     struct LoadRuleEntryClass;
+    struct ModuleReferenceClass;
     struct CallRuleEntryClass;
+    struct ActionReferenceClass;
     struct ActionRuleEntryClass;
     struct SearchRuleEntryClass;
     struct RuleEntryClass;
@@ -161,17 +164,23 @@ namespace sketches::extended_sketch { namespace parser
     x3::rule<UnchangedNumericalEffectEntryClass, ast::UnchangedNumericalEffectEntry> const
         unchanged_numerical_effect_entry = "unchanged_numerical_effect_entry";
 
-    x3::rule<FeatureConditionsEntryClass, ast::FeatureConditionsEntry> const
-        feature_conditions_entry = "feature_conditions_entry";
+    x3::rule<FeatureConditionEntryClass, ast::FeatureConditionEntry> const
+        feature_condition_entry = "feature_condition_entry";
 
-    x3::rule<FeatureEffectsEntryClass, ast::FeatureEffectsEntry> const
-        feature_effects_entry = "feature_effects_entry";
+    x3::rule<FeatureEffectEntryClass, ast::FeatureEffectEntry> const
+        feature_effect_entry = "feature_effect_entry";
 
     x3::rule<LoadRuleEntryClass, ast::LoadRuleEntry> const
         load_rule_entry = "load_rule_entry";
 
+    x3::rule<ModuleReferenceClass, ast::ModuleReference> const
+        module_reference = "module_reference";
+
     x3::rule<CallRuleEntryClass, ast::CallRuleEntry> const
         call_rule_entry = "call_rule_entry";
+
+    x3::rule<ActionReferenceClass, ast::ActionReference> const
+        action_reference = "action_reference";
 
     x3::rule<ActionRuleEntryClass, ast::ActionRuleEntry> const
         action_rule_entry = "action_rule_entry";
@@ -232,6 +241,76 @@ namespace sketches::extended_sketch { namespace parser
         > lit(')');
 */
 
+    const auto name_def = alpha >> *(alpha | char_('-') | char_('_'));
+    const auto quoted_string_def = lexeme[lit('"') >> +(char_ - lit('"')) >> lit('"')];
+    const auto name_entry_def = lit('(') > lit(":name") > name > lit(')');
+    const auto memory_state_definition_def = name;
+    const auto memory_state_reference_def = name;
+    const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > *memory_state_definition > lit(')');
+    const auto register_definition_def = name;
+    const auto register_reference_def = name;
+    const auto registers_entry_def = lit('(') >> lit(":registers") > *register_definition > lit(')');
+    const auto boolean_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto boolean_reference_def = name;
+    const auto booleans_entry_def = lit('(') >> lit(":booleans") > *boolean_definition > lit(')');
+    const auto numerical_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto numerical_reference_def = name;
+    const auto numericals_entry_def = lit('(') >> lit(":numericals") > *numerical_definition > lit(')');
+    const auto concept_definition_def = lit('(') >> name >> quoted_string >> lit(')');
+    const auto concept_reference_def = name;
+    const auto concepts_entry_def = lit('(') >> lit(":concepts") > *concept_definition > lit(')');
+    const auto memory_condition_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
+    const auto memory_effect_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
+    const auto positive_boolean_condition_entry_def = lit('(') >> lit(":c_b_pos") >> boolean_reference >> lit(')');
+    const auto negative_boolean_condition_entry_def = lit('(') >> lit(":c_b_neg") >> boolean_reference >> lit(')');
+    const auto greater_numerical_condition_entry_def = lit('(') >> lit(":c_n_gt") >> numerical_reference >> lit(')');
+    const auto equal_numerical_condition_entry_def = lit('(') >> lit(":c_n_eq") >> numerical_reference >> lit(')');
+    const auto positive_boolean_effect_entry_def = lit('(') >> lit(":e_b_pos") >> boolean_reference >> lit(')');
+    const auto negative_boolean_effect_entry_def = lit('(') >> lit(":e_b_neg") >> boolean_reference >> lit(')');
+    const auto unchanged_boolean_effect_entry_def = lit('(') >> lit(":e_b_bot") >> boolean_reference >> lit(')');
+    const auto increment_numerical_effect_entry_def = lit('(') >> lit(":e_n_inc") >> numerical_reference >> lit(')');
+    const auto decrement_numerical_effect_entry_def = lit('(') >> lit(":e_n_dec") >> numerical_reference >> lit(')');
+    const auto unchanged_numerical_effect_entry_def = lit('(') >> lit(":e_n_bot") >> numerical_reference >> lit(')');
+    const auto feature_condition_entry_def =
+        positive_boolean_condition_entry | negative_boolean_condition_entry | greater_numerical_condition_entry | equal_numerical_condition_entry;
+    const auto feature_effect_entry_def =
+        positive_boolean_effect_entry | negative_boolean_effect_entry | unchanged_boolean_effect_entry | increment_numerical_effect_entry | decrement_numerical_effect_entry | unchanged_numerical_effect_entry;
+    const auto load_rule_entry_def =
+        lit('(') >> lit(":load_rule")
+            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
+            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> lit("load") >> lit('(') >> register_reference >> concept_reference >> lit(')') >> lit(')') >> lit(')')
+        >> lit(')');
+    const auto module_reference_def = name;
+    const auto call_rule_entry_def =
+        lit('(') >> lit(":call_rule")
+            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
+            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> module_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
+        >> lit(')');
+    const auto action_reference_def = name;
+    const auto action_rule_entry_def =
+        lit('(') >> lit(":action_rule")
+            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
+            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit('(') >> action_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
+        >> lit(')');
+    const auto search_rule_entry_def =
+        lit('(') >> lit(":search_rule")
+            >> lit('(') >> lit(":conditions") >> memory_condition_entry >> *feature_condition_entry >> lit(')')
+            >> lit('(') >> lit(":effects") >> memory_effect_entry >> *feature_effect_entry >> lit(')')
+        >> lit(')');
+    const auto rule_entry_def =
+        load_rule_entry | call_rule_entry | action_rule_entry | search_rule_entry;
+    const auto rules_def = *rule_entry;
+    const auto extended_sketch_def = lit('(')
+        > lit(":extended_sketch")
+        >> name_entry
+        >> memory_states_entry
+        >> registers_entry
+        >> booleans_entry
+        >> numericals_entry
+        >> concepts_entry
+        >> rules
+        > lit(')');
+
     BOOST_SPIRIT_DEFINE(name, quoted_string, name_entry,
         memory_state_definition, memory_state_reference, memory_states_entry,
         register_definition, register_reference, registers_entry,
@@ -241,8 +320,8 @@ namespace sketches::extended_sketch { namespace parser
         memory_condition_entry, memory_effect_entry,
         positive_boolean_condition_entry, negative_boolean_condition_entry, greater_numerical_condition_entry, equal_numerical_condition_entry,
         positive_boolean_effect_entry, negative_boolean_effect_entry, unchanged_boolean_effect_entry, increment_numerical_effect_entry, decrement_numerical_effect_entry, unchanged_numerical_effect_entry,
-        feature_conditions_entry, feature_effects_entry,
-        load_rule_entry, call_rule_entry, action_rule_entry, search_rule_entry, rule_entry, rules,
+        feature_condition_entry, feature_effect_entry,
+        load_rule_entry, module_reference, call_rule_entry, action_reference, action_rule_entry, search_rule_entry, rule_entry, rules,
         extended_sketch
     )
 
@@ -277,10 +356,12 @@ namespace sketches::extended_sketch { namespace parser
     struct IncrementNumericalEffectEntryClass : x3::annotate_on_success {};
     struct DecrementNumericalEffectEntryClass : x3::annotate_on_success {};
     struct UnchangedNumericalEffectEntryClass : x3::annotate_on_success {};
-    struct FeatureConditionsEntryClass : x3::annotate_on_success {};
-    struct FeatureEffectsEntryClass : x3::annotate_on_success {};
+    struct FeatureConditionEntryClass : x3::annotate_on_success {};
+    struct FeatureEffectEntryClass : x3::annotate_on_success {};
     struct LoadRuleEntryClass : x3::annotate_on_success {};
+    struct ModuleReferenceClass : x3::annotate_on_success {};
     struct CallRuleEntryClass : x3::annotate_on_success {};
+    struct ActionReferenceClass : x3::annotate_on_success {};
     struct ActionRuleEntryClass : x3::annotate_on_success {};
     struct SearchRuleEntryClass : x3::annotate_on_success {};
     struct RuleEntryClass : x3::annotate_on_success {};

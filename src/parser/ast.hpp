@@ -44,8 +44,8 @@ namespace sketches::extended_sketch { namespace ast
     struct IncrementNumericalEffectEntry;
     struct DecrementNumericalEffectEntry;
     struct UnchangedNumericalEffectEntry;
-    struct FeatureConditionsEntry;
-    struct FeatureEffectsEntry;
+    struct FeatureConditionEntry;
+    struct FeatureEffectEntry;
     struct LoadRuleEntry;
     struct CallRuleEntry;
     struct ActionRuleEntry;
@@ -216,22 +216,14 @@ namespace sketches::extended_sketch { namespace ast
         using base_type::operator=;
     };
 
-    struct FeatureConditionsEntry : x3::position_tagged {
-        std::vector<FeatureConditionEntry> feature_conditions;
-    };
-
-    struct FeatureEffectsEntry : x3::position_tagged {
-        std::vector<FeatureEffectEntry> feature_effects;
-    };
-
     /* Rules */
     struct LoadRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
-        FeatureConditionsEntry feature_conditions;
+        std::vector<FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
+        std::vector<FeatureEffectEntry> feature_effects;
         RegisterReference register_reference;
         ConceptReference concept_reference;
-        FeatureEffectsEntry feature_effects;
     };
 
     struct ModuleReference : x3::position_tagged {
@@ -240,11 +232,11 @@ namespace sketches::extended_sketch { namespace ast
 
     struct CallRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
-        FeatureConditionsEntry feature_conditions;
+        std::vector<FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
+        std::vector<FeatureEffectEntry> feature_effects;
         ModuleReference module_reference;
         std::vector<RegisterReference> register_references;
-        FeatureEffectsEntry feature_effects;
     };
 
     struct ActionReference : x3::position_tagged {
@@ -253,18 +245,18 @@ namespace sketches::extended_sketch { namespace ast
 
     struct ActionRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
-        FeatureConditionsEntry feature_conditions;
+        std::vector<FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
+        std::vector<FeatureEffectEntry> feature_effects;
         ActionReference action_reference;
         std::vector<RegisterReference> register_references;
-        FeatureEffectsEntry feature_effects;
     };
 
     struct SearchRuleEntry : x3::position_tagged {
         MemoryConditionEntry memory_condition;
-        FeatureConditionsEntry feature_conditions;
+        std::vector<FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
-        FeatureEffectsEntry feature_effects;
+        std::vector<FeatureEffectEntry> feature_effects;
     };
 
     struct RuleEntry : x3::position_tagged,

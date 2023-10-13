@@ -49,12 +49,11 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::IncrementNumericalEffe
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::DecrementNumericalEffectEntry, reference)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::UnchangedNumericalEffectEntry, reference)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::FeatureConditionsEntry, feature_conditions)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::FeatureEffectsEntry, feature_effects)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::LoadRuleEntry, memory_condition, feature_conditions, memory_effect, register_reference, concept_reference, feature_effects)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::CallRuleEntry, memory_condition, feature_conditions, memory_effect, module_reference, register_references, feature_effects)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionRuleEntry, memory_condition, feature_conditions, memory_effect, action_reference, register_references, feature_effects)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::LoadRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, register_reference, concept_reference)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ModuleReference, reference)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::CallRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, module_reference, register_references)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionReference, reference)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ActionRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, action_reference, register_references)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::SearchRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rules, rules)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, name, memory_states, registers, booleans, numericals, concepts, rules)
