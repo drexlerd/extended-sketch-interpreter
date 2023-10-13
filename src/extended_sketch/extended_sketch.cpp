@@ -14,7 +14,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const IWSearchRuleList& iwsearch_rules)
+    const SearchRuleList& iwsearch_rules)
     : m_name(name),
       m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
@@ -42,7 +42,7 @@ std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const IWSearchRuleList& iwsearch_rules) {
+    const SearchRuleList& iwsearch_rules) {
     return std::make_shared<ExtendedSketchImpl>(
         name,
         memory_states,

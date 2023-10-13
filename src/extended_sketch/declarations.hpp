@@ -59,9 +59,9 @@ namespace sketches::extended_sketch {
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;
 
-    class IWSearchRuleImpl;
-    using IWSearchRule = std::shared_ptr<IWSearchRuleImpl>;
-    using IWSearchRuleList = std::vector<IWSearchRule>;
+    class SearchRuleImpl;
+    using SearchRule = std::shared_ptr<SearchRuleImpl>;
+    using SearchRuleList = std::vector<SearchRule>;
 
     class ExtendedSketchImpl;
     using ExtendedSketch = std::shared_ptr<ExtendedSketchImpl>;

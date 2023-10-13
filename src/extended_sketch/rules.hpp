@@ -122,20 +122,20 @@ extern std::shared_ptr<ActionRuleImpl> create_action_rule(
     const RegisterList& arguments);
 
 
-class IWSearchRuleImpl : public ExtendedRuleImpl {
+class SearchRuleImpl : public ExtendedRuleImpl {
 public:
-    IWSearchRuleImpl(
+    SearchRuleImpl(
         const MemoryState& memory_state_condition,
         const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
-    ~IWSearchRuleImpl() override;
+    ~SearchRuleImpl() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
 
-extern std::shared_ptr<IWSearchRuleImpl> create_iwsearch_rule(
+extern std::shared_ptr<SearchRuleImpl> create_iwsearch_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,

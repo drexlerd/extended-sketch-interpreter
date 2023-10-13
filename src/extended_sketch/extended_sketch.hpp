@@ -23,7 +23,7 @@ private:
     LoadRuleList m_load_rules;
     CallRuleList m_call_rules;
     ActionRuleList m_action_rules;
-    IWSearchRuleList m_iwsearch_rules;
+    SearchRuleList m_iwsearch_rules;
 
 public:
     ExtendedSketchImpl(
@@ -37,7 +37,7 @@ public:
         const LoadRuleList& load_rules,
         const CallRuleList& call_rules,
         const ActionRuleList& action_rules,
-        const IWSearchRuleList& iwsearch_rules);
+        const SearchRuleList& iwsearch_rules);
 
     const std::string& get_name() const;
 };
@@ -53,7 +53,7 @@ extern std::shared_ptr<ExtendedSketchImpl> make_extended_sketch(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const IWSearchRuleList& iwsearch_rules);
+    const SearchRuleList& iwsearch_rules);
 
 }
 

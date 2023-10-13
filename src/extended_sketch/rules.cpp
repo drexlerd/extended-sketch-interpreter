@@ -216,20 +216,20 @@ std::shared_ptr<ActionRuleImpl> create_action_rule(
 }
 
 
-IWSearchRuleImpl::IWSearchRuleImpl(
+SearchRuleImpl::SearchRuleImpl(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
     : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions, feature_effects) { }
 
-IWSearchRuleImpl::~IWSearchRuleImpl() = default;
+SearchRuleImpl::~SearchRuleImpl() = default;
 
-int IWSearchRuleImpl::compute_evaluate_time_score() const {
+int SearchRuleImpl::compute_evaluate_time_score() const {
     return ExtendedRuleImpl::compute_evaluate_time_score();
 }
 
-void IWSearchRuleImpl::compute_repr(std::stringstream& out) const {
+void SearchRuleImpl::compute_repr(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
     out << "(:memory " << m_memory_state_condition->get_key() << ")";
@@ -246,12 +246,12 @@ void IWSearchRuleImpl::compute_repr(std::stringstream& out) const {
     out << ")";  // rule
 }
 
-std::shared_ptr<IWSearchRuleImpl> create_iwsearch_rule(
+std::shared_ptr<SearchRuleImpl> create_iwsearch_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects) {
-    return std::make_shared<IWSearchRuleImpl>(memory_state_condition, memory_state_effect, feature_conditions, feature_effects);
+    return std::make_shared<SearchRuleImpl>(memory_state_condition, memory_state_effect, feature_conditions, feature_effects);
 }
 
 }
