@@ -18,11 +18,10 @@
 namespace sketches::parsers::extended_sketch::stage_1::parser {
 
 ast::ExtendedSketch parse_ast(
-    const std::string& source,
     iterator_type& iter,
     iterator_type end,
     error_handler_type& error_handler) {
-    assert(in_bounds(source, iter, end));
+    assert(in_bounds(error_handler, iter, end));
 
     // Our AST
     sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch ast;

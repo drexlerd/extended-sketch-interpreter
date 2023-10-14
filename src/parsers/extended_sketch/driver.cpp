@@ -36,10 +36,10 @@ ExtendedSketch Driver::parse(
     assert(in_bounds(source, iter, end));
 
     // Our error handler
-    sketches::parsers::error_handler_type error_handler(iter, end, std::cerr, filename); // Our error handler
+    sketches::parsers::error_handler_type error_handler(iter, end, std::cerr, filename);
 
     // Stage 1 parse
-    auto root_node = stage_1::parser::parse_ast(source, iter, end, error_handler);
+    auto root_node = stage_1::parser::parse_ast(iter, end, error_handler);
 
     // Stage 2 parse
     stage_2::Context context(domain_description, element_factory, policy_builder);
