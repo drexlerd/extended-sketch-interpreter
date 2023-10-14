@@ -3,9 +3,7 @@
 
 #include <map>
 
-#include <boost/spirit/home/x3.hpp>
-#include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
-#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
+#include "config.hpp"
 
 
 namespace sketches::extended_sketch::parser
@@ -15,12 +13,6 @@ namespace sketches::extended_sketch::parser
     ////////////////////////////////////////////////////////////////////////////
     //  Our error handler
     ////////////////////////////////////////////////////////////////////////////
-    // X3 Error Handler Utility
-    template <typename Iterator>
-    using error_handler = x3::error_handler<Iterator>;
-
-    // tag used to get our error handler from the context
-    using error_handler_tag = x3::error_handler_tag;
 
     struct error_handler_base
     {

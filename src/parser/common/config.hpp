@@ -2,12 +2,14 @@
 #define SRC_PARSER_COMMON_CONFIG_HPP_
 
 #include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
+#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
-#include "error_handler.hpp"
 
-
-namespace sketches::extended_sketch { namespace parser
+namespace sketches::extended_sketch::parser
 {
+    namespace x3 = boost::spirit::x3;
+
     // Our Iterator Type
     typedef std::string::const_iterator iterator_type;
 
@@ -15,6 +17,13 @@ namespace sketches::extended_sketch { namespace parser
     typedef
         x3::phrase_parse_context<x3::ascii::space_type>::type
     phrase_context_type;
+
+    // X3 Error Handler Utility
+    template <typename Iterator>
+    using error_handler = x3::error_handler<Iterator>;
+
+    // tag used to get our error handler from the context
+    using error_handler_tag = x3::error_handler_tag;
 
     // Our Error Handler
     typedef error_handler<iterator_type> error_handler_type;
@@ -25,6 +34,6 @@ namespace sketches::extended_sketch { namespace parser
       , std::reference_wrapper<error_handler_type>
       , phrase_context_type>
     context_type;
-}}
+}
 
 #endif
