@@ -8,6 +8,7 @@
 #include "src/external/mimir/pddl/domain_parser.hpp"
 #include "src/external/mimir/pddl/problem_parser.hpp"
 
+#include "src/parsers/common/filesystem.hpp"
 #include "src/parsers/extended_sketch/driver.hpp"
 #include "src/extended_sketch/declarations.hpp"
 
@@ -63,9 +64,10 @@ int main(int argc, char** argv) {
     auto policy_builder = std::make_shared<dlplan::policy::PolicyBuilder>();
     // 4. Parse the modules
     extended_sketch::ExtendedSketchList sketch_list;
+    parsers::extended_sketch::Driver driver(domain_description, syntactic_element_factory, policy_builder);
     for (const auto& sketch_file : sketch_files) {
-        parsers::extended_sketch::Driver driver(sketch_file);
-        sketch_list.push_back(driver.parse(domain_description, syntactic_element_factory, policy_builder));
+        const auto source = parsers::read_file(sketch_file);
+        sketch_list.push_back(driver.parse(source));
     }
     // 4. Run SIW_M
     return 0;

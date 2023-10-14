@@ -8,16 +8,12 @@
 
 namespace sketches::parsers::extended_sketch::stage_1::parser {
 
-struct ParseAstResult {
-     ast::ExtendedSketch root_node;
-     error_handler_type error_handler;
-};
-
-/// @brief Parses the whole content
-extern ParseAstResult parse_ast(const std::string& sketch_file_content);
 
 /// @brief Parses the content from iter to end
-extern ParseAstResult parse_ast(const std::string& sketch_file_content, iterator_type iter, iterator_type end);
+extern ast::ExtendedSketch parse_ast(
+     iterator_type& iter,
+     iterator_type end,
+     error_handler_type& error_handler);
 
 }
 

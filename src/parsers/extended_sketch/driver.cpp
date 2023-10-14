@@ -9,30 +9,38 @@
 
 namespace sketches::parsers::extended_sketch {
 
-Driver::Driver(const fs::path& sketch_path)
-    : m_sketch_path(sketch_path) { }
-
-ExtendedSketch Driver::parse(
+Driver::Driver(
     const mimir::formalism::DomainDescription& domain_description,
-    std::shared_ptr<dlplan::core::SyntacticElementFactory> factory,
-    std::shared_ptr<dlplan::policy::PolicyBuilder> builder) {
+    const std::shared_ptr<dlplan::core::SyntacticElementFactory>& element_factory,
+    const std::shared_ptr<dlplan::policy::PolicyBuilder>& policy_builder)
+    : domain_description(domain_description),
+      element_factory(element_factory),
+      policy_builder(policy_builder) { }
 
-    std::ifstream sketch_stream(this->m_sketch_path.c_str());
-    if (sketch_stream.is_open()) {
-        std::stringstream buffer;
-        buffer << sketch_stream.rdbuf();
-        std::string source = buffer.str();
+ExtendedSketch Driver::parse(const std::string& source) {
+    iterator_type iter(source.begin());
+    iterator_type const end(source.end());
 
-        // Stage 1 parse
-        auto result = stage_1::parser::parse_ast(source);
+    // Our error handler
+    sketches::parsers::error_handler_type error_handler(iter, end, std::cerr); // Our error handler
 
-        // Stage 2 parse
-        stage_2::Context context(domain_description, factory, builder);
-        auto sketch = parse_sketch(context, result.error_handler, result.root_node);
+    return parse(iter, end, error_handler);
+}
 
-        return sketch;
-    }
-    throw std::runtime_error("extended sketch file does not exist");
+sketches::extended_sketch::ExtendedSketch Driver::parse(
+    iterator_type& iter,
+    iterator_type end,
+    error_handler_type& error_handler) {
+    assert(in_bounds(iter, end, error_handler));
+
+    // Stage 1 parse
+    auto root_node = stage_1::parser::parse_ast(iter, end, error_handler);
+
+    // Stage 2 parse
+    stage_2::Context context(domain_description, element_factory, policy_builder);
+    auto sketch = parse_sketch(context, error_handler, root_node);
+
+    return sketch;
 }
 
 }
