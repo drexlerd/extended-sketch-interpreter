@@ -1,5 +1,6 @@
 #include "parser.hpp"
 
+#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -7,6 +8,7 @@
 #include <fstream>
 
 #include "src/parsers/common/config.hpp"
+#include "src/parsers/common/error_handler.hpp"
 #include "src/parsers/extended_sketch/common/error_handler.hpp"
 
 #include "ast.hpp"

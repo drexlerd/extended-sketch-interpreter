@@ -1,7 +1,9 @@
 #include "driver.hpp"
 
+#include <cassert>
 #include <fstream>
 
+#include "src/parsers/common/error_handler.hpp"
 #include "common/error_handler.hpp"
 #include "stage_1_ast/parser.hpp"
 #include "stage_2_sketch/parser.hpp"
