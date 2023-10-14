@@ -63,6 +63,7 @@ static Register translate(Context& context, const error_handler_type& error_hand
     auto register_ = context.register_factory.get_register(key);
     if (!register_) {
         error_handler(node, "Undefined register " + key);
+        throw std::runtime_error("Unsuccessful parse.");
     }
     return register_;
 }
@@ -87,6 +88,7 @@ static Boolean translate(Context& context, const error_handler_type& error_handl
     auto boolean = context.boolean_factory.get_boolean(key);
     if (!boolean) {
         error_handler(node, "Undefined boolean " + key);
+        throw std::runtime_error("Unsuccessful parse.");
     }
     return boolean;
 }
@@ -111,6 +113,7 @@ static Numerical translate(Context& context, const error_handler_type& error_han
     auto numerical = context.numerical_factory.get_numerical(key);
     if (!numerical) {
         error_handler(node, "Undefined numerical " + key);
+        throw std::runtime_error("Unsuccessful parse.");
     }
     return numerical;
 }
@@ -135,6 +138,7 @@ static Concept translate(Context& context, const error_handler_type& error_handl
     auto concept_ = context.concept_factory.get_concept(key);
     if (!concept_) {
         error_handler(node, "Undefined concept " + key);
+        throw std::runtime_error("Unsuccessful parse.");
     }
     return concept_;
 }
