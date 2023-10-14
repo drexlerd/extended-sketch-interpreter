@@ -48,7 +48,9 @@ namespace sketches::extended_sketch { namespace ast
     struct FeatureConditionEntry;
     struct FeatureEffectEntry;
     struct LoadRuleEntry;
+    struct ModuleReference;
     struct CallRuleEntry;
+    struct ActionReference;
     struct ActionRuleEntry;
     struct SearchRuleEntry;
     struct RuleEntry;

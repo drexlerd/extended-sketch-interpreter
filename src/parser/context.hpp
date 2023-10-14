@@ -1,7 +1,9 @@
 #ifndef SRC_PARSER_CONTEXT_HPP_
 #define SRC_PARSER_CONTEXT_HPP_
 
+#include <map>
 #include <memory>
+#include <string>
 
 #include "../external/mimir/formalism/domain.hpp"
 #include "../external/dlplan/include/dlplan/core.h"
@@ -16,6 +18,8 @@ namespace sketches::extended_sketch::parser {
     /// @brief Provides additional context during parsing.
     struct Context {
         mimir::formalism::DomainDescription domain_description;
+        std::map<std::string, mimir::formalism::ActionSchema> action_schema_map;
+
         std::shared_ptr<dlplan::policy::PolicyBuilder> policy_builder;
         MemoryStateFactory memory_state_factory;
         RegisterFactory register_factory;

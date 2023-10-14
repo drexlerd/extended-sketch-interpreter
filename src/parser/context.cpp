@@ -8,6 +8,7 @@ Context::Context(
     const std::shared_ptr<dlplan::core::SyntacticElementFactory>& syntactic_element_factory,
     const std::shared_ptr<dlplan::policy::PolicyBuilder>& policy_builder)
     : domain_description(domain_description),
+      action_schema_map(domain_description->get_action_schema_map()),
       policy_builder(policy_builder),
       memory_state_factory(MemoryStateFactory()),
       register_factory(RegisterFactory()),

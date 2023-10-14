@@ -261,12 +261,56 @@ static LoadRule translate(Context& context, const error_handler_type& error_hand
     return create_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static CallRule translate(Context& context, const error_handler_type& error_handler, const ast::CallRuleEntry& node) {
+static std::string translate(Context& context, const error_handler_type& error_handler, const ast::ModuleReference& node) {
+    // TODO: add check whether the module exists in a second stage?
+    return translate(context, error_handler, node.reference);
+}
 
+static CallRule translate(Context& context, const error_handler_type& error_handler, const ast::CallRuleEntry& node) {
+    auto memory_condition = translate(context, error_handler, node.memory_condition);
+    auto memory_effect = translate(context, error_handler, node.memory_effect);
+    ConditionSet feature_conditions;
+    for (const auto& condition_node : node.feature_conditions) {
+        feature_conditions.insert(translate(context, error_handler, condition_node));
+    }
+    EffectSet feature_effects;
+    for (const auto& effect_node : node.feature_effects) {
+        feature_effects.insert(translate(context, error_handler, effect_node));
+    }
+    auto module_ = translate(context, error_handler, node.module_reference);
+    RegisterList registers;
+    for (const auto& register_node : node.register_references) {
+        registers.push_back(translate(context, error_handler, register_node));
+    }
+    return create_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
+}
+
+static mimir::formalism::ActionSchema translate(Context& context, const error_handler_type& error_handler, const ast::ActionReference& node) {
+    auto action_name = translate(context, error_handler, node.reference);
+    auto it = context.action_schema_map.find(action_name);
+    if (it == context.action_schema_map.end()) {
+        error_handler(node.reference, "undefined action schema " + action_name);
+    }
+    return it->second;
 }
 
 static ActionRule translate(Context& context, const error_handler_type& error_handler, const ast::ActionRuleEntry& node) {
-
+    auto memory_condition = translate(context, error_handler, node.memory_condition);
+    auto memory_effect = translate(context, error_handler, node.memory_effect);
+    ConditionSet feature_conditions;
+    for (const auto& condition_node : node.feature_conditions) {
+        feature_conditions.insert(translate(context, error_handler, condition_node));
+    }
+    EffectSet feature_effects;
+    for (const auto& effect_node : node.feature_effects) {
+        feature_effects.insert(translate(context, error_handler, effect_node));
+    }
+    auto action_schema = translate(context, error_handler, node.action_reference);
+    RegisterList registers;
+    for (const auto& register_node : node.register_references) {
+        registers.push_back(translate(context, error_handler, register_node));
+    }
+    return create_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
 static SearchRule translate(Context& context, const error_handler_type& error_handler, const ast::SearchRuleEntry& node) {
@@ -284,15 +328,77 @@ static SearchRule translate(Context& context, const error_handler_type& error_ha
 }
 
 
-static std::variant<LoadRule, CallRule, ActionRule, SearchRule>
-translate(Context& context, const error_handler_type& error_handler, const ast::RuleEntry& node) {
+class RuleEntryVisitor {
+private:
+    Context& context;
+    const error_handler_type& error_handler;
 
+public:
+    boost::variant<LoadRule, CallRule, ActionRule, SearchRule> result;
+
+    RuleEntryVisitor(Context& context, const error_handler_type& error_handler)
+        : context(context), error_handler(error_handler) { }
+
+    template<typename Node>
+    void operator()(const Node& node) {
+        result = translate(context, error_handler, node);
+    }
+};
+
+static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
+translate(Context& context, const error_handler_type& error_handler, const ast::RuleEntry& node) {
+    RuleEntryVisitor visitor(context, error_handler);
+    boost::apply_visitor(visitor, node);
+    return visitor.result;
 }
 
 
+class RuleVisitor {
+private:
+    Context& context;
+    const error_handler_type& error_handler;
+    LoadRuleList& load_rules;
+    CallRuleList& call_rules;
+    ActionRuleList& action_rules;
+    SearchRuleList& search_rules;
+
+public:
+    RuleVisitor(Context& context, const error_handler_type& error_handler,
+    LoadRuleList& load_rules, CallRuleList& call_rules,
+    ActionRuleList& action_rules, SearchRuleList& search_rules)
+        : context(context), error_handler(error_handler),
+          load_rules(load_rules), call_rules(call_rules),
+          action_rules(action_rules), search_rules(search_rules) { }
+
+    void operator()(const LoadRule& load_rule) {
+        load_rules.push_back(load_rule);
+    }
+
+    void operator()(const CallRule& call_rule) {
+        call_rules.push_back(call_rule);
+    }
+
+    void operator()(const ActionRule& action_rule) {
+        action_rules.push_back(action_rule);
+    }
+
+    void operator()(const SearchRule& search_rule) {
+        search_rules.push_back(search_rule);
+    }
+};
+
 static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
 translate(Context& context, const error_handler_type& error_handler, const ast::Rules& node) {
-
+    auto load_rules = LoadRuleList();
+    auto call_rules = CallRuleList();
+    auto action_rules = ActionRuleList();
+    auto search_rules = SearchRuleList();
+    RuleVisitor visitor(context, error_handler, load_rules, call_rules, action_rules, search_rules);
+    for (const auto& rule_node : node.rules) {
+        auto rule = translate(context, error_handler, rule_node);
+        boost::apply_visitor(visitor, rule);
+    }
+    return {load_rules, call_rules, action_rules, search_rules};
 }
 
 ExtendedSketch translate(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node) {
@@ -303,10 +409,7 @@ ExtendedSketch translate(Context& context, const error_handler_type& error_handl
     auto booleans = translate(context, error_handler, node.booleans);
     auto numericals = translate(context, error_handler, node.numericals);
     auto concepts = translate(context, error_handler, node.concepts);
-    auto load_rules = LoadRuleList();
-    auto call_rules = CallRuleList();
-    auto action_rules = ActionRuleList();
-    auto search_rules = SearchRuleList();
+    auto [load_rules, call_rules, action_rules, search_rules] = translate(context, error_handler, node.rules);
     return create_extended_sketch(
         name,
         memory_states, initial_memory_state,

@@ -13,7 +13,7 @@
 
 namespace sketches::extended_sketch::parser {
 
-/// @brief Translates AST into extended sketches language.
+/// @brief Stage 1 translation of AST into extended sketches language.
 extern ExtendedSketch translate(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node);
 
 }
