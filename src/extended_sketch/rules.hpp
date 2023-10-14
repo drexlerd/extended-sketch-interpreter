@@ -65,9 +65,6 @@ extern std::shared_ptr<LoadRuleImpl> create_load_rule(
 
 class CallRuleImpl : public ExtendedRuleImpl {
 protected:
-    // Note: do we want to throw an error if a sketch does
-    // not exist instead of storing a name and crashing at runtime?
-    // Maybe we should do a dry parser run to read names.
     std::string m_extended_sketch_name;
     RegisterList m_arguments;
 
