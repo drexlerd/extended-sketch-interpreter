@@ -1,12 +1,12 @@
-#ifndef SRC_PARSER_COMMON_CONFIG_HPP_
-#define SRC_PARSER_COMMON_CONFIG_HPP_
+#ifndef SRC_PARSERS_COMMON_CONFIG_HPP_
+#define SRC_PARSERS_COMMON_CONFIG_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
 
-namespace sketches::extended_sketch::parser
+namespace sketches::parsers
 {
     namespace x3 = boost::spirit::x3;
 

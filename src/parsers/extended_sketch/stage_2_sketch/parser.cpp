@@ -10,28 +10,28 @@
 #include "src/extended_sketch/extended_sketch.hpp"
 
 
-namespace sketches::extended_sketch::parser {
+namespace sketches::parsers::extended_sketch::stage_2 {
 
-static std::string translate(Context&, const error_handler_type&, const ast::Name& node) {
+static std::string translate(Context&, const error_handler_type&, const stage_1::ast::Name& node) {
     std::stringstream ss;
     ss << node.alphabetical;
     ss << node.suffix;;
     return ss.str();
 }
 
-static std::string translate(Context&, const error_handler_type&, const ast::QuotedString& node) {
+static std::string translate(Context&, const error_handler_type&, const stage_1::ast::QuotedString& node) {
     return node.characters;
 }
 
-static std::string translate(Context& context, const error_handler_type& error_handler, const ast::NameEntry& node) {
+static std::string translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NameEntry& node) {
     return translate(context, error_handler, node.name);
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStateDefinition& node) {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStateDefinition& node) {
     return context.memory_state_factory.make_memory_state(translate(context, error_handler, node.key));
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStateReference& node) {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStateReference& node) {
     auto key = translate(context, error_handler, node.key);
     auto memory_state = context.memory_state_factory.get_memory_state(key);
     if (!memory_state) {
@@ -41,7 +41,7 @@ static MemoryState translate(Context& context, const error_handler_type& error_h
     return memory_state;
 }
 
-static MemoryStateMap translate(Context& context, const error_handler_type& error_handler, const ast::MemoryStatesEntry& node) {
+static MemoryStateMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStatesEntry& node) {
     MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
         auto memory_state = translate(context, error_handler, child);
@@ -50,15 +50,15 @@ static MemoryStateMap translate(Context& context, const error_handler_type& erro
     return memory_states;
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::InitialMemoryStateEntry& node) {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::InitialMemoryStateEntry& node) {
     return translate(context, error_handler, node.reference);
 }
 
-static Register translate(Context& context, const error_handler_type& error_handler, const ast::RegisterDefinition& node) {
+static Register translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegisterDefinition& node) {
     return context.register_factory.make_register(translate(context, error_handler, node.key));
 }
 
-static Register translate(Context& context, const error_handler_type& error_handler, const ast::RegisterReference& node) {
+static Register translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegisterReference& node) {
     auto key = translate(context, error_handler, node.key);
     auto register_ = context.register_factory.get_register(key);
     if (!register_) {
@@ -68,7 +68,7 @@ static Register translate(Context& context, const error_handler_type& error_hand
     return register_;
 }
 
-static RegisterMap translate(Context& context, const error_handler_type& error_handler, const ast::RegistersEntry& node) {
+static RegisterMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegistersEntry& node) {
     RegisterMap registers;
     for (const auto& child : node.definitions) {
         auto register_ = translate(context, error_handler, child);
@@ -77,13 +77,13 @@ static RegisterMap translate(Context& context, const error_handler_type& error_h
     return registers;
 }
 
-static Boolean translate(Context& context, const error_handler_type& error_handler, const ast::BooleanDefinition& node) {
+static Boolean translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleanDefinition& node) {
     return context.boolean_factory.make_boolean(
         translate(context, error_handler, node.key),
         translate(context, error_handler, node.repr));
 }
 
-static Boolean translate(Context& context, const error_handler_type& error_handler, const ast::BooleanReference& node) {
+static Boolean translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleanReference& node) {
     auto key = translate(context, error_handler, node.key);
     auto boolean = context.boolean_factory.get_boolean(key);
     if (!boolean) {
@@ -93,7 +93,7 @@ static Boolean translate(Context& context, const error_handler_type& error_handl
     return boolean;
 }
 
-static BooleanMap translate(Context& context, const error_handler_type& error_handler, const ast::BooleansEntry& node) {
+static BooleanMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleansEntry& node) {
     BooleanMap booleans;
     for (const auto& child : node.definitions) {
         auto boolean = translate(context, error_handler, child);
@@ -102,13 +102,13 @@ static BooleanMap translate(Context& context, const error_handler_type& error_ha
     return booleans;
 }
 
-static Numerical translate(Context& context, const error_handler_type& error_handler, const ast::NumericalDefinition& node) {
+static Numerical translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalDefinition& node) {
     return context.numerical_factory.make_numerical(
         translate(context, error_handler, node.key),
         translate(context, error_handler, node.repr));
 }
 
-static Numerical translate(Context& context, const error_handler_type& error_handler, const ast::NumericalReference& node) {
+static Numerical translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalReference& node) {
     auto key = translate(context, error_handler, node.key);
     auto numerical = context.numerical_factory.get_numerical(key);
     if (!numerical) {
@@ -118,7 +118,7 @@ static Numerical translate(Context& context, const error_handler_type& error_han
     return numerical;
 }
 
-static NumericalMap translate(Context& context, const error_handler_type& error_handler, const ast::NumericalsEntry& node) {
+static NumericalMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalsEntry& node) {
     NumericalMap numericals;
     for (const auto& child : node.definitions) {
         auto numerical = translate(context, error_handler, child);
@@ -127,13 +127,13 @@ static NumericalMap translate(Context& context, const error_handler_type& error_
     return numericals;
 }
 
-static Concept translate(Context& context, const error_handler_type& error_handler, const ast::ConceptDefinition& node) {
+static Concept translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptDefinition& node) {
     return context.concept_factory.make_concept(
         translate(context, error_handler, node.key),
         translate(context, error_handler, node.repr));
 }
 
-static Concept translate(Context& context, const error_handler_type& error_handler, const ast::ConceptReference& node) {
+static Concept translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptReference& node) {
     auto key = translate(context, error_handler, node.key);
     auto concept_ = context.concept_factory.get_concept(key);
     if (!concept_) {
@@ -143,7 +143,7 @@ static Concept translate(Context& context, const error_handler_type& error_handl
     return concept_;
 }
 
-static ConceptMap translate(Context& context, const error_handler_type& error_handler, const ast::ConceptsEntry& node) {
+static ConceptMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptsEntry& node) {
     ConceptMap concepts;
     for (const auto& child : node.definitions) {
         auto concept_ = translate(context, error_handler, child);
@@ -152,51 +152,51 @@ static ConceptMap translate(Context& context, const error_handler_type& error_ha
     return concepts;
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryConditionEntry& node) {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryConditionEntry& node) {
     return translate(context, error_handler, node.reference);
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const ast::MemoryEffectEntry& node) {
+static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryEffectEntry& node) {
     return translate(context, error_handler, node.reference);
 }
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const ast::PositiveBooleanConditionEntry& node) {
+static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanConditionEntry& node) {
     return context.policy_builder->add_pos_condition(translate(context, error_handler, node.reference)->get_boolean());
 }
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const ast::NegativeBooleanConditionEntry& node) {
+static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanConditionEntry& node) {
     return context.policy_builder->add_neg_condition(translate(context, error_handler, node.reference)->get_boolean());
 }
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const ast::GreaterNumericalConditionEntry& node) {
+static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::GreaterNumericalConditionEntry& node) {
     return context.policy_builder->add_gt_condition(translate(context, error_handler, node.reference)->get_numerical());
 }
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const ast::EqualNumericalConditionEntry& node) {
+static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::EqualNumericalConditionEntry& node) {
     return context.policy_builder->add_eq_condition(translate(context, error_handler, node.reference)->get_numerical());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::PositiveBooleanEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanEffectEntry& node) {
     return context.policy_builder->add_pos_effect(translate(context, error_handler, node.reference)->get_boolean());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::NegativeBooleanEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanEffectEntry& node) {
     return context.policy_builder->add_neg_effect(translate(context, error_handler, node.reference)->get_boolean());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::UnchangedBooleanEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedBooleanEffectEntry& node) {
     return context.policy_builder->add_bot_effect(translate(context, error_handler, node.reference)->get_boolean());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::IncrementNumericalEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::IncrementNumericalEffectEntry& node) {
     return context.policy_builder->add_inc_effect(translate(context, error_handler, node.reference)->get_numerical());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::DecrementNumericalEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::DecrementNumericalEffectEntry& node) {
     return context.policy_builder->add_dec_effect(translate(context, error_handler, node.reference)->get_numerical());
 }
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::UnchangedNumericalEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedNumericalEffectEntry& node) {
     return context.policy_builder->add_bot_effect(translate(context, error_handler, node.reference)->get_numerical());
 }
 
@@ -218,7 +218,7 @@ public:
     }
 };
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const ast::FeatureConditionEntry& node) {
+static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::FeatureConditionEntry& node) {
     FeatureConditionEntryVisitor visitor(context, error_handler);
     boost::apply_visitor(visitor, node);
     return visitor.result;
@@ -242,14 +242,14 @@ public:
     }
 };
 
-static Effect translate(Context& context, const error_handler_type& error_handler, const ast::FeatureEffectEntry& node) {
+static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::FeatureEffectEntry& node) {
     FeatureEffectEntryVisitor visitor(context, error_handler);
     boost::apply_visitor(visitor, node);
     return visitor.result;
 }
 
 
-static LoadRule translate(Context& context, const error_handler_type& error_handler, const ast::LoadRuleEntry& node) {
+static LoadRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::LoadRuleEntry& node) {
     auto memory_condition = translate(context, error_handler, node.memory_condition);
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
@@ -265,12 +265,12 @@ static LoadRule translate(Context& context, const error_handler_type& error_hand
     return create_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static std::string translate(Context& context, const error_handler_type& error_handler, const ast::ModuleReference& node) {
+static std::string translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ModuleReference& node) {
     // TODO: add check whether the module exists in a second stage?
     return translate(context, error_handler, node.reference);
 }
 
-static CallRule translate(Context& context, const error_handler_type& error_handler, const ast::CallRuleEntry& node) {
+static CallRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::CallRuleEntry& node) {
     auto memory_condition = translate(context, error_handler, node.memory_condition);
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
@@ -289,7 +289,7 @@ static CallRule translate(Context& context, const error_handler_type& error_hand
     return create_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
 }
 
-static mimir::formalism::ActionSchema translate(Context& context, const error_handler_type& error_handler, const ast::ActionReference& node) {
+static mimir::formalism::ActionSchema translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ActionReference& node) {
     auto action_name = translate(context, error_handler, node.reference);
     auto it = context.action_schema_map.find(action_name);
     if (it == context.action_schema_map.end()) {
@@ -298,7 +298,7 @@ static mimir::formalism::ActionSchema translate(Context& context, const error_ha
     return it->second;
 }
 
-static ActionRule translate(Context& context, const error_handler_type& error_handler, const ast::ActionRuleEntry& node) {
+static ActionRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ActionRuleEntry& node) {
     auto memory_condition = translate(context, error_handler, node.memory_condition);
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
@@ -317,7 +317,7 @@ static ActionRule translate(Context& context, const error_handler_type& error_ha
     return create_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
-static SearchRule translate(Context& context, const error_handler_type& error_handler, const ast::SearchRuleEntry& node) {
+static SearchRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::SearchRuleEntry& node) {
     auto memory_condition = translate(context, error_handler, node.memory_condition);
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
@@ -350,7 +350,7 @@ public:
 };
 
 static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
-translate(Context& context, const error_handler_type& error_handler, const ast::RuleEntry& node) {
+translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RuleEntry& node) {
     RuleEntryVisitor visitor(context, error_handler);
     boost::apply_visitor(visitor, node);
     return visitor.result;
@@ -392,7 +392,7 @@ public:
 };
 
 static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
-translate(Context& context, const error_handler_type& error_handler, const ast::Rules& node) {
+translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::Rules& node) {
     auto load_rules = LoadRuleList();
     auto call_rules = CallRuleList();
     auto action_rules = ActionRuleList();
@@ -405,7 +405,7 @@ translate(Context& context, const error_handler_type& error_handler, const ast::
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch parse_sketch(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node) {
+ExtendedSketch parse_sketch(Context& context, const error_handler_type& error_handler, const stage_1::ast::ExtendedSketch& node) {
     auto name = translate(context, error_handler, node.name);
     auto memory_states = translate(context, error_handler, node.memory_states);
     auto initial_memory_state = translate(context, error_handler, node.initial_memory_state);

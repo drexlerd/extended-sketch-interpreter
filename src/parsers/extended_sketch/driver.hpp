@@ -1,5 +1,5 @@
-#ifndef SRC_PARSER_DRIVER_HPP_
-#define SRC_PARSER_DRIVER_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_DRIVER_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_DRIVER_HPP_
 
 #include <memory>
 
@@ -28,7 +28,7 @@
 
 
 
-namespace sketches::extended_sketch::parser {
+namespace sketches::parsers::extended_sketch {
 class Driver {
 private:
     const fs::path m_sketch_path;
@@ -36,7 +36,7 @@ private:
 public:
     Driver(const fs::path& sketch_path);
 
-    ExtendedSketch parse(
+     sketches::extended_sketch::ExtendedSketch parse(
         const mimir::formalism::DomainDescription& domain_description,
         std::shared_ptr<dlplan::core::SyntacticElementFactory> factory,
         std::shared_ptr<dlplan::policy::PolicyBuilder> builder);

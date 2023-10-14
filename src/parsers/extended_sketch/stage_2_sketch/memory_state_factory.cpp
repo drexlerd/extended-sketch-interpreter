@@ -3,7 +3,7 @@
 #include "src/extended_sketch/memory_state.hpp"
 
 
-namespace sketches::extended_sketch {
+namespace sketches::parsers::extended_sketch::stage_2 {
 
 MemoryState MemoryStateFactory::make_memory_state(const std::string& key) {
     return m_key_to_state.emplace(key, create_memory_state(key)).first->second;

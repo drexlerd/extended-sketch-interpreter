@@ -1,12 +1,14 @@
-#ifndef SRC_PARSER_STAGE_2_AST_REGISTER_FACTORY_HPP_
-#define SRC_PARSER_STAGE_2_AST_REGISTER_FACTORY_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_2_REGISTER_FACTORY_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_2_REGISTER_FACTORY_HPP_
 
 #include <unordered_map>
 
 #include "src/extended_sketch/declarations.hpp"
 
+using namespace sketches::extended_sketch;
 
-namespace sketches::extended_sketch {
+
+namespace sketches::parsers::extended_sketch::stage_2 {
 
 /// @brief Provides functionality
 class RegisterFactory {

@@ -3,7 +3,7 @@
 #include "src/extended_sketch/features.hpp"
 
 
-namespace sketches::extended_sketch {
+namespace sketches::parsers::extended_sketch::stage_2 {
 
 BooleanFactory::BooleanFactory(std::shared_ptr<dlplan::core::SyntacticElementFactory> factory)
     : m_factory(factory) { }

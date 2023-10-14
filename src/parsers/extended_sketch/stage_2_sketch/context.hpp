@@ -1,5 +1,5 @@
-#ifndef SRC_PARSER_STAGE_2_AST_CONTEXT_HPP_
-#define SRC_PARSER_STAGE_2_AST_CONTEXT_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_2_CONTEXT_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_2_CONTEXT_HPP_
 
 #include <map>
 #include <memory>
@@ -14,7 +14,7 @@
 #include "register_factory.hpp"
 
 
-namespace sketches::extended_sketch::parser {
+namespace sketches::parsers::extended_sketch::stage_2 {
     /// @brief Provides additional context during parsing.
     struct Context {
         mimir::formalism::DomainDescription domain_description;

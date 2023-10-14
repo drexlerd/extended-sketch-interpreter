@@ -7,7 +7,7 @@
 #include "stage_2_sketch/parser.hpp"
 
 
-namespace sketches::extended_sketch::parser {
+namespace sketches::parsers::extended_sketch {
 
 Driver::Driver(const fs::path& sketch_path)
     : m_sketch_path(sketch_path) { }
@@ -24,10 +24,10 @@ ExtendedSketch Driver::parse(
         std::string source = buffer.str();
 
         // Stage 1 parse
-        auto result = parse_ast(source);
+        auto result = stage_1::parser::parse_ast(source);
 
         // Stage 2 parse
-        Context context(domain_description, factory, builder);
+        stage_2::Context context(domain_description, factory, builder);
         auto sketch = parse_sketch(context, result.error_handler, result.root_node);
 
         return sketch;

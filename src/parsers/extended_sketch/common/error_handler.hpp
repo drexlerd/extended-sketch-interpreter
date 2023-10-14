@@ -1,12 +1,12 @@
-#ifndef SRC_PARSER_COMMON_ERROR_HANDLER_HPP_
-#define SRC_PARSER_COMMON_ERROR_HANDLER_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_COMMON_ERROR_HANDLER_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_COMMON_ERROR_HANDLER_HPP_
 
 #include <map>
 
-#include "config.hpp"
+#include "src/parsers/common/config.hpp"
 
 
-namespace sketches::extended_sketch::parser
+namespace sketches::parsers::extended_sketch
 {
     namespace x3 = boost::spirit::x3;
 

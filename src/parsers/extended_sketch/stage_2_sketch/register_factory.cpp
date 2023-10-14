@@ -3,7 +3,7 @@
 #include "src/extended_sketch/register.hpp"
 
 
-namespace sketches::extended_sketch {
+namespace sketches::parsers::extended_sketch::stage_2 {
 
 Register RegisterFactory::make_register(const std::string& key) {
     return m_key_to_state.emplace(key, create_register(key)).first->second;

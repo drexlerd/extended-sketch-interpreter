@@ -1,17 +1,17 @@
-#ifndef SRC_PARSER_STAGE_1_AST_PARSER_DEF_HPP_
-#define SRC_PARSER_STAGE_1_AST_PARSER_DEF_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_DEF_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_DEF_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
 
-#include "src/parser/common/error_handler.hpp"
+#include "src/parsers/extended_sketch/common/error_handler.hpp"
 
 #include "ast.hpp"
 #include "ast_adapted.hpp"
 #include "parser_api.hpp"
 
 
-namespace sketches::extended_sketch { namespace parser
+namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 {
     namespace x3 = boost::spirit::x3;
     namespace ascii = boost::spirit::x3::ascii;
@@ -336,7 +336,7 @@ namespace sketches::extended_sketch { namespace parser
     struct ExtendedSketchClass : x3::annotate_on_success, error_handler_base {};
 }}
 
-namespace sketches::extended_sketch
+namespace sketches::parsers::extended_sketch::stage_1
 {
     parser::extended_sketch_type const& extended_sketch()
     {

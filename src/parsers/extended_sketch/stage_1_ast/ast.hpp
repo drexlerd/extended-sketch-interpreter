@@ -1,5 +1,5 @@
-#ifndef SRC_PARSER_STAGE_1_AST_AST_HPP_
-#define SRC_PARSER_STAGE_1_AST_AST_HPP_
+#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
+#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
 
-namespace sketches::extended_sketch { namespace ast
+namespace sketches::parsers::extended_sketch::stage_1::ast
 {
     ///////////////////////////////////////////////////////////////////////////
     //  The AST
@@ -291,7 +291,7 @@ namespace sketches::extended_sketch { namespace ast
         ConceptsEntry concepts;
         Rules rules;
     };
-}}
+}
 
 
 #endif

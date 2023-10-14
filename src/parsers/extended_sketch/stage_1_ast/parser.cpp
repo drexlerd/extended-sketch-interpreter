@@ -6,26 +6,26 @@
 #include <sstream>
 #include <fstream>
 
-#include "src/parser/common/config.hpp"
-#include "src/parser/common/error_handler.hpp"
+#include "src/parsers/common/config.hpp"
+#include "src/parsers/extended_sketch/common/error_handler.hpp"
 
 #include "ast.hpp"
 #include "parser_api.hpp"
 
 
-namespace sketches::extended_sketch::parser {
+namespace sketches::parsers::extended_sketch::stage_1::parser {
 ParseAstResult parse_ast(const std::string& sketch_file_content) {
-    using sketches::extended_sketch::parser::iterator_type;
+    using sketches::parsers::iterator_type;
     iterator_type iter(sketch_file_content.begin());
     iterator_type const end(sketch_file_content.end());
 
     // Our AST
-    sketches::extended_sketch::ast::ExtendedSketch ast;
+    sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch ast;
 
     // Our error handler
     using boost::spirit::x3::with;
-    using sketches::extended_sketch::parser::error_handler_type;
-    using sketches::extended_sketch::parser::error_handler_tag;
+    using sketches::parsers::error_handler_type;
+    using sketches::parsers::error_handler_tag;
     //std::stringstream out;
     error_handler_type error_handler(iter, end, std::cerr); // Our error handler
 
@@ -35,7 +35,7 @@ ParseAstResult parse_ast(const std::string& sketch_file_content) {
         // it later on in our on_error and on_sucess handlers
         with<error_handler_tag>(std::ref(error_handler))
         [
-            sketches::extended_sketch::extended_sketch()
+            sketches::parsers::extended_sketch::stage_1::extended_sketch()
         ];
 
     // Go forth and parse!

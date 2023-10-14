@@ -8,11 +8,11 @@
 #include "src/external/mimir/pddl/domain_parser.hpp"
 #include "src/external/mimir/pddl/problem_parser.hpp"
 
-#include "src/parser/driver.hpp"
+#include "src/parsers/extended_sketch/driver.hpp"
 #include "src/extended_sketch/declarations.hpp"
 
 using namespace std;
-using namespace sketches::extended_sketch;
+using namespace sketches;
 
 std::shared_ptr<dlplan::core::VocabularyInfo>
 construct_vocabulary_info(const mimir::formalism::DomainDescription& domain_description) {
@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
     auto syntactic_element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
     auto policy_builder = std::make_shared<dlplan::policy::PolicyBuilder>();
     // 4. Parse the modules
-    ExtendedSketchList sketch_list;
+    extended_sketch::ExtendedSketchList sketch_list;
     for (const auto& sketch_file : sketch_files) {
-        parser::Driver driver(sketch_file);
+        parsers::extended_sketch::Driver driver(sketch_file);
         sketch_list.push_back(driver.parse(domain_description, syntactic_element_factory, policy_builder));
     }
     // 4. Run SIW_M
