@@ -1,9 +1,10 @@
 #include "parser_def.hpp"
-#include "config.hpp"
+
+#include "src/parser/common/config.hpp"
 
 
-namespace sketches::extended_sketch { namespace parser
+namespace sketches::extended_sketch::parser
 {
     BOOST_SPIRIT_INSTANTIATE(
         extended_sketch_type, iterator_type, context_type)
-}}
+}

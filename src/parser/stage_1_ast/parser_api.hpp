@@ -1,10 +1,10 @@
-#ifndef SRC_PARSER_PARSER_API_HPP_
-#define SRC_PARSER_PARSER_API_HPP_
+#ifndef SRC_PARSER_STAGE_1_AST_PARSER_API_HPP_
+#define SRC_PARSER_STAGE_1_AST_PARSER_API_HPP_
 
+#include <boost/spirit/home/x3.hpp>
 
 #include "ast.hpp"
 
-#include <boost/spirit/home/x3.hpp>
 
 namespace sketches::extended_sketch
 {

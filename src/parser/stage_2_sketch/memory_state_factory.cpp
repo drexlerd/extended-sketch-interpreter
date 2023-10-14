@@ -1,6 +1,6 @@
 #include "memory_state_factory.hpp"
 
-#include "../extended_sketch/memory_state.hpp"
+#include "src/extended_sketch/memory_state.hpp"
 
 
 namespace sketches::extended_sketch {

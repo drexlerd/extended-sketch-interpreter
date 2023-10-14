@@ -1,10 +1,10 @@
-#ifndef SRC_PARSER_CONFIG_HPP_
-#define SRC_PARSER_CONFIG_HPP_
+#ifndef SRC_PARSER_COMMON_CONFIG_HPP_
+#define SRC_PARSER_COMMON_CONFIG_HPP_
 
+#include <boost/spirit/home/x3.hpp>
 
 #include "error_handler.hpp"
 
-#include <boost/spirit/home/x3.hpp>
 
 namespace sketches::extended_sketch { namespace parser
 {

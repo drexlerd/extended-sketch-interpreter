@@ -1,6 +1,6 @@
 #include "register_factory.hpp"
 
-#include "../extended_sketch/register.hpp"
+#include "src/extended_sketch/register.hpp"
 
 
 namespace sketches::extended_sketch {

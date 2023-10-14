@@ -1,12 +1,13 @@
-#ifndef SRC_PARSER_PARSER_DEF_HPP_
-#define SRC_PARSER_PARSER_DEF_HPP_
+#ifndef SRC_PARSER_STAGE_1_AST_PARSER_DEF_HPP_
+#define SRC_PARSER_STAGE_1_AST_PARSER_DEF_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
 
+#include "src/parser/common/error_handler.hpp"
+
 #include "ast.hpp"
 #include "ast_adapted.hpp"
-#include "error_handler.hpp"
 #include "parser_api.hpp"
 
 

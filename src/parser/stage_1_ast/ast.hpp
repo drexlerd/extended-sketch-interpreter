@@ -1,5 +1,5 @@
-#ifndef SRC_PARSER_AST_HPP_
-#define SRC_PARSER_AST_HPP_
+#ifndef SRC_PARSER_STAGE_1_AST_AST_HPP_
+#define SRC_PARSER_STAGE_1_AST_AST_HPP_
 
 #include <vector>
 

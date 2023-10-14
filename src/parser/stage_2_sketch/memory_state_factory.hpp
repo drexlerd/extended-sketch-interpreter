@@ -1,9 +1,10 @@
-#ifndef SRC_PARSER_MEMORY_STATE_FACTORY_HPP_
-#define SRC_PARSER_MEMORY_STATE_FACTORY_HPP_
+#ifndef SRC_PARSER_STAGE_2_AST_MEMORY_STATE_FACTORY_HPP_
+#define SRC_PARSER_STAGE_2_AST_MEMORY_STATE_FACTORY_HPP_
 
 #include <unordered_map>
 
-#include "../extended_sketch/declarations.hpp"
+#include "src/extended_sketch/declarations.hpp"
+
 
 namespace sketches::extended_sketch {
 

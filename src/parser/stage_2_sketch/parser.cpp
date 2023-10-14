@@ -1,14 +1,13 @@
-#include "translator.hpp"
+#include "parser.hpp"
 
 #include <sstream>
 
-#include "../external/dlplan/include/dlplan/policy.h"
-
-#include "../extended_sketch/memory_state.hpp"
-#include "../extended_sketch/register.hpp"
-#include "../extended_sketch/features.hpp"
-#include "../extended_sketch/rules.hpp"
-#include "../extended_sketch/extended_sketch.hpp"
+#include "src/external/dlplan/include/dlplan/policy.h"
+#include "src/extended_sketch/memory_state.hpp"
+#include "src/extended_sketch/register.hpp"
+#include "src/extended_sketch/features.hpp"
+#include "src/extended_sketch/rules.hpp"
+#include "src/extended_sketch/extended_sketch.hpp"
 
 
 namespace sketches::extended_sketch::parser {
@@ -36,7 +35,8 @@ static MemoryState translate(Context& context, const error_handler_type& error_h
     auto key = translate(context, error_handler, node.key);
     auto memory_state = context.memory_state_factory.get_memory_state(key);
     if (!memory_state) {
-        error_handler(node, "undefined memory state " + key);
+        error_handler(node, "Undefined memory state " + key);
+        throw std::runtime_error("Unsuccessful parse.");
     }
     return memory_state;
 }
@@ -62,7 +62,7 @@ static Register translate(Context& context, const error_handler_type& error_hand
     auto key = translate(context, error_handler, node.key);
     auto register_ = context.register_factory.get_register(key);
     if (!register_) {
-        error_handler(node, "undefined register " + key);
+        error_handler(node, "Undefined register " + key);
     }
     return register_;
 }
@@ -86,7 +86,7 @@ static Boolean translate(Context& context, const error_handler_type& error_handl
     auto key = translate(context, error_handler, node.key);
     auto boolean = context.boolean_factory.get_boolean(key);
     if (!boolean) {
-        error_handler(node, "undefined boolean " + key);
+        error_handler(node, "Undefined boolean " + key);
     }
     return boolean;
 }
@@ -110,7 +110,7 @@ static Numerical translate(Context& context, const error_handler_type& error_han
     auto key = translate(context, error_handler, node.key);
     auto numerical = context.numerical_factory.get_numerical(key);
     if (!numerical) {
-        error_handler(node, "undefined numerical " + key);
+        error_handler(node, "Undefined numerical " + key);
     }
     return numerical;
 }
@@ -134,7 +134,7 @@ static Concept translate(Context& context, const error_handler_type& error_handl
     auto key = translate(context, error_handler, node.key);
     auto concept_ = context.concept_factory.get_concept(key);
     if (!concept_) {
-        error_handler(node, "undefined concept " + key);
+        error_handler(node, "Undefined concept " + key);
     }
     return concept_;
 }
@@ -401,7 +401,7 @@ translate(Context& context, const error_handler_type& error_handler, const ast::
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch translate(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node) {
+ExtendedSketch parse_sketch(Context& context, const error_handler_type& error_handler, const ast::ExtendedSketch& node) {
     auto name = translate(context, error_handler, node.name);
     auto memory_states = translate(context, error_handler, node.memory_states);
     auto initial_memory_state = translate(context, error_handler, node.initial_memory_state);

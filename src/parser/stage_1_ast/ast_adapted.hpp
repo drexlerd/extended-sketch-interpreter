@@ -1,11 +1,11 @@
-#ifndef SRC_PARSER_AST_ADAPTED_HPP_
-#define SRC_PARSER_AST_ADAPTED_HPP_
-
-
-#include "ast.hpp"
+#ifndef SRC_PARSER_STAGE_1_AST_AST_ADAPTED_HPP_
+#define SRC_PARSER_STAGE_1_AST_AST_ADAPTED_HPP_
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
+
+#include "ast.hpp"
+
 
 // We need to tell fusion about our rexpr and rexpr_key_value
 // to make them a first-class fusion citizens

@@ -1,13 +1,13 @@
-#ifndef SRC_PARSER_CONTEXT_HPP_
-#define SRC_PARSER_CONTEXT_HPP_
+#ifndef SRC_PARSER_STAGE_2_AST_CONTEXT_HPP_
+#define SRC_PARSER_STAGE_2_AST_CONTEXT_HPP_
 
 #include <map>
 #include <memory>
 #include <string>
 
-#include "../external/mimir/formalism/domain.hpp"
-#include "../external/dlplan/include/dlplan/core.h"
-#include "../external/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir/formalism/domain.hpp"
+#include "src/external/dlplan/include/dlplan/core.h"
+#include "src/external/dlplan/include/dlplan/policy.h"
 
 #include "feature_factory.hpp"
 #include "memory_state_factory.hpp"

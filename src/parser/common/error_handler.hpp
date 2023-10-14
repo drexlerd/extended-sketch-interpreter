@@ -1,16 +1,14 @@
-#ifndef SRC_PARSER_ERROR_HANDLER_HPP_
-#define SRC_PARSER_ERROR_HANDLER_HPP_
-
-
-#include "parser_api.hpp"
-
-#include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
-#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
+#ifndef SRC_PARSER_COMMON_ERROR_HANDLER_HPP_
+#define SRC_PARSER_COMMON_ERROR_HANDLER_HPP_
 
 #include <map>
 
+#include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
+#include <boost/spirit/home/x3/support/utility/error_reporting.hpp>
 
-namespace sketches::extended_sketch { namespace parser
+
+namespace sketches::extended_sketch::parser
 {
     namespace x3 = boost::spirit::x3;
 
@@ -102,6 +100,6 @@ namespace sketches::extended_sketch { namespace parser
         error_handler(x.where(), message);
         return x3::error_handler_result::fail;
     }
-}}
+}
 
 #endif

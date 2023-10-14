@@ -3,13 +3,13 @@
 #include <memory>
 #include <vector>
 
-#include "../external/dlplan/include/dlplan/core.h"
-#include "../external/dlplan/include/dlplan/policy.h"
+#include "src/external/dlplan/include/dlplan/core.h"
+#include "src/external/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir/pddl/domain_parser.hpp"
+#include "src/external/mimir/pddl/problem_parser.hpp"
 
-#include "../external/mimir/pddl/domain_parser.hpp"
-#include "../external/mimir/pddl/problem_parser.hpp"
-#include "../parser/parser.hpp"
-#include "../extended_sketch/declarations.hpp"
+#include "src/parser/driver.hpp"
+#include "src/extended_sketch/declarations.hpp"
 
 using namespace std;
 using namespace sketches::extended_sketch;
@@ -64,8 +64,8 @@ int main(int argc, char** argv) {
     // 4. Parse the modules
     ExtendedSketchList sketch_list;
     for (const auto& sketch_file : sketch_files) {
-        parser::ExtendedSketchParser sketch_parser(sketch_file);
-        sketch_list.push_back(sketch_parser.parse(domain_description, syntactic_element_factory, policy_builder));
+        parser::Driver driver(sketch_file);
+        sketch_list.push_back(driver.parse(domain_description, syntactic_element_factory, policy_builder));
     }
     // 4. Run SIW_M
     return 0;

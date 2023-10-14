@@ -1,6 +1,7 @@
 #include "feature_factory.hpp"
 
-#include "../extended_sketch/features.hpp"
+#include "src/extended_sketch/features.hpp"
+
 
 namespace sketches::extended_sketch {
 
