@@ -207,7 +207,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
 
     const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
-    const auto quoted_string_def = lexeme[lit('"') >> +(char_ - lit('"')) >> lit('"')];
+    const auto quoted_string_def = lit('"') >> lexeme[*(~char_('"'))] >> lit('"');
     const auto name_entry_def = lit('(') > lit(":name") > name > lit(')');
     const auto memory_state_definition_def = name;
     const auto memory_state_reference_def = name;
