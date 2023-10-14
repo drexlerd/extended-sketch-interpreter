@@ -18,7 +18,10 @@ ParseAstResult parse_ast(const std::string& sketch_file_content) {
     using sketches::parsers::iterator_type;
     iterator_type iter(sketch_file_content.begin());
     iterator_type const end(sketch_file_content.end());
+    return parse_ast(sketch_file_content, iter, end);
+}
 
+extern ParseAstResult parse_ast(const std::string& sketch_file_content, iterator_type iter, iterator_type end) {
     // Our AST
     sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch ast;
 
