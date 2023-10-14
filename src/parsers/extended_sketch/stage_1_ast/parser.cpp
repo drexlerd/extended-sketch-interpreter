@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "src/parsers/common/config.hpp"
-#include "src/parsers/common/error_handler.hpp"
+#include "src/parsers/common/utility.hpp"
 #include "src/parsers/extended_sketch/common/error_handler.hpp"
 
 #include "ast.hpp"
@@ -18,10 +18,11 @@
 namespace sketches::parsers::extended_sketch::stage_1::parser {
 
 ast::ExtendedSketch parse_ast(
+    const std::string& source,
     iterator_type& iter,
     iterator_type end,
     error_handler_type& error_handler) {
-    assert(in_bounds(iter, end, error_handler));
+    assert(in_bounds(source, iter, end));
 
     // Our AST
     sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch ast;

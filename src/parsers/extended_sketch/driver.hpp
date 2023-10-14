@@ -25,13 +25,15 @@ public:
 
      /// @brief Root call.
      sketches::extended_sketch::ExtendedSketch parse(
+          const std::string& filename,
           const std::string& source);
 
      /// @brief Nested call.
      sketches::extended_sketch::ExtendedSketch parse(
+        const std::string& filename,
+        const std::string& source,
         iterator_type& iter,
-        iterator_type end,
-        error_handler_type& error_handler);
+        iterator_type end);
 };
 
 }
