@@ -19,19 +19,19 @@ Driver::Driver(
       policy_builder(policy_builder) { }
 
 ExtendedSketch Driver::parse(
-    const std::string& filename,
-    const std::string& source) {
+    const std::string& source,
+    const std::string& filename) {
 
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
 
-    return parse(filename, iter, end);
+    return parse(iter, end, filename);
 }
 
 ExtendedSketch Driver::parse(
-    const std::string& filename,
     iterator_type& iter,
-    iterator_type end) {
+    iterator_type end,
+    const std::string& filename) {
 
     // Our error handler
     sketches::parsers::error_handler_type error_handler(iter, end, std::cerr, filename);

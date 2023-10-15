@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     parsers::extended_sketch::Driver driver(domain_description, syntactic_element_factory, policy_builder);
     for (const auto& sketch_file : sketch_files) {
         const auto source = parsers::read_file(sketch_file);
-        sketch_list.push_back(driver.parse(sketch_file.c_str(), source));
+        sketch_list.push_back(driver.parse(source, sketch_file.c_str()));
     }
     // 4. Run SIW_M
     return 0;
