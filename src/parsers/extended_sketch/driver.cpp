@@ -3,7 +3,6 @@
 #include <cassert>
 #include <fstream>
 
-#include "src/parsers/common/utility.hpp"
 #include "common/error_handler.hpp"
 #include "stage_1_ast/parser.hpp"
 #include "stage_2_sketch/parser.hpp"
@@ -25,15 +24,14 @@ ExtendedSketch Driver::parse(
 
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
-    return parse(filename, source, iter, end);
+
+    return parse(filename, iter, end);
 }
 
 ExtendedSketch Driver::parse(
     const std::string& filename,
-    const std::string& source,
     iterator_type& iter,
     iterator_type end) {
-    assert(in_bounds(source, iter, end));
 
     // Our error handler
     sketches::parsers::error_handler_type error_handler(iter, end, std::cerr, filename);
@@ -43,7 +41,7 @@ ExtendedSketch Driver::parse(
 
     // Stage 2 parse
     stage_2::Context context(domain_description, element_factory, policy_builder);
-    auto sketch = parse_sketch(context, error_handler, root_node);
+    auto sketch = stage_2::parser::parse_sketch(context, error_handler, root_node);
 
     return sketch;
 }

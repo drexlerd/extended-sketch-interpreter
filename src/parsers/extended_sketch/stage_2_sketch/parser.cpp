@@ -10,7 +10,7 @@
 #include "src/extended_sketch/extended_sketch.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_2 {
+namespace sketches::parsers::extended_sketch::stage_2::parser {
 
 static std::string translate(Context&, const error_handler_type&, const stage_1::ast::Name& node) {
     std::stringstream ss;
