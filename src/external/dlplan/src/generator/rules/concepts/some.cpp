@@ -1,8 +1,6 @@
 #include "some.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/concepts/some.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -26,8 +24,8 @@ void SomeConcept::generate_impl(const core::States& states, int target_complexit
     }
 }
 
-const std::string& SomeConcept::get_name() const {
-    return core::parser::SomeConcept::get_name();
+std::string SomeConcept::get_name() const {
+    return "c_some";
 }
 
 }

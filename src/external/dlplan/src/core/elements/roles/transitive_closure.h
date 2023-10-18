@@ -9,9 +9,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../utils.h"
-#include "../../parser/expressions/roles/transitive_closure.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -105,7 +104,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::TransitiveClosureRole::get_name() << "(";
+        out << "r_transitive_closure" << "(";
         m_role->compute_repr(out);
         out << ")";
     }

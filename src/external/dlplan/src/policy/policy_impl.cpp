@@ -1,4 +1,4 @@
-#include "../../include/dlplan/policy.h"
+#include "include/dlplan/policy.h"
 
 #include <algorithm>
 #include <sstream>
@@ -10,7 +10,7 @@
 
 #include "condition.h"
 #include "effect.h"
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 
 namespace dlplan::policy {
@@ -21,8 +21,8 @@ Policy::Policy()
       m_rules(Rules()),
       m_index(-1) { }
 
-Policy::Policy(Rules&& rules, PolicyIndex index)
-    : m_rules(move(rules)), m_index(index) {
+Policy::Policy(const Rules& rules, PolicyIndex index)
+    : m_rules(rules), m_index(index) {
     // Retrieve boolean and numericals from the rules.
     for (const auto& rule : m_rules) {
         for (const auto& condition : rule->get_conditions()) {
@@ -133,13 +133,13 @@ std::string Policy::str() const {
     ss << "(:policy\n";
     ss << "(:booleans ";
     for (const auto& boolean : m_booleans) {
-        ss << "(" << boolean->get_index() << " \"" << boolean->compute_repr() << "\")";
+        ss << "(" << "b" << boolean->get_index() << " \"" << boolean->compute_repr() << "\")";
         if (boolean != *m_booleans.rbegin()) ss << " ";
     }
     ss << ")\n";
     ss << "(:numericals ";
     for (const auto& numerical : m_numericals) {
-        ss << "(" << numerical->get_index() << " \"" << numerical->compute_repr() << "\")";
+        ss << "(" << "n" << numerical->get_index() << " \"" << numerical->compute_repr() << "\")";
         if (numerical != *m_numericals.rbegin()) ss << " ";
     }
     ss << ")\n";

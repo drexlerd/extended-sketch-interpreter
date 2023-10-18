@@ -1,8 +1,6 @@
 #include "and.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/roles/and.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -26,8 +24,8 @@ void AndRole::generate_impl(const core::States& states, int target_complexity, G
     }
 }
 
-const std::string& AndRole::get_name() const {
-    return core::parser::AndRole::get_name();
+std::string AndRole::get_name() const {
+    return "r_and";
 }
 
 }

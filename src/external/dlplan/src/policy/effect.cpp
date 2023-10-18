@@ -4,7 +4,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 using namespace dlplan;
 
@@ -59,7 +59,7 @@ std::string PositiveBooleanEffect::compute_repr() const{
 }
 
 std::string PositiveBooleanEffect::str() const {
-    return "(:e_b_pos " + std::to_string(m_boolean->get_index()) + ")";
+    return "(:e_b_pos " + std::string("b") + std::to_string(m_boolean->get_index()) + ")";
 }
 
 
@@ -79,7 +79,7 @@ std::string NegativeBooleanEffect::compute_repr() const{
 }
 
 std::string NegativeBooleanEffect::str() const {
-    return "(:e_b_neg " + std::to_string(m_boolean->get_index()) + ")";
+    return "(:e_b_neg " + std::string("b") + std::to_string(m_boolean->get_index()) + ")";
 }
 
 
@@ -99,7 +99,7 @@ std::string UnchangedBooleanEffect::compute_repr() const{
 }
 
 std::string UnchangedBooleanEffect::str() const {
-    return "(:e_b_bot " + std::to_string(m_boolean->get_index()) + ")";
+    return "(:e_b_bot " + std::string("b") + std::to_string(m_boolean->get_index()) + ")";
 }
 
 
@@ -119,7 +119,7 @@ std::string IncrementNumericalEffect::compute_repr() const{
 }
 
 std::string IncrementNumericalEffect::str() const {
-    return "(:e_n_inc " + std::to_string(m_numerical->get_index()) + ")";
+    return "(:e_n_inc " + std::string("n") + std::to_string(m_numerical->get_index()) + ")";
 }
 
 
@@ -139,7 +139,7 @@ std::string DecrementNumericalEffect::compute_repr() const{
 }
 
 std::string DecrementNumericalEffect::str() const {
-    return "(:e_n_dec " + std::to_string(m_numerical->get_index()) + ")";
+    return "(:e_n_dec " + std::string("n") + std::to_string(m_numerical->get_index()) + ")";
 }
 
 
@@ -159,7 +159,7 @@ std::string UnchangedNumericalEffect::compute_repr() const{
 }
 
 std::string UnchangedNumericalEffect::str() const {
-    return "(:e_n_bot " + std::to_string(m_numerical->get_index()) + ")";
+    return "(:e_n_bot " + std::string("n") + std::to_string(m_numerical->get_index()) + ")";
 }
 
 }
@@ -213,7 +213,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::PositiveBooleanEffec
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::PositiveBooleanEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Boolean> boolean;
+    std::shared_ptr<const dlplan::core::Boolean> boolean;
     dlplan::policy::EffectIndex index;
     ar >> boolean;
     ar >> index;
@@ -236,7 +236,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::NegativeBooleanEffec
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::NegativeBooleanEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Boolean> boolean;
+    std::shared_ptr<const dlplan::core::Boolean> boolean;
     dlplan::policy::EffectIndex index;
     ar >> boolean;
     ar >> index;
@@ -259,7 +259,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::UnchangedBooleanEffe
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::UnchangedBooleanEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Boolean> boolean;
+    std::shared_ptr<const dlplan::core::Boolean> boolean;
     dlplan::policy::EffectIndex index;
     ar >> boolean;
     ar >> index;
@@ -282,7 +282,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::IncrementNumericalEf
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::IncrementNumericalEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Numerical> numerical;
+    std::shared_ptr<const dlplan::core::Numerical> numerical;
     dlplan::policy::EffectIndex index;
     ar >> numerical;
     ar >> index;
@@ -305,7 +305,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::DecrementNumericalEf
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::DecrementNumericalEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Numerical> numerical;
+    std::shared_ptr<const dlplan::core::Numerical> numerical;
     dlplan::policy::EffectIndex index;
     ar >> numerical;
     ar >> index;
@@ -328,7 +328,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::UnchangedNumericalEf
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::UnchangedNumericalEffect* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Numerical> numerical;
+    std::shared_ptr<const dlplan::core::Numerical> numerical;
     dlplan::policy::EffectIndex index;
     ar >> numerical;
     ar >> index;

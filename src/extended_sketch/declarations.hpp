@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../external/dlplan/include/dlplan/policy.h"
+#include "src/external/dlplan/include/dlplan/policy.h"
 
 
 namespace sketches::extended_sketch {

@@ -10,7 +10,7 @@
 #include <iomanip>
 
 
-namespace mimir::planners
+namespace planners
 {
 
     static bool test_prune(
@@ -80,13 +80,13 @@ namespace mimir::planners
                          generated(0),
                          expanded(0),
                          max_expanded(std::numeric_limits<uint32_t>::max()),
-                         effective_arity(0),
+                         time_search_ns(0),
+                         time_total_ns(0),
                          time_successors_ns(0),
                          time_apply_ns(0),
                          time_goal_test_ns(0),
                          time_grounding_ns(0),
-                         time_search_ns(0),
-                         time_total_ns(0)
+                         effective_arity(0)
     {
         const auto grounding_time_start = std::chrono::high_resolution_clock::now();
         successor_generator_ = planners::create_sucessor_generator(problem_, successor_generator_type);

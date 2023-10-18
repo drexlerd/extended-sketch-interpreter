@@ -1,5 +1,8 @@
 #include "element_factory.h"
 
+#include <cassert>
+#include <string>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -17,7 +20,6 @@
 #include "elements/concepts/or.h"
 #include "elements/concepts/projection.h"
 #include "elements/concepts/primitive.h"
-#include "elements/concepts/register.h"
 #include "elements/concepts/some.h"
 #include "elements/concepts/subset.h"
 #include "elements/concepts/top.h"
@@ -38,11 +40,18 @@
 #include "elements/roles/top.h"
 #include "elements/roles/transitive_closure.h"
 #include "elements/roles/transitive_reflexive_closure.h"
-#include "parser/parser.h"
-#include "parser/expressions/expression.h"
+
+#include "include/dlplan/common/parsers/config.hpp"
+#include "include/dlplan/core/parsers/elements/stage_1/parser.hpp"
+#include "include/dlplan/core/parsers/elements/stage_2/parser.hpp"
+
+#include "include/dlplan/common/parsers/utility.hpp"
+
+using namespace dlplan::common::parsers;
 
 
 namespace dlplan::core {
+
 SyntacticElementFactoryImpl::SyntacticElementFactoryImpl()
     : m_vocabulary_info(nullptr), m_caches(Caches()) {
 }
@@ -51,36 +60,180 @@ SyntacticElementFactoryImpl::SyntacticElementFactoryImpl(std::shared_ptr<Vocabul
     : m_vocabulary_info(vocabulary_info), m_caches(Caches()) {
 }
 
-std::shared_ptr<const Concept> SyntacticElementFactoryImpl::parse_concept(SyntacticElementFactory& parent, const std::string &description) {
-    auto concept = parser::Parser().parse(description)->parse_concept(parent);
-    if (!concept) {
-        throw std::runtime_error("SyntacticElementFactoryImpl::parse_concept - Unable to parse concept.");
-    }
-    return concept;
+std::shared_ptr<const Concept> SyntacticElementFactoryImpl::parse_concept(SyntacticElementFactory& parent,
+    const std::string &description, const std::string& filename) {
+    iterator_type iter(description.begin());
+    iterator_type const end(description.end());
+    return parse_concept(parent, iter, end, filename);
 }
 
-std::shared_ptr<const Role> SyntacticElementFactoryImpl::parse_role(SyntacticElementFactory& parent, const std::string &description) {
-    auto role = parser::Parser().parse(description)->parse_role(parent);
-    if (!role) {
-        throw std::runtime_error("SyntacticElementFactoryImpl::parse_role - Unable to parse role.");
+std::shared_ptr<const Concept> SyntacticElementFactoryImpl::parse_concept(SyntacticElementFactory& parent,
+    iterator_type& iter, iterator_type end, const std::string& filename) {
+    /* Stage 1 parse */
+    // Our parser
+    using boost::spirit::x3::with;
+
+    // Our error handler
+    error_handler_type error_handler(iter, end, std::cerr, filename);
+    parsing_context_type parsing_context;
+    auto const parser =
+        // we pass our error handler to the parser so we can access
+        // it later on in our on_error and on_sucess handlers
+        with<parsing_context_tag>(std::ref(parsing_context)) [
+            with<error_handler_tag>(std::ref(error_handler)) [
+              dlplan::core::parsers::elements::stage_1::concept()
+            ]
+        ];
+
+    // Our AST
+    dlplan::core::parsers::elements::stage_1::ast::Concept ast;
+
+    // Go forth and parse!
+    using boost::spirit::x3::ascii::space;
+    bool success = phrase_parse(iter, end, parser, space, ast);
+    if (!success) {
+        throw std::runtime_error("Failed parse.");
+    } 
+    if (iter != end) {
+        throw std::runtime_error("Failed parse. Did not consume whole input.");
     }
-    return role;
+
+    /* Stage 2 parse */
+    auto feature = parsers::elements::stage_2::parser::parse(ast, error_handler, parent);
+
+    return feature;
 }
 
-std::shared_ptr<const Numerical> SyntacticElementFactoryImpl::parse_numerical(SyntacticElementFactory& parent, const std::string &description) {
-    auto numerical = parser::Parser().parse(description)->parse_numerical(parent);
-    if (!numerical) {
-        throw std::runtime_error("SyntacticElementFactoryImpl::parse_numerical - Unable to parse numerical.");
-    }
-    return numerical;
+std::shared_ptr<const Role> SyntacticElementFactoryImpl::parse_role(SyntacticElementFactory& parent,
+    const std::string &description, const std::string& filename) {
+    iterator_type iter(description.begin());
+    iterator_type const end(description.end());
+    return parse_role(parent, iter, end, filename);
 }
 
-std::shared_ptr<const Boolean> SyntacticElementFactoryImpl::parse_boolean(SyntacticElementFactory& parent, const std::string &description) {
-    auto boolean = parser::Parser().parse(description)->parse_boolean(parent);
-    if (!boolean) {
-        throw std::runtime_error("SyntacticElementFactoryImpl::parse_boolean - Unable to parse boolean.");
+std::shared_ptr<const Role> SyntacticElementFactoryImpl::parse_role(SyntacticElementFactory& parent,
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    /* Stage 1 parse */
+    // Our parser
+    using boost::spirit::x3::with;
+
+    // Our error handler
+    error_handler_type error_handler(iter, end, std::cerr, filename);
+    parsing_context_type parsing_context;
+    auto const parser =
+        // we pass our error handler to the parser so we can access
+        // it later on in our on_error and on_sucess handlers
+        with<parsing_context_tag>(std::ref(parsing_context)) [
+            with<error_handler_tag>(std::ref(error_handler)) [
+                dlplan::core::parsers::elements::stage_1::role()
+            ]
+        ];
+
+    // Our AST
+    dlplan::core::parsers::elements::stage_1::ast::Role ast;
+
+    // Go forth and parse!
+    using boost::spirit::x3::ascii::space;
+    bool success = phrase_parse(iter, end, parser, space, ast);
+    if (!success) {
+        throw std::runtime_error("Failed parse.");
+    } 
+    if (iter != end) {
+        throw std::runtime_error("Failed parse. Did not consume whole input.");
     }
-    return boolean;
+
+    /* Stage 2 parse */
+    auto feature = parsers::elements::stage_2::parser::parse(ast, error_handler, parent);
+
+    return feature;
+}
+
+std::shared_ptr<const Boolean> SyntacticElementFactoryImpl::parse_boolean(SyntacticElementFactory& parent,
+    const std::string &description, const std::string& filename) {
+    iterator_type iter(description.begin());
+    iterator_type const end(description.end());
+    return parse_boolean(parent, iter, end, filename);
+}
+
+std::shared_ptr<const Boolean> SyntacticElementFactoryImpl::parse_boolean(SyntacticElementFactory& parent,
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    /* Stage 1 parse */
+    // Our parser
+    using boost::spirit::x3::with;
+
+    // Our error handler
+    error_handler_type error_handler(iter, end, std::cerr, filename);
+    parsing_context_type parsing_context;
+    auto const parser =
+        // we pass our error handler to the parser so we can access
+        // it later on in our on_error and on_sucess handlers
+        with<parsing_context_tag>(std::ref(parsing_context)) [
+            with<error_handler_tag>(std::ref(error_handler)) [
+                dlplan::core::parsers::elements::stage_1::boolean()
+            ]
+        ];
+
+    // Our AST
+    dlplan::core::parsers::elements::stage_1::ast::Boolean ast;
+
+    // Go forth and parse!
+    using boost::spirit::x3::ascii::space;
+    bool success = phrase_parse(iter, end, parser, space, ast);
+    if (!success) {
+        throw std::runtime_error("Failed parse.");
+    } 
+    if (iter != end) {
+        throw std::runtime_error("Failed parse. Did not consume whole input.");
+    }
+
+    /* Stage 2 parse */
+    auto feature = parsers::elements::stage_2::parser::parse(ast, error_handler, parent);
+
+    return feature;
+}
+
+std::shared_ptr<const Numerical> SyntacticElementFactoryImpl::parse_numerical(SyntacticElementFactory& parent,
+    const std::string &description, const std::string& filename) {
+    iterator_type iter(description.begin());
+    iterator_type const end(description.end());
+    return parse_numerical(parent, iter, end, filename);
+}
+
+std::shared_ptr<const Numerical> SyntacticElementFactoryImpl::parse_numerical(SyntacticElementFactory& parent,
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    /* Stage 1 parse */
+    // Our parser
+    using boost::spirit::x3::with;
+
+    // Our error handler
+    error_handler_type error_handler(iter, end, std::cerr, filename);
+    parsing_context_type parsing_context;
+    auto const parser =
+        // we pass our error handler to the parser so we can access
+        // it later on in our on_error and on_sucess handlers
+        with<parsing_context_tag>(std::ref(parsing_context)) [
+            with<error_handler_tag>(std::ref(error_handler)) [
+                dlplan::core::parsers::elements::stage_1::numerical()
+            ]
+        ];
+
+    // Our AST
+    dlplan::core::parsers::elements::stage_1::ast::Numerical ast;
+
+    // Go forth and parse!
+    using boost::spirit::x3::ascii::space;
+    bool success = phrase_parse(iter, end, parser, space, ast);
+    if (!success) {
+        throw std::runtime_error("Failed parse.");
+    } 
+    if (iter != end) {
+        throw std::runtime_error("Failed parse. Did not consume whole input.");
+    }
+
+    /* Stage 2 parse */
+    auto feature = parsers::elements::stage_2::parser::parse(ast, error_handler, parent);
+
+    return feature;
 }
 
 std::shared_ptr<const Boolean> SyntacticElementFactoryImpl::make_empty_boolean(const std::shared_ptr<const Concept>& concept) {
@@ -141,10 +294,6 @@ std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_projection_conc
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_primitive_concept(const Predicate& predicate, int pos) {
     return m_caches.m_concept_cache->insert(std::make_unique<PrimitiveConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), predicate, pos)).first;
-}
-
-std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_register_concept(const Register& reg) {
-    return m_caches.m_concept_cache->insert(std::make_unique<RegisterConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), reg)).first;
 }
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept) {

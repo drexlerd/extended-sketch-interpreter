@@ -6,11 +6,11 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "../../include/dlplan/serialization.h"
-#include "../../include/dlplan/core.h"
-#include "../../include/dlplan/novelty.h"
-#include "../../include/dlplan/policy.h"
-#include "../../include/dlplan/state_space.h"
+#include "include/dlplan/serialization.h"
+#include "include/dlplan/core.h"
+#include "include/dlplan/novelty.h"
+#include "include/dlplan/policy.h"
+#include "include/dlplan/state_space.h"
 
 
 namespace boost::serialization {
@@ -24,7 +24,7 @@ void serialize( Archive& ar, dlplan::serialization::Data& t, const unsigned int 
     ar & t.state_spaces;
     ar & t.tuple_graphs;
     ar & t.policies;
-    ar & t.policy_builders;
+    ar & t.policy_factories;
 }
 
 }

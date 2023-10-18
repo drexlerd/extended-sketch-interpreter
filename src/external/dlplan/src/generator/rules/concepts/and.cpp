@@ -1,8 +1,6 @@
 #include "and.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/concepts/and.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -26,8 +24,8 @@ void AndConcept::generate_impl(const core::States& states, int target_complexity
     }
 }
 
-const std::string& AndConcept::get_name() const {
-    return core::parser::AndConcept::get_name();
+std::string AndConcept::get_name() const {
+    return "c_and";
 }
 
 }

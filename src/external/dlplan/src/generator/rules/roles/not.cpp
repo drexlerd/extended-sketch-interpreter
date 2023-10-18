@@ -1,8 +1,6 @@
 #include "not.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/roles/not.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -22,8 +20,8 @@ void NotRole::generate_impl(const core::States& states, int target_complexity, G
     }
 }
 
-const std::string& NotRole::get_name() const {
-    return core::parser::NotRole::get_name();
+std::string NotRole::get_name() const {
+    return "r_not";
 }
 
 }

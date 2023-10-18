@@ -9,10 +9,9 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../utils.h"
-#include "../../parser/expressions/concepts/primitive.h"
-#include "../../../utils/collections.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "src/utils/collections.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -104,7 +103,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::PrimitiveConcept::get_name() << "(" << m_predicate.get_name() << "," << std::to_string(m_pos) << ")";
+        out << "c_primitive" << "(" << m_predicate.get_name() << "," << std::to_string(m_pos) << ")";
     }
 
     int compute_evaluate_time_score() const override {

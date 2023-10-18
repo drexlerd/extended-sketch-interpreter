@@ -1,4 +1,4 @@
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 #include <string>
 #include <algorithm>
@@ -11,8 +11,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "../utils/collections.h"
-#include "../utils/logging.h"
+#include "src/utils/collections.h"
+#include "src/utils/logging.h"
 
 using namespace std::string_literals;
 
@@ -136,11 +136,6 @@ const Atom& InstanceInfo::add_atom(const std::string& predicate_name, const std:
 
 const Atom& InstanceInfo::add_static_atom(const std::string& predicate_name, const std::vector<std::string>& object_names) {
     return add_atom(predicate_name, object_names, true);
-}
-
-void InstanceInfo::clear_atoms() {
-    m_atoms.clear();
-    m_atom_name_to_index.clear();
 }
 
 std::string InstanceInfo::compute_repr() const {

@@ -1,9 +1,9 @@
-#include "../../include/dlplan/novelty.h"
+#include "include/dlplan/novelty.h"
 
 #include <cmath>
 
 #include "tuple_index_generator.h"
-#include "../utils/collections.h"
+#include "src/utils/collections.h"
 
 
 namespace dlplan::novelty {
@@ -117,10 +117,6 @@ void NoveltyTable::resize(std::shared_ptr<const NoveltyBase> novelty_base) {
     }
     m_table.resize(std::pow(novelty_base->get_num_atoms()+1, novelty_base->get_arity()), true);
     m_novelty_base = novelty_base;
-}
-
-std::shared_ptr<const NoveltyBase> NoveltyTable::get_novelty_base() const {
-    return m_novelty_base;
 }
 
 }

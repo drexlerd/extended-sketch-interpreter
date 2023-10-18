@@ -1,8 +1,6 @@
 #include "primitive.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/roles/primitive.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -24,8 +22,8 @@ void PrimitiveRole::generate_impl(const core::States& states, int target_complex
     }
 }
 
-const std::string& PrimitiveRole::get_name() const {
-    return core::parser::PrimitiveRole::get_name();
+std::string PrimitiveRole::get_name() const {
+    return "r_primitive";
 }
 
 }

@@ -1,8 +1,6 @@
 #include "nullary.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/booleans/nullary.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -24,8 +22,8 @@ void NullaryBoolean::generate_impl(const core::States& states, int target_comple
     }
 }
 
-const std::string& NullaryBoolean::get_name() const {
-    return core::parser::NullaryBoolean::get_name();
+std::string NullaryBoolean::get_name() const {
+    return "b_nullary";
 }
 
 }

@@ -1,8 +1,6 @@
 #include "subset.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/concepts/subset.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -28,7 +26,7 @@ void SubsetConcept::generate_impl(const core::States& states, int target_complex
     }
 }
 
-const std::string& SubsetConcept::get_name() const {
-    return core::parser::SubsetConcept::get_name();
+std::string SubsetConcept::get_name() const {
+    return "c_subset";
 }
 }

@@ -9,9 +9,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../utils.h"
-#include "../../parser/expressions/concepts/all.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -102,7 +101,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::AllConcept::get_name() << "(";
+        out << "c_all" << "(";
         m_role->compute_repr(out);
         out << ",";
         m_concept->compute_repr(out);

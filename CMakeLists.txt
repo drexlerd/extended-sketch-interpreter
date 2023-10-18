@@ -67,6 +67,7 @@ add_compile_definitions(BOOST_PHOENIX_STL_TUPLE_H_)
 
 include_directories(include/)
 include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}/src/external/dlplan")
 
 add_subdirectory(src)
 

@@ -1,9 +1,8 @@
 #include "equal.h"
 
-#include "../../generator_data.h"
+#include "src/generator/generator_data.h"
 
-#include "../../../core/parser/expressions/concepts/equal.h"
-#include "../../../core/elements/roles/primitive.h"
+#include "src/core/elements/roles/primitive.h"
 
 
 namespace dlplan::generator::rules {
@@ -42,8 +41,8 @@ void EqualConcept::generate_impl(const core::States& states, int target_complexi
     }
 }
 
-const std::string& EqualConcept::get_name() const {
-    return core::parser::EqualConcept::get_name();
+std::string EqualConcept::get_name() const {
+    return "c_equal";
 }
 
 }

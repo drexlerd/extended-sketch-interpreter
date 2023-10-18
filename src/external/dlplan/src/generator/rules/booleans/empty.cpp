@@ -1,8 +1,6 @@
 #include "empty.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/booleans/empty.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -32,8 +30,8 @@ void EmptyBoolean::generate_impl(const core::States& states, int target_complexi
     }
 }
 
-const std::string& EmptyBoolean::get_name() const {
-    return core::parser::EmptyBoolean::get_name();
+std::string EmptyBoolean::get_name() const {
+    return "b_empty";
 }
 
 }

@@ -3,8 +3,8 @@
 
 #include "declarations.hpp"
 
-#include "../external/mimir/formalism/state.hpp"
-#include "../external/dlplan/include/dlplan/core.h"
+#include "src/external/mimir/formalism/state.hpp"
+#include "src/external/dlplan/include/dlplan/core.h"
 
 namespace sketches::extended_sketch {
 struct ExtendedStateImpl {
@@ -12,7 +12,7 @@ struct ExtendedStateImpl {
 
     mimir::formalism::State mimir_state;
 
-    dlplan::core::ExtendedState dlplan_state;
+    //dlplan::core::ExtendedState dlplan_state;
 };
 
 }

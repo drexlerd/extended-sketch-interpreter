@@ -4,7 +4,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 using namespace dlplan;
 
@@ -59,7 +59,7 @@ std::string PositiveBooleanCondition::compute_repr() const {
 }
 
 std::string PositiveBooleanCondition::str() const {
-    return "(:c_b_pos " + std::to_string(m_boolean->get_index()) + ")";
+    return "(:c_b_pos " + std::string("b") + std::to_string(m_boolean->get_index()) + ")";
 }
 
 
@@ -79,7 +79,7 @@ std::string NegativeBooleanCondition::compute_repr() const {
 }
 
 std::string NegativeBooleanCondition::str() const {
-    return "(:c_b_neg " + std::to_string(m_boolean->get_index()) + ")";
+    return "(:c_b_neg " + std::string("b") + std::to_string(m_boolean->get_index()) + ")";
 }
 
 
@@ -99,7 +99,7 @@ std::string EqualNumericalCondition::compute_repr() const {
 }
 
 std::string EqualNumericalCondition::str() const {
-    return "(:c_n_eq " + std::to_string(m_numerical->get_index()) + ")";
+    return "(:c_n_eq " + std::string("n") + std::to_string(m_numerical->get_index()) + ")";
 }
 
 
@@ -119,7 +119,7 @@ std::string GreaterNumericalCondition::compute_repr() const {
 }
 
 std::string GreaterNumericalCondition::str() const {
-    return "(:c_n_gt " + std::to_string(m_numerical->get_index()) + ")";
+    return "(:c_n_gt " + std::string("n") + std::to_string(m_numerical->get_index()) + ")";
 }
 
 }
@@ -175,7 +175,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::PositiveBooleanCondi
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::PositiveBooleanCondition* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Boolean> boolean;
+    std::shared_ptr<const dlplan::core::Boolean> boolean;
     dlplan::policy::ConditionIndex index;
     ar >> boolean;
     ar >> index;
@@ -198,7 +198,7 @@ void save_construct_data(Archive & ar, const dlplan::policy::NegativeBooleanCond
 template<class Archive>
 void load_construct_data(Archive & ar, dlplan::policy::NegativeBooleanCondition* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Boolean> boolean;
+    std::shared_ptr<const dlplan::core::Boolean> boolean;
     dlplan::policy::ConditionIndex index;
     ar >> boolean;
     ar >> index;
@@ -221,7 +221,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::GreaterNumericalCond
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::GreaterNumericalCondition* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Numerical> numerical;
+    std::shared_ptr<const dlplan::core::Numerical> numerical;
     dlplan::policy::ConditionIndex index;
     ar >> numerical;
     ar >> index;
@@ -244,7 +244,7 @@ void save_construct_data(Archive& ar, const dlplan::policy::EqualNumericalCondit
 template<class Archive>
 void load_construct_data(Archive& ar, dlplan::policy::EqualNumericalCondition* t, const unsigned int /* version */ )
 {
-    std::shared_ptr<const core::Numerical> numerical;
+    std::shared_ptr<const dlplan::core::Numerical> numerical;
     dlplan::policy::ConditionIndex index;
     ar >> numerical;
     ar >> index;

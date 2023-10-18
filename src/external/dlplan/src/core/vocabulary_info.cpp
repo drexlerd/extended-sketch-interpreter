@@ -1,4 +1,4 @@
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 #include <sstream>
 
@@ -6,8 +6,8 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/unordered_map.hpp>
 
-#include "../utils/collections.h"
-#include "../utils/logging.h"
+#include "src/utils/collections.h"
+#include "src/utils/logging.h"
 
 using namespace std::string_literals;
 
@@ -46,9 +46,14 @@ const Constant& VocabularyInfo::add_constant(const std::string& constant_name) {
     return m_constants.back();
 }
 
-const Register& VocabularyInfo::add_register() {
-    m_registers.push_back(Register(m_registers.size()));
-    return m_registers.back();
+const std::unordered_map<std::string, PredicateIndex>&
+VocabularyInfo::get_predicates_mapping() const {
+    return m_predicate_name_to_index;
+}
+
+const std::unordered_map<std::string, ConstantIndex>&
+VocabularyInfo::get_constants_mapping() const {
+    return m_constant_name_to_index;
 }
 
 const std::vector<Predicate>& VocabularyInfo::get_predicates() const {
@@ -57,10 +62,6 @@ const std::vector<Predicate>& VocabularyInfo::get_predicates() const {
 
 const std::vector<Constant>& VocabularyInfo::get_constants() const {
     return m_constants;
-}
-
-const std::vector<Register>& VocabularyInfo::get_registers() const {
-    return m_registers;
 }
 
 const Predicate& VocabularyInfo::get_predicate(const std::string& name) const {

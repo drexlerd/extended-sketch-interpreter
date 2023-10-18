@@ -10,9 +10,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 
-#include "../utils.h"
-#include "../../parser/expressions/numericals/count.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -91,7 +90,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::CountNumerical::get_name() << "(";
+        out << "n_count" << "(";
         m_element->compute_repr(out);
         out << ")";
     }

@@ -9,9 +9,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../utils.h"
-#include "../../parser/expressions/numericals/concept_distance.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -134,7 +133,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::ConceptDistanceNumerical::get_name() << "(";
+        out << "n_concept_distance" << "(";
         m_concept_from->compute_repr(out);
         out << ",";
         m_role->compute_repr(out);

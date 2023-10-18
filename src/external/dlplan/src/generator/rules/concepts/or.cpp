@@ -1,8 +1,6 @@
 #include "or.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/concepts/or.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -26,8 +24,8 @@ void OrConcept::generate_impl(const core::States& states, int target_complexity,
     }
 }
 
-const std::string& OrConcept::get_name() const {
-    return core::parser::OrConcept::get_name();
+std::string OrConcept::get_name() const {
+    return "c_or";
 }
 
 }

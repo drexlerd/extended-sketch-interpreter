@@ -4,7 +4,7 @@
 #include <fstream>
 
 
-namespace mimir::planners {
+namespace planners {
     std::shared_ptr<dlplan::core::VocabularyInfo> construct_vocabulary(
         const formalism::DomainDescription& domain) {
         const auto vocabulary = std::make_shared<dlplan::core::VocabularyInfo>();
@@ -56,15 +56,20 @@ namespace mimir::planners {
         return instance;
     }
 
-    dlplan::policy::Policy read_sketch(
+    std::shared_ptr<dlplan::policy::PolicyFactory> construct_policy_factory(
+    std::shared_ptr<dlplan::core::SyntacticElementFactory> element_factory) {
+        return std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
+    }
+
+    std::shared_ptr<const dlplan::policy::Policy> read_sketch(
         std::shared_ptr<dlplan::core::VocabularyInfo> vocabulary,
         const std::string& sketch_filename) {
-        dlplan::core::SyntacticElementFactory factory(vocabulary);
-        dlplan::policy::PolicyBuilder builder;
+        auto element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary);
+        auto policy_factory = construct_policy_factory(element_factory);
         std::ifstream file(sketch_filename);
         std::stringstream buffer;
         buffer << file.rdbuf();
         file.close();
-        return *dlplan::policy::PolicyReader().read(buffer.str(), builder, factory);
+        return policy_factory->parse_policy(buffer.str(), sketch_filename);
     }
 }

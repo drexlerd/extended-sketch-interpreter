@@ -164,8 +164,6 @@ public:
 
     /// @brief Resizes the novelty table.
     void resize(std::shared_ptr<const NoveltyBase> novelty_base);
-
-    std::shared_ptr<const NoveltyBase> get_novelty_base() const;
 };
 
 

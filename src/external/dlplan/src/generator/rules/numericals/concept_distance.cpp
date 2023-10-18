@@ -1,8 +1,6 @@
 #include "concept_distance.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/numericals/concept_distance.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -78,8 +76,8 @@ void ConceptDistanceNumerical::generate_impl(const core::States& states, int tar
 }
 
 
-const std::string& ConceptDistanceNumerical::get_name() const {
-    return core::parser::ConceptDistanceNumerical::get_name();
+std::string ConceptDistanceNumerical::get_name() const {
+    return "n_concept_distance";
 }
 
 }

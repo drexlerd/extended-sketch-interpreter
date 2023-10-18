@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 
+#include "common/parsers/config.hpp"
 #include "utils/pimpl.h"
 #include "utils/dynamic_bitset.h"
 
@@ -26,7 +27,6 @@ class VocabularyInfo;
 class Object;
 class Atom;
 class InstanceInfo;
-class Register;
 class State;
 class BaseElement;
 class Concept;
@@ -73,9 +73,6 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const std::pair<const int, dlplan::core::State>* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, std::pair<const int, dlplan::core::State>* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Register& t, const unsigned int version);
 
     template <typename Archive>
     void serialize(Archive& ar, dlplan::core::VocabularyInfo& t, const unsigned int version);
@@ -146,8 +143,6 @@ using AtomIndices = std::vector<AtomIndex>;
 using ElementIndex = int;
 
 using InstanceIndex = int;
-
-using RegisterIndex = int;
 
 using StateIndex = int;
 
@@ -569,25 +564,6 @@ public:
 };
 
 
-class Register {
-private:
-    RegisterIndex m_index;
-
-    /// @brief Constructor for serialization.
-    Register();
-
-    explicit Register(RegisterIndex index);
-
-    friend class VocabularyInfo;
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Register& t, const unsigned int version);
-
-public:
-    RegisterIndex get_index() const;
-};
-
-
 /// @brief Encapsulates domain-general data and provides functionality
 ///        to access it.
 ///
@@ -605,8 +581,6 @@ private:
     std::unordered_map<std::string, ConstantIndex> m_constant_name_to_index;
     std::vector<Constant> m_constants;
 
-    std::vector<Register> m_registers;
-
     template<typename Archive>
     friend void boost::serialization::serialize(Archive& ar, VocabularyInfo& t, const unsigned int version);
 
@@ -620,11 +594,12 @@ public:
 
     const Predicate& add_predicate(const std::string &name, int arity, bool is_static=false);
     const Constant& add_constant(const std::string& name);
-    const Register& add_register();
+
+    const std::unordered_map<std::string, PredicateIndex>& get_predicates_mapping() const;
+    const std::unordered_map<std::string, ConstantIndex>& get_constants_mapping() const;
 
     const std::vector<Predicate>& get_predicates() const;
     const std::vector<Constant>& get_constants() const;
-    const std::vector<Register>& get_registers() const;
 
     const Predicate& get_predicate(const std::string& name) const;
     const Constant& get_constant(const std::string& name) const;
@@ -803,8 +778,6 @@ public:
     const Atom& add_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
     const Atom& add_static_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
 
-    void clear_atoms();
-
     /// @brief Compute the canonical string representation of this instance.
     /// @return The canonical string representation of this instance.
     ///
@@ -852,7 +825,7 @@ private:
     friend void boost::serialization::serialize(Archive& ar, State& t, const unsigned int version);
 
 public:
-    State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms,StateIndex index=-1);
+    State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms, StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, StateIndex index=-1);
     State(const State& other);
@@ -889,22 +862,6 @@ public:
     std::shared_ptr<InstanceInfo> get_instance_info() const;
     const AtomIndices& get_atom_indices() const;
     StateIndex get_index() const;
-};
-
-
-class ExtendedState {
-private:
-    // We use shared_ptr because load actions only change the register contents
-    std::shared_ptr<const State> m_state;
-    ObjectIndices m_register_contents;
-
-public:
-    ExtendedState(
-        std::shared_ptr<const State> state,
-        ObjectIndices&& register_contents);
-
-    std::shared_ptr<const State> get_state() const;
-    const ObjectIndices& get_register_contents() const;
 };
 
 
@@ -1107,25 +1064,41 @@ public:
      * Returns a Concept if the description is correct.
      * If description is incorrect, throw an error with human readable information.
      */
-    std::shared_ptr<const Concept> parse_concept(const std::string &description);
+    std::shared_ptr<const Concept> parse_concept(
+        const std::string &description, const std::string& filename="");
+
+    std::shared_ptr<const Concept> parse_concept(
+        common::parsers::iterator_type& iter, common::parsers::iterator_type end, const std::string& filename="");
 
     /**
      * Returns a Role if the description is correct.
      * If description is incorrect, throw an error with human readable information.
      */
-    std::shared_ptr<const Role> parse_role(const std::string &description);
+    std::shared_ptr<const Role> parse_role(
+        const std::string &description, const std::string& filename="");
+
+    std::shared_ptr<const Role> parse_role(
+        common::parsers::iterator_type& iter, common::parsers::iterator_type end, const std::string& filename="");
 
     /**
      * Returns a Numerical if the description is correct.
      * If description is incorrect, throw an error with human readable information.
      */
-    std::shared_ptr<const Numerical> parse_numerical(const std::string &description);
+    std::shared_ptr<const Numerical> parse_numerical(
+        const std::string &description, const std::string& filename="");
+
+    std::shared_ptr<const Numerical> parse_numerical(
+        common::parsers::iterator_type& iter, common::parsers::iterator_type end, const std::string& filename="");
 
     /**
      * Returns a Boolean if the description is correct.
      * If description is incorrect, throw an error with human readable information.
      */
-    std::shared_ptr<const Boolean> parse_boolean(const std::string &description);
+    std::shared_ptr<const Boolean> parse_boolean(
+        const std::string &description, const std::string& filename="");
+
+    std::shared_ptr<const Boolean> parse_boolean(
+        common::parsers::iterator_type& iter, common::parsers::iterator_type end, const std::string& filename="");
 
     std::shared_ptr<const Boolean> make_empty_boolean(const std::shared_ptr<const Concept>& concept);
     std::shared_ptr<const Boolean> make_empty_boolean(const std::shared_ptr<const Role>& role);
@@ -1143,7 +1116,6 @@ public:
     std::shared_ptr<const Concept> make_or_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right);
     std::shared_ptr<const Concept> make_projection_concept(const std::shared_ptr<const Role>& role, int pos);
     std::shared_ptr<const Concept> make_primitive_concept(const Predicate& predicate, int pos);
-    std::shared_ptr<const Concept> make_register_concept(const Register& reg);
     std::shared_ptr<const Concept> make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept);
     std::shared_ptr<const Concept> make_subset_concept(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Concept> make_top_concept();

@@ -1,8 +1,6 @@
 #include "inverse.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/roles/inverse.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -21,7 +19,7 @@ void InverseRole::generate_impl(const core::States& states, int target_complexit
     }
 }
 
-const std::string& InverseRole::get_name() const {
-    return core::parser::InverseRole::get_name();
+std::string InverseRole::get_name() const {
+    return "r_inverse";
 }
 }

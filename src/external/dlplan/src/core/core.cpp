@@ -1,11 +1,11 @@
-#include "../../include/dlplan/core.h"
+#include "include/dlplan/core.h"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 
 #include "element_factory.h"
-#include "../../include/dlplan/utils/hash.h"
+#include "include/dlplan/utils/hash.h"
 
 
 namespace dlplan::core {
@@ -79,20 +79,44 @@ std::shared_ptr<VocabularyInfo> SyntacticElementFactory::get_vocabulary_info() c
     return m_pImpl->get_vocabulary_info();
 }
 
-std::shared_ptr<const Concept> SyntacticElementFactory::parse_concept(const std::string &description) {
-    return m_pImpl->parse_concept(*this, description);
+std::shared_ptr<const Concept> SyntacticElementFactory::parse_concept(
+    const std::string &description, const std::string& filename) {
+    return m_pImpl->parse_concept(*this, description, filename);
 }
 
-std::shared_ptr<const Role>SyntacticElementFactory::parse_role(const std::string &description) {
-    return m_pImpl->parse_role(*this, description);
+std::shared_ptr<const Concept> SyntacticElementFactory::parse_concept(
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    return m_pImpl->parse_concept(*this, iter, end, filename);
 }
 
-std::shared_ptr<const Numerical>SyntacticElementFactory::parse_numerical(const std::string &description) {
-    return m_pImpl->parse_numerical(*this, description);
+std::shared_ptr<const Role> SyntacticElementFactory::parse_role(
+    const std::string &description, const std::string& filename) {
+    return m_pImpl->parse_role(*this, description, filename);
 }
 
-std::shared_ptr<const Boolean>SyntacticElementFactory::parse_boolean(const std::string &description) {
-    return m_pImpl->parse_boolean(*this, description);
+std::shared_ptr<const Role> SyntacticElementFactory::parse_role(
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    return m_pImpl->parse_role(*this, iter, end, filename);
+}
+
+std::shared_ptr<const Boolean> SyntacticElementFactory::parse_boolean(
+    const std::string &description, const std::string& filename) {
+    return m_pImpl->parse_boolean(*this, description, filename);
+}
+
+std::shared_ptr<const Boolean> SyntacticElementFactory::parse_boolean(
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    return m_pImpl->parse_boolean(*this, iter, end, filename);
+}
+
+std::shared_ptr<const Numerical> SyntacticElementFactory::parse_numerical(
+    const std::string &description, const std::string& filename) {
+    return m_pImpl->parse_numerical(*this, description, filename);
+}
+
+std::shared_ptr<const Numerical> SyntacticElementFactory::parse_numerical(
+    std::string::const_iterator& iter, std::string::const_iterator end, const std::string& filename) {
+    return m_pImpl->parse_numerical(*this, iter, end, filename);
 }
 
 
@@ -154,10 +178,6 @@ std::shared_ptr<const Concept>SyntacticElementFactory::make_projection_concept(c
 
 std::shared_ptr<const Concept>SyntacticElementFactory::make_primitive_concept(const Predicate& predicate, int pos) {
     return m_pImpl->make_primitive_concept(predicate, pos);
-}
-
-std::shared_ptr<const Concept> SyntacticElementFactory::make_register_concept(const Register& reg) {
-    return m_pImpl->make_register_concept(reg);
 }
 
 std::shared_ptr<const Concept>SyntacticElementFactory::make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept) {

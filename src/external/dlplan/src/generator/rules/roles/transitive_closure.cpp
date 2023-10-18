@@ -1,8 +1,6 @@
 #include "transitive_closure.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/roles/transitive_closure.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -23,8 +21,8 @@ void TransitiveClosureRole::generate_impl(const core::States& states, int target
     }
 }
 
-const std::string& TransitiveClosureRole::get_name() const {
-    return core::parser::TransitiveClosureRole::get_name();
+std::string TransitiveClosureRole::get_name() const {
+    return "r_transitive_closure";
 }
 
 }

@@ -9,9 +9,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "../utils.h"
-#include "../../parser/expressions/concepts/one_of.h"
-#include "../../../../include/dlplan/core.h"
+#include "src/core/elements/utils.h"
+#include "include/dlplan/core.h"
 
 using namespace std::string_literals;
 
@@ -95,7 +94,7 @@ public:
     }
 
     void compute_repr(std::stringstream& out) const override {
-        out << parser::OneOfConcept::get_name() << "(" << m_constant.get_name() << ")";
+        out << "c_one_of" << "(" << m_constant.get_name() << ")";
     }
 
     int compute_evaluate_time_score() const override {

@@ -14,22 +14,21 @@ target_sources(dlplancore
         denotations_caches.cpp
         element_factory.cpp
         elements/roles/primitive.cpp
-        extended_state.cpp
         instance_info.cpp
         numerical.cpp
         vocabulary_info.cpp
         predicate.cpp
-        register.cpp
         object.cpp
-        parser/parser.cpp
-        parser/expression_factory.cpp
-        parser/utils.cpp
+        parsers/elements/stage_1/parser_instantiations.cpp
+        parsers/elements/stage_2/parser.cpp
         elements/utils.cpp
         ../utils/logging.cpp
         ../utils/MurmurHash3.cpp
         ../utils/system.cpp
         ../utils/timer.cpp
-        ../utils/hash.cpp)
+        ../utils/hash.cpp
+        ../common/parsers/utility.cpp
+        ../common/parsers/filesystem.cpp)
 target_link_libraries(dlplancore
     PRIVATE
         Boost::serialization)

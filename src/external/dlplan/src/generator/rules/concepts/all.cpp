@@ -1,8 +1,6 @@
 #include "all.h"
 
-#include "../../generator_data.h"
-
-#include "../../../core/parser/expressions/concepts/all.h"
+#include "src/generator/generator_data.h"
 
 
 namespace dlplan::generator::rules {
@@ -26,8 +24,8 @@ void AllConcept::generate_impl(const core::States& states, int target_complexity
     }
 }
 
-const std::string& AllConcept::get_name() const {
-    return core::parser::AllConcept::get_name();
+std::string AllConcept::get_name() const {
+    return "c_all";
 }
 
 }
