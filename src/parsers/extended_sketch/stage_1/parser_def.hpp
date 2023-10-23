@@ -121,7 +121,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
 
     const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
-    const auto name_entry_def = lit('(') > lit(":name") > name > lit(')');
+    const auto name_entry_def = lit('(') >> lit(":name") > name > lit(')');
 
     const auto memory_state_definition_def = name;
     const auto memory_state_reference_def = name;
@@ -132,8 +132,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto register_reference_def = name;
     const auto registers_entry_def = lit('(') >> lit(":registers") > lit('(') > *register_definition > lit(')') > lit(')');
 
-    const auto memory_condition_entry_def = lit('(') > lit(":memory") > memory_state_reference > lit(')');
-    const auto memory_effect_entry_def = lit('(') > lit(":memory") > memory_state_reference > lit(')');
+    const auto memory_condition_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
+    const auto memory_effect_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
 
     const auto load_rule_entry_def =
         lit('(') >> lit(":load_rule")
@@ -188,9 +188,9 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto rules_def = *rule_entry;
     const auto extended_sketch_def = lit('(')
         > lit(":extended_sketch")
-        >> name_entry
-        >> memory_states_entry
-        >> initial_memory_state_entry
+        > name_entry
+        > memory_states_entry
+        > initial_memory_state_entry
         >> registers_entry
         >> dlplan::policy::parsers::policy::stage_1::booleans_entry()
         >> dlplan::policy::parsers::policy::stage_1::numericals_entry()
