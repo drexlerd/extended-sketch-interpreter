@@ -3,8 +3,8 @@
 
 #include "declarations.hpp"
 
-#include "src/external/mimir/formalism/state.hpp"
-#include "src/external/dlplan/include/dlplan/core.h"
+#include "src/external/mimir-iw/src/private/formalism/state.hpp"
+
 
 namespace sketches::extended_sketch {
 struct ExtendedStateImpl {

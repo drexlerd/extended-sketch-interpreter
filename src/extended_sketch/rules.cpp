@@ -5,7 +5,6 @@
 #include "extended_state.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
-#include "features.hpp"
 
 
 namespace sketches::extended_sketch {

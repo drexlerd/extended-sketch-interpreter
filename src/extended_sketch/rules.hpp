@@ -3,7 +3,7 @@
 
 #include "declarations.hpp"
 
-#include "../external/mimir/formalism/action_schema.hpp"
+#include "src/external/mimir-iw/src/private/formalism/action_schema.hpp"
 
 
 namespace sketches::extended_sketch {
