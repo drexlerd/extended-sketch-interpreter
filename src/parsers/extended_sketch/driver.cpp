@@ -3,20 +3,21 @@
 #include <cassert>
 #include <fstream>
 
-#include "common/error_handler.hpp"
-#include "stage_1_ast/parser.hpp"
-#include "stage_2_sketch/parser.hpp"
+
+#include "stage_1/parser.hpp"
+#include "stage_2/parser.hpp"
+
+
+using namespace dlplan::common::parsers;
 
 
 namespace sketches::parsers::extended_sketch {
 
 Driver::Driver(
     const mimir::formalism::DomainDescription& domain_description,
-    const std::shared_ptr<dlplan::core::SyntacticElementFactory>& element_factory,
-    const std::shared_ptr<dlplan::policy::PolicyBuilder>& policy_builder)
+    const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory)
     : domain_description(domain_description),
-      element_factory(element_factory),
-      policy_builder(policy_builder) { }
+      policy_factory(policy_factory) { }
 
 ExtendedSketch Driver::parse(
     const std::string& source,
@@ -34,13 +35,13 @@ ExtendedSketch Driver::parse(
     const std::string& filename) {
 
     // Our error handler
-    sketches::parsers::error_handler_type error_handler(iter, end, std::cerr, filename);
+    error_handler_type error_handler(iter, end, std::cerr, filename);
 
     // Stage 1 parse
     auto root_node = stage_1::parser::parse_ast(iter, end, error_handler);
 
     // Stage 2 parse
-    stage_2::Context context(domain_description, element_factory, policy_builder);
+    stage_2::Context context(domain_description, policy_factory);
     auto sketch = stage_2::parser::parse_sketch(context, error_handler, root_node);
 
     return sketch;

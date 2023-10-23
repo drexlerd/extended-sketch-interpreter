@@ -41,6 +41,8 @@ namespace mimir::formalism
         std::map<uint32_t, formalism::Predicate> get_predicate_id_map() const;
 
         std::map<std::string, formalism::Object> get_constant_map() const;
+
+        std::map<std::string, formalism::ActionSchema> get_action_schema_map() const;
     };
 
     DomainDescription create_domain(const std::string& name,

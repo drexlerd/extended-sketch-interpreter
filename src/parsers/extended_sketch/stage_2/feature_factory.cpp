@@ -1,15 +1,13 @@
 #include "feature_factory.hpp"
 
-#include "src/extended_sketch/features.hpp"
-
 
 namespace sketches::parsers::extended_sketch::stage_2 {
 
-BooleanFactory::BooleanFactory(std::shared_ptr<dlplan::core::SyntacticElementFactory> factory)
-    : m_factory(factory) { }
+BooleanFactory::BooleanFactory(std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory)
+    : m_policy_factory(policy_factory) { }
 
 Boolean BooleanFactory::make_boolean(const std::string& key, const std::string& repr) {
-    return m_key_to_boolean.emplace(key, create_boolean(key, m_factory->parse_boolean(repr))).first->second;
+    return m_key_to_boolean.emplace(key, m_policy_factory->make_boolean(key, m_policy_factory->get_element_factory()->parse_boolean(repr))).first->second;
 }
 
 Boolean BooleanFactory::get_boolean(const std::string& key) const {
@@ -21,11 +19,11 @@ Boolean BooleanFactory::get_boolean(const std::string& key) const {
 }
 
 
-NumericalFactory::NumericalFactory(std::shared_ptr<dlplan::core::SyntacticElementFactory> factory)
-    : m_factory(factory) { }
+NumericalFactory::NumericalFactory(std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory)
+    : m_policy_factory(policy_factory) { }
 
 Numerical NumericalFactory::make_numerical(const std::string& key, const std::string& repr) {
-    return m_key_to_numerical.emplace(key, create_numerical(key, m_factory->parse_numerical(repr))).first->second;
+    return m_key_to_numerical.emplace(key, m_policy_factory->make_numerical(key, m_policy_factory->get_element_factory()->parse_numerical(repr))).first->second;
 }
 
 Numerical NumericalFactory::get_numerical(const std::string& key) const {
@@ -37,11 +35,11 @@ Numerical NumericalFactory::get_numerical(const std::string& key) const {
 }
 
 
-ConceptFactory::ConceptFactory(std::shared_ptr<dlplan::core::SyntacticElementFactory> factory)
-    : m_factory(factory) { }
+ConceptFactory::ConceptFactory(std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory)
+    : m_policy_factory(policy_factory) { }
 
 Concept ConceptFactory::make_concept(const std::string& key, const std::string& repr) {
-    return m_key_to_concept.emplace(key, create_concept(key, m_factory->parse_concept(repr))).first->second;
+    return m_key_to_concept.emplace(key, m_policy_factory->make_concept(key, m_policy_factory->get_element_factory()->parse_concept(repr))).first->second;
 }
 
 Concept ConceptFactory::get_concept(const std::string& key) const {

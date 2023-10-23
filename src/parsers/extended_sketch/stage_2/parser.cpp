@@ -2,12 +2,13 @@
 
 #include <sstream>
 
-#include "src/external/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 #include "src/extended_sketch/memory_state.hpp"
 #include "src/extended_sketch/register.hpp"
-#include "src/extended_sketch/features.hpp"
 #include "src/extended_sketch/rules.hpp"
 #include "src/extended_sketch/extended_sketch.hpp"
+
+using namespace dlplan::common::parsers;
 
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
@@ -161,43 +162,43 @@ static MemoryState translate(Context& context, const error_handler_type& error_h
 }
 
 static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanConditionEntry& node) {
-    return context.policy_builder->add_pos_condition(translate(context, error_handler, node.reference)->get_boolean());
+    return context.policy_factory->make_pos_condition(translate(context, error_handler, node.reference));
 }
 
 static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanConditionEntry& node) {
-    return context.policy_builder->add_neg_condition(translate(context, error_handler, node.reference)->get_boolean());
+    return context.policy_factory->make_neg_condition(translate(context, error_handler, node.reference));
 }
 
 static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::GreaterNumericalConditionEntry& node) {
-    return context.policy_builder->add_gt_condition(translate(context, error_handler, node.reference)->get_numerical());
+    return context.policy_factory->make_gt_condition(translate(context, error_handler, node.reference));
 }
 
 static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::EqualNumericalConditionEntry& node) {
-    return context.policy_builder->add_eq_condition(translate(context, error_handler, node.reference)->get_numerical());
+    return context.policy_factory->make_eq_condition(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanEffectEntry& node) {
-    return context.policy_builder->add_pos_effect(translate(context, error_handler, node.reference)->get_boolean());
+    return context.policy_factory->make_pos_effect(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanEffectEntry& node) {
-    return context.policy_builder->add_neg_effect(translate(context, error_handler, node.reference)->get_boolean());
+    return context.policy_factory->make_neg_effect(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedBooleanEffectEntry& node) {
-    return context.policy_builder->add_bot_effect(translate(context, error_handler, node.reference)->get_boolean());
+    return context.policy_factory->make_bot_effect(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::IncrementNumericalEffectEntry& node) {
-    return context.policy_builder->add_inc_effect(translate(context, error_handler, node.reference)->get_numerical());
+    return context.policy_factory->make_inc_effect(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::DecrementNumericalEffectEntry& node) {
-    return context.policy_builder->add_dec_effect(translate(context, error_handler, node.reference)->get_numerical());
+    return context.policy_factory->make_dec_effect(translate(context, error_handler, node.reference));
 }
 
 static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedNumericalEffectEntry& node) {
-    return context.policy_builder->add_bot_effect(translate(context, error_handler, node.reference)->get_numerical());
+    return context.policy_factory->make_bot_effect(translate(context, error_handler, node.reference));
 }
 
 

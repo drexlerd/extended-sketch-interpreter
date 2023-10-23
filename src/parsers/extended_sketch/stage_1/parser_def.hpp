@@ -4,7 +4,7 @@
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
 
-#include "src/parsers/extended_sketch/common/error_handler.hpp"
+#include "error_handler.hpp"
 
 #include "ast.hpp"
 #include "ast_adapted.hpp"
@@ -333,7 +333,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct ActionRuleEntryClass : x3::annotate_on_success {};
     struct SearchRuleEntryClass : x3::annotate_on_success {};
     struct RuleEntryClass : x3::annotate_on_success {};
-    struct ExtendedSketchClass : x3::annotate_on_success, error_handler_base {};
+    struct ExtendedSketchClass : x3::annotate_on_success, error_handler_extended_sketch {};
 }}
 
 namespace sketches::parsers::extended_sketch::stage_1

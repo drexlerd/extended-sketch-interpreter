@@ -5,9 +5,9 @@
 #include <memory>
 #include <string>
 
-#include "src/external/mimir/formalism/domain.hpp"
-#include "src/external/dlplan/include/dlplan/core.h"
-#include "src/external/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/formalism/domain.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 
 #include "feature_factory.hpp"
 #include "memory_state_factory.hpp"
@@ -20,7 +20,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         mimir::formalism::DomainDescription domain_description;
         std::map<std::string, mimir::formalism::ActionSchema> action_schema_map;
 
-        std::shared_ptr<dlplan::policy::PolicyBuilder> policy_builder;
+        std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory;
         MemoryStateFactory memory_state_factory;
         RegisterFactory register_factory;
         BooleanFactory boolean_factory;
@@ -29,8 +29,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
 
         Context(
             const mimir::formalism::DomainDescription& domain_description,
-            const std::shared_ptr<dlplan::core::SyntacticElementFactory>& syntactic_element_factory,
-            const std::shared_ptr<dlplan::policy::PolicyBuilder>& policy_builder);
+            const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory);
     };
 }
 

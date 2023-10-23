@@ -11,9 +11,9 @@ struct ExtendedStateImpl {
     MemoryState memory_state;
 
     mimir::formalism::State mimir_state;
-
-    //dlplan::core::ExtendedState dlplan_state;
 };
+
+// TODO: need extended state for evaluation in dlplan.
 
 }
 

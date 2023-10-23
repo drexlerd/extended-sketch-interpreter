@@ -22,5 +22,3 @@ endforeach()
 include_directories("${PROJECT_SOURCE_DIR}/src/private/dlplan")
 
 add_subdirectory(src)
-
-add_subdirectory(src/private/dlplan)

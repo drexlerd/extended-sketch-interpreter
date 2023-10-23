@@ -3,7 +3,7 @@
 
 #include "ast.hpp"
 
-#include "src/parsers/common/config.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/config.hpp"
 
 
 namespace sketches::parsers::extended_sketch::stage_1::parser {
@@ -11,9 +11,9 @@ namespace sketches::parsers::extended_sketch::stage_1::parser {
 
 /// @brief Parses the content from iter to end
 extern ast::ExtendedSketch parse_ast(
-    iterator_type& iter,
-    iterator_type end,
-    error_handler_type& error_handler);
+    dlplan::common::parsers::iterator_type& iter,
+    dlplan::common::parsers::iterator_type end,
+    dlplan::common::parsers::error_handler_type& error_handler);
 
 }
 

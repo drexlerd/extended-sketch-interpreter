@@ -38,13 +38,16 @@ construct_instance_info(
 
 
 int main(int argc, char** argv) {
-    if (argc != 4) {
-        std::cout << "Usage: interpreter <domain:str> <problem:str> <sketch:ExtendedSketch>" << std::endl;
+    if (argc < 2) {
+        std::cout << "Usage: interpreter <domain:str> <problem:str> [<sketch:ExtendedSketch>,...]" << std::endl;
         return 1;
     }
     string domain_file = argv[1];
     string problem_file = argv[2];
-    string sketch_file = argv[3];
+    vector<string> sketch_files;
+    for (int i = 3; i < argc; ++i) {
+        sketch_files.push_back(argv[i]);
+    }
 
     // 1. Parse the domain
     mimir::parsers::DomainParser domain_parser(domain_file);
@@ -60,10 +63,10 @@ int main(int argc, char** argv) {
     // 4. Parse the extended sketch
     sketches::extended_sketch::ExtendedSketch sketch;
     sketches::parsers::extended_sketch::Driver driver(domain_description, policy_factory);
-    driver.parse(dlplan::common::parsers::read_file(sketch_file), sketch_file);
+    driver.parse(dlplan::common::parsers::read_file(sketch_file))
     // 4. Run SIW_M
     return 0;
 }
 
 
-// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/success.sketch
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siwm  benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/sketch.pddl

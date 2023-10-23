@@ -6,6 +6,7 @@
 
 
 namespace sketches::extended_sketch {
+// We could take the registers that we implement in dlplan to avoid having to synchronize the contents.
 class RegisterImpl {
 private:
     std::string m_key;

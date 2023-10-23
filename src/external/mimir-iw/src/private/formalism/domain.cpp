@@ -108,6 +108,17 @@ namespace mimir::formalism
         return map;
     }
 
+    std::map<std::string, formalism::ActionSchema> DomainImpl::get_action_schema_map() const {
+        std::map<std::string, formalism::ActionSchema> map;
+
+        for (const auto& action_schema : action_schemas)
+        {
+            map.insert(std::make_pair(action_schema->name, action_schema));
+        }
+
+        return map;
+    }
+
     DomainDescription create_domain(const std::string& name,
                                     const formalism::RequirementList& requirements,
                                     const formalism::TypeList& types,

@@ -67,7 +67,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/src/external/mimir-iw")
-include_directories("${PROJECT_SOURCE_DIR}/src/external/mimir-iw/private/dlplan")
+include_directories("${PROJECT_SOURCE_DIR}/src/external/mimir-iw/src/private/dlplan")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src)
 
