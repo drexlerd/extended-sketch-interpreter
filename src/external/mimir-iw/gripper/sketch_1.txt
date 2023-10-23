@@ -1,6 +1,0 @@
-(:policy
-(:booleans )
-(:numericals (3930 "n_count(c_all(r_primitive(at,0,1),c_one_of(roomb)))") (3917 "n_count(r_primitive(carry,0,1))"))
-(:rule (:conditions (:c_n_gt 3917)) (:effects (:e_n_dec 3917) (:e_n_bot 3930)))
-(:rule (:conditions (:c_n_eq 3917)) (:effects (:e_n_inc 3917) (:e_n_inc 3930)))
-)

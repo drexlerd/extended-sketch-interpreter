@@ -63,11 +63,11 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Add library and executable targets
 ##############################################################
 
-add_compile_definitions(BOOST_PHOENIX_STL_TUPLE_H_)
+# add_compile_definitions(BOOST_PHOENIX_STL_TUPLE_H_)
 
-include_directories(include/)
 include_directories("${PROJECT_SOURCE_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/src/external/dlplan")
+include_directories("${PROJECT_SOURCE_DIR}/src/external/mimir-iw")
+include_directories("${PROJECT_SOURCE_DIR}/src/external/mimir-iw/private/dlplan")
 
 add_subdirectory(src)
 

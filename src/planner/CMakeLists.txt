@@ -1,2 +1,2 @@
-add_executable(siwm siw_m.cpp)
-target_link_libraries(siwm extended_sketch parser pddl dlplancore dlplanpolicy)
+add_executable(siw_r siw_r.cpp)
+target_link_libraries(siw_r extended_sketch parser pddl dlplan::core dlplan::policy)

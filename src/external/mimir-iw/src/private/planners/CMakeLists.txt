@@ -1,8 +1,0 @@
-file(GLOB SRC_FILES "*.cpp")
-add_library(planners STATIC ${SRC_FILES})
-target_link_libraries(planners algorithms)
-target_link_libraries(planners formalism)
-target_link_libraries(planners generators)
-target_link_libraries(planners dlplancore)
-target_link_libraries(planners dlplannovelty)
-target_link_libraries(planners dlplanpolicy)

@@ -1,2 +1,1 @@
-add_subdirectory(dlplan)
-add_subdirectory(mimir)
+add_subdirectory(mimir-iw)

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "src/external/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 
 
 namespace sketches::extended_sketch {
