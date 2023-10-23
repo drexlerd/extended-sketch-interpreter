@@ -10,7 +10,6 @@
 // We need to tell fusion about our rexpr and rexpr_key_value
 // to make them a first-class fusion citizens
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::Name, alphabetical, suffix)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::QuotedString, characters)
 
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NameEntry, name)
 
@@ -23,32 +22,8 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::Regi
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::RegisterReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::RegistersEntry, definitions)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::BooleanDefinition, key, repr)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::BooleanReference, key)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::BooleansEntry, definitions)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NumericalDefinition, key, repr)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NumericalReference, key)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NumericalsEntry, definitions)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ConceptDefinition, key, repr)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ConceptReference, key)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ConceptsEntry, definitions)
-
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::MemoryConditionEntry, reference)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::MemoryEffectEntry, reference)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::PositiveBooleanConditionEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NegativeBooleanConditionEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::GreaterNumericalConditionEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::EqualNumericalConditionEntry, reference)
-
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::PositiveBooleanEffectEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::NegativeBooleanEffectEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::UnchangedBooleanEffectEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::IncrementNumericalEffectEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::DecrementNumericalEffectEntry, reference)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::UnchangedNumericalEffectEntry, reference)
 
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::LoadRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, register_reference, concept_reference)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ModuleReference, reference)

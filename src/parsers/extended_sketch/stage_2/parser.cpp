@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/parser.hpp"
 #include "src/extended_sketch/memory_state.hpp"
 #include "src/extended_sketch/register.hpp"
 #include "src/extended_sketch/rules.hpp"
@@ -18,10 +19,6 @@ static std::string translate(Context&, const error_handler_type&, const stage_1:
     ss << node.alphabetical;
     ss << node.suffix;;
     return ss.str();
-}
-
-static std::string translate(Context&, const error_handler_type&, const stage_1::ast::QuotedString& node) {
-    return node.characters;
 }
 
 static std::string translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NameEntry& node) {
@@ -78,81 +75,6 @@ static RegisterMap translate(Context& context, const error_handler_type& error_h
     return registers;
 }
 
-static Boolean translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleanDefinition& node) {
-    return context.boolean_factory.make_boolean(
-        translate(context, error_handler, node.key),
-        translate(context, error_handler, node.repr));
-}
-
-static Boolean translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleanReference& node) {
-    auto key = translate(context, error_handler, node.key);
-    auto boolean = context.boolean_factory.get_boolean(key);
-    if (!boolean) {
-        error_handler(node, "Undefined boolean " + key);
-        throw std::runtime_error("Unsuccessful parse.");
-    }
-    return boolean;
-}
-
-static BooleanMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::BooleansEntry& node) {
-    BooleanMap booleans;
-    for (const auto& child : node.definitions) {
-        auto boolean = translate(context, error_handler, child);
-        booleans.emplace(boolean->get_key(), boolean);
-    }
-    return booleans;
-}
-
-static Numerical translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalDefinition& node) {
-    return context.numerical_factory.make_numerical(
-        translate(context, error_handler, node.key),
-        translate(context, error_handler, node.repr));
-}
-
-static Numerical translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalReference& node) {
-    auto key = translate(context, error_handler, node.key);
-    auto numerical = context.numerical_factory.get_numerical(key);
-    if (!numerical) {
-        error_handler(node, "Undefined numerical " + key);
-        throw std::runtime_error("Unsuccessful parse.");
-    }
-    return numerical;
-}
-
-static NumericalMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NumericalsEntry& node) {
-    NumericalMap numericals;
-    for (const auto& child : node.definitions) {
-        auto numerical = translate(context, error_handler, child);
-        numericals.emplace(numerical->get_key(), numerical);
-    }
-    return numericals;
-}
-
-static Concept translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptDefinition& node) {
-    return context.concept_factory.make_concept(
-        translate(context, error_handler, node.key),
-        translate(context, error_handler, node.repr));
-}
-
-static Concept translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptReference& node) {
-    auto key = translate(context, error_handler, node.key);
-    auto concept_ = context.concept_factory.get_concept(key);
-    if (!concept_) {
-        error_handler(node, "Undefined concept " + key);
-        throw std::runtime_error("Unsuccessful parse.");
-    }
-    return concept_;
-}
-
-static ConceptMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ConceptsEntry& node) {
-    ConceptMap concepts;
-    for (const auto& child : node.definitions) {
-        auto concept_ = translate(context, error_handler, child);
-        concepts.emplace(concept_->get_key(), concept_);
-    }
-    return concepts;
-}
-
 static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryConditionEntry& node) {
     return translate(context, error_handler, node.reference);
 }
@@ -161,108 +83,20 @@ static MemoryState translate(Context& context, const error_handler_type& error_h
     return translate(context, error_handler, node.reference);
 }
 
-static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanConditionEntry& node) {
-    return context.policy_factory->make_pos_condition(translate(context, error_handler, node.reference));
-}
-
-static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanConditionEntry& node) {
-    return context.policy_factory->make_neg_condition(translate(context, error_handler, node.reference));
-}
-
-static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::GreaterNumericalConditionEntry& node) {
-    return context.policy_factory->make_gt_condition(translate(context, error_handler, node.reference));
-}
-
-static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::EqualNumericalConditionEntry& node) {
-    return context.policy_factory->make_eq_condition(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::PositiveBooleanEffectEntry& node) {
-    return context.policy_factory->make_pos_effect(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NegativeBooleanEffectEntry& node) {
-    return context.policy_factory->make_neg_effect(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedBooleanEffectEntry& node) {
-    return context.policy_factory->make_bot_effect(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::IncrementNumericalEffectEntry& node) {
-    return context.policy_factory->make_inc_effect(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::DecrementNumericalEffectEntry& node) {
-    return context.policy_factory->make_dec_effect(translate(context, error_handler, node.reference));
-}
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::UnchangedNumericalEffectEntry& node) {
-    return context.policy_factory->make_bot_effect(translate(context, error_handler, node.reference));
-}
-
-
-class FeatureConditionEntryVisitor : public boost::static_visitor<> {
-private:
-    Context& context;
-    const error_handler_type& error_handler;
-
-public:
-    Condition result;
-
-    FeatureConditionEntryVisitor(Context& context, const error_handler_type& error_handler)
-        : context(context), error_handler(error_handler) { }
-
-    template<typename Node>
-    void operator()(const Node& node) {
-        result = translate(context, error_handler, node);
-    }
-};
-
-static Condition translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::FeatureConditionEntry& node) {
-    FeatureConditionEntryVisitor visitor(context, error_handler);
-    boost::apply_visitor(visitor, node);
-    return visitor.result;
-}
-
-
-class FeatureEffectEntryVisitor : public boost::static_visitor<> {
-private:
-    Context& context;
-    const error_handler_type& error_handler;
-
-public:
-    Effect result;
-
-    FeatureEffectEntryVisitor(Context& context, const error_handler_type& error_handler)
-        : context(context), error_handler(error_handler) { }
-
-    template<typename Node>
-    void operator()(const Node& node) {
-        result = translate(context, error_handler, node);
-    }
-};
-
-static Effect translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::FeatureEffectEntry& node) {
-    FeatureEffectEntryVisitor visitor(context, error_handler);
-    boost::apply_visitor(visitor, node);
-    return visitor.result;
-}
-
 
 static LoadRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::LoadRuleEntry& node) {
     auto memory_condition = translate(context, error_handler, node.memory_condition);
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(translate(context, error_handler, condition_node));
+        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(translate(context, error_handler, effect_node));
+        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto register_ = translate(context, error_handler, node.register_reference);
-    auto concept_ = translate(context, error_handler, node.concept_reference);
+    auto concept_ = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concept_reference, error_handler, context.dlplan_context);
     return create_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
@@ -276,11 +110,11 @@ static CallRule translate(Context& context, const error_handler_type& error_hand
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(translate(context, error_handler, condition_node));
+        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(translate(context, error_handler, effect_node));
+        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto module_ = translate(context, error_handler, node.module_reference);
     RegisterList registers;
@@ -304,11 +138,11 @@ static ActionRule translate(Context& context, const error_handler_type& error_ha
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(translate(context, error_handler, condition_node));
+        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(translate(context, error_handler, effect_node));
+        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto action_schema = translate(context, error_handler, node.action_reference);
     RegisterList registers;
@@ -323,11 +157,11 @@ static SearchRule translate(Context& context, const error_handler_type& error_ha
     auto memory_effect = translate(context, error_handler, node.memory_effect);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(translate(context, error_handler, condition_node));
+        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(translate(context, error_handler, effect_node));
+        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     return create_iwsearch_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
 }
@@ -411,9 +245,9 @@ ExtendedSketch parse_sketch(Context& context, const error_handler_type& error_ha
     auto memory_states = translate(context, error_handler, node.memory_states);
     auto initial_memory_state = translate(context, error_handler, node.initial_memory_state);
     auto registers = translate(context, error_handler, node.registers);
-    auto booleans = translate(context, error_handler, node.booleans);
-    auto numericals = translate(context, error_handler, node.numericals);
-    auto concepts = translate(context, error_handler, node.concepts);
+    auto booleans = dlplan::policy::parsers::policy::stage_2::parser::parse(node.booleans, error_handler, context.dlplan_context);
+    auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
+    auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = translate(context, error_handler, node.rules);
     return create_extended_sketch(
         name,

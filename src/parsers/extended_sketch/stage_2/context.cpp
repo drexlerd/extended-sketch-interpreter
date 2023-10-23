@@ -11,7 +11,5 @@ Context::Context(
       policy_factory(policy_factory),
       memory_state_factory(MemoryStateFactory()),
       register_factory(RegisterFactory()),
-      boolean_factory(BooleanFactory(policy_factory)),
-      numerical_factory(NumericalFactory(policy_factory)),
-      concept_factory(ConceptFactory(policy_factory)) { }
+      dlplan_context(*policy_factory) { }
 }

@@ -8,6 +8,7 @@
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/context.hpp"
 
 #include "feature_factory.hpp"
 #include "memory_state_factory.hpp"
@@ -23,9 +24,8 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory;
         MemoryStateFactory memory_state_factory;
         RegisterFactory register_factory;
-        BooleanFactory boolean_factory;
-        NumericalFactory numerical_factory;
-        ConceptFactory concept_factory;
+
+        dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
 
         Context(
             const mimir::formalism::DomainDescription& domain_description,
