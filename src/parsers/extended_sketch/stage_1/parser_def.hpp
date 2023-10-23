@@ -139,36 +139,50 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         lit('(') >> lit(":load_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
-                >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_condition_entry() > lit(')')) > lit(')')
+                >> *dlplan::policy::parsers::policy::stage_1::feature_condition_entry()
+            > lit(')')
             > lit('(') > lit(":effects")
-                > memory_effect_entry >> *(lit('(')
-                >> dlplan::policy::parsers::policy::stage_1::feature_effect_entry() > lit(')')) > lit('(') > lit("load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')') > lit(')')
-        >> lit(')');
+                > memory_effect_entry
+                >> *dlplan::policy::parsers::policy::stage_1::feature_effect_entry()
+                > lit('(') > lit("load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
+            > lit(')')
+        > lit(')');
     const auto module_reference_def = name;
     const auto call_rule_entry_def =
         lit('(') >> lit(":call_rule")
-            > lit('(') > lit(":conditions") > memory_condition_entry >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_condition_entry() > lit(')')) > lit(')')
-            > lit('(') > lit(":effects") > memory_effect_entry >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_effect_entry() > lit(')')) > lit('(') >> module_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')') >> lit(')')
-        >> lit(')');
+            > lit('(') > lit(":conditions")
+                > memory_condition_entry
+                >> *dlplan::policy::parsers::policy::stage_1::feature_condition_entry()
+            > lit(')')
+            > lit('(') > lit(":effects")
+                > memory_effect_entry
+                >> *dlplan::policy::parsers::policy::stage_1::feature_effect_entry()
+                > lit('(') >> module_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')')
+            > lit(')')
+        > lit(')');
     const auto action_reference_def = name;
     const auto action_rule_entry_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
-                >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_condition_entry() > lit(')')) > lit(')')
+                >> *dlplan::policy::parsers::policy::stage_1::feature_condition_entry()
+            > lit(')')
             > lit('(') > lit(":effects")
                 > memory_effect_entry
-                >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_effect_entry() > lit(')')) > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')') > lit(')')
-        >> lit(')');
+                >> *dlplan::policy::parsers::policy::stage_1::feature_effect_entry()
+                > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
+            > lit(')')
+        > lit(')');
     const auto search_rule_entry_def =
         lit('(') >> lit(":search_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
-                >> *(lit('(') >> dlplan::policy::parsers::policy::stage_1::feature_condition_entry() > lit(')')) > lit(')')
+                >> *dlplan::policy::parsers::policy::stage_1::feature_condition_entry() > lit(')')
             > lit('(') > lit(":effects")
-                > memory_effect_entry >> *(lit('(')
-                >> dlplan::policy::parsers::policy::stage_1::feature_effect_entry() > lit(')')) > lit(')')
-        >> lit(')');
+                > memory_effect_entry
+                >> *dlplan::policy::parsers::policy::stage_1::feature_effect_entry()
+            > lit(')')
+        > lit(')');
     const auto rule_entry_def =
         load_rule_entry | call_rule_entry | action_rule_entry | search_rule_entry;
     const auto rules_def = *rule_entry;
