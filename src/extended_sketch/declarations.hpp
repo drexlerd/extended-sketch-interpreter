@@ -41,29 +41,30 @@ namespace sketches::extended_sketch {
     using EffectSet = dlplan::policy::Effects;
 
     class LoadRuleImpl;
-    using LoadRule = std::shared_ptr<LoadRuleImpl>;
+    using LoadRule = std::shared_ptr<const LoadRuleImpl>;
     using LoadRuleList = std::vector<LoadRule>;
     using LoadRuleSet = std::set<LoadRule, dlplan::policy::ScoreCompare<LoadRule>>;
 
     class CallRuleImpl;
-    using CallRule = std::shared_ptr<CallRuleImpl>;
+    using CallRule = std::shared_ptr<const CallRuleImpl>;
     using CallRuleList = std::vector<CallRule>;
 
     class ActionRuleImpl;
-    using ActionRule = std::shared_ptr<ActionRuleImpl>;
+    using ActionRule = std::shared_ptr<const ActionRuleImpl>;
     using ActionRuleList = std::vector<ActionRule>;
+
+    class SearchRuleImpl;
+    using SearchRule = std::shared_ptr<const SearchRuleImpl>;
+    using SearchRuleList = std::vector<SearchRule>;
 
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;
 
-    class SearchRuleImpl;
-    using SearchRule = std::shared_ptr<SearchRuleImpl>;
-    using SearchRuleList = std::vector<SearchRule>;
-
     class ExtendedSketchImpl;
     using ExtendedSketch = std::shared_ptr<ExtendedSketchImpl>;
     using ExtendedSketchList = std::vector<ExtendedSketch>;
+    using ExtendedSketchMap = std::unordered_map<std::string, ExtendedSketch>;
 }
 
 #endif

@@ -9,6 +9,7 @@ Context::Context(
     : domain_description(domain_description),
       action_schema_map(domain_description->get_action_schema_map()),
       policy_factory(policy_factory),
+      sketch_factory(),
       memory_state_factory(MemoryStateFactory()),
       register_factory(RegisterFactory()),
       dlplan_context(*policy_factory) { }

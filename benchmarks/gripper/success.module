@@ -1,0 +1,10 @@
+(:module
+    (:name hanoi)
+    (:sketches )
+    (:extended_sketch
+        (:name )
+    )
+    (:extended_sketch
+        (:name )
+    )
+)

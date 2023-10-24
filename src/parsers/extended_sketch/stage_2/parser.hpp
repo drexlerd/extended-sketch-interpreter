@@ -13,11 +13,10 @@
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
 
-/// @brief Stage 1 translation of AST into extended sketches language.
-extern ExtendedSketch parse_sketch(
-    Context& context,
+extern ExtendedSketch parse(
+    const stage_1::ast::ExtendedSketch& node,
     const dlplan::common::parsers::error_handler_type& error_handler,
-    const stage_1::ast::ExtendedSketch& node);
+    Context& context);
 
 }
 

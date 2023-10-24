@@ -14,23 +14,23 @@ using namespace dlplan::common::parsers;
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
 
-static std::string translate(Context&, const error_handler_type&, const stage_1::ast::Name& node) {
+static std::string parse(const stage_1::ast::Name& node, const error_handler_type&, Context&) {
     std::stringstream ss;
     ss << node.alphabetical;
     ss << node.suffix;;
     return ss.str();
 }
 
-static std::string translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::NameEntry& node) {
-    return translate(context, error_handler, node.name);
+static std::string parse(const stage_1::ast::NameEntry& node, const error_handler_type& error_handler, Context& context) {
+    return parse(node.name, error_handler, context);
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStateDefinition& node) {
-    return context.memory_state_factory.make_memory_state(translate(context, error_handler, node.key));
+static MemoryState parse(const stage_1::ast::MemoryStateDefinition& node, const error_handler_type& error_handler, Context& context) {
+    return context.memory_state_factory.make_memory_state(parse(node.key, error_handler, context));
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStateReference& node) {
-    auto key = translate(context, error_handler, node.key);
+static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
+    auto key = parse(node.key, error_handler, context);
     auto memory_state = context.memory_state_factory.get_memory_state(key);
     if (!memory_state) {
         error_handler(node, "Undefined memory state " + key);
@@ -39,25 +39,25 @@ static MemoryState translate(Context& context, const error_handler_type& error_h
     return memory_state;
 }
 
-static MemoryStateMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryStatesEntry& node) {
+static MemoryStateMap parse(const stage_1::ast::MemoryStatesEntry& node, const error_handler_type& error_handler, Context& context) {
     MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
-        auto memory_state = translate(context, error_handler, child);
+        auto memory_state = parse(child, error_handler, context);
         memory_states.emplace(memory_state->get_key(), memory_state);
     }
     return memory_states;
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::InitialMemoryStateEntry& node) {
-    return translate(context, error_handler, node.reference);
+static MemoryState parse(const stage_1::ast::InitialMemoryStateEntry& node, const error_handler_type& error_handler, Context& context) {
+    return parse(node.reference, error_handler, context);
 }
 
-static Register translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegisterDefinition& node) {
-    return context.register_factory.make_register(translate(context, error_handler, node.key));
+static Register parse(const stage_1::ast::RegisterDefinition& node, const error_handler_type& error_handler, Context& context) {
+    return context.register_factory.make_register(parse(node.key, error_handler, context));
 }
 
-static Register translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegisterReference& node) {
-    auto key = translate(context, error_handler, node.key);
+static Register parse(const stage_1::ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
+    auto key = parse(node.key, error_handler, context);
     auto register_ = context.register_factory.get_register(key);
     if (!register_) {
         error_handler(node, "Undefined register " + key);
@@ -66,27 +66,27 @@ static Register translate(Context& context, const error_handler_type& error_hand
     return register_;
 }
 
-static RegisterMap translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RegistersEntry& node) {
+static RegisterMap parse(const stage_1::ast::RegistersEntry& node, const error_handler_type& error_handler, Context& context) {
     RegisterMap registers;
     for (const auto& child : node.definitions) {
-        auto register_ = translate(context, error_handler, child);
+        auto register_ = parse(child, error_handler, context);
         registers.emplace(register_->get_key(), register_);
     }
     return registers;
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryConditionEntry& node) {
-    return translate(context, error_handler, node.reference);
+static MemoryState parse(const stage_1::ast::MemoryConditionEntry& node, const error_handler_type& error_handler, Context& context) {
+    return parse(node.reference, error_handler, context);
 }
 
-static MemoryState translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::MemoryEffectEntry& node) {
-    return translate(context, error_handler, node.reference);
+static MemoryState parse(const stage_1::ast::MemoryEffectEntry& node, const error_handler_type& error_handler, Context& context) {
+    return parse(node.reference, error_handler, context);
 }
 
 
-static LoadRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::LoadRuleEntry& node) {
-    auto memory_condition = translate(context, error_handler, node.memory_condition);
-    auto memory_effect = translate(context, error_handler, node.memory_effect);
+static LoadRule parse(const stage_1::ast::LoadRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+    auto memory_condition = parse(node.memory_condition, error_handler, context);
+    auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
         feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
@@ -95,19 +95,19 @@ static LoadRule translate(Context& context, const error_handler_type& error_hand
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto register_ = translate(context, error_handler, node.register_reference);
+    auto register_ = parse(node.register_reference, error_handler, context);
     auto concept_ = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concept_reference, error_handler, context.dlplan_context);
-    return create_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
+    return context.sketch_factory->make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static std::string translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ModuleReference& node) {
+static std::string parse(const stage_1::ast::ModuleReference& node, const error_handler_type& error_handler, Context& context) {
     // TODO: add check whether the module exists in a second stage?
-    return translate(context, error_handler, node.reference);
+    return parse(node.reference, error_handler, context);
 }
 
-static CallRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::CallRuleEntry& node) {
-    auto memory_condition = translate(context, error_handler, node.memory_condition);
-    auto memory_effect = translate(context, error_handler, node.memory_effect);
+static CallRule parse(const stage_1::ast::CallRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+    auto memory_condition = parse(node.memory_condition, error_handler, context);
+    auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
         feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
@@ -116,16 +116,16 @@ static CallRule translate(Context& context, const error_handler_type& error_hand
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto module_ = translate(context, error_handler, node.module_reference);
+    auto module_ = parse(node.module_reference, error_handler, context);
     RegisterList registers;
     for (const auto& register_node : node.register_references) {
-        registers.push_back(translate(context, error_handler, register_node));
+        registers.push_back(parse(register_node, error_handler, context));
     }
-    return create_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
+    return context.sketch_factory->make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
 }
 
-static mimir::formalism::ActionSchema translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ActionReference& node) {
-    auto action_name = translate(context, error_handler, node.reference);
+static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference& node, const error_handler_type& error_handler, Context& context) {
+    auto action_name = parse(node.reference, error_handler, context);
     auto it = context.action_schema_map.find(action_name);
     if (it == context.action_schema_map.end()) {
         error_handler(node.reference, "undefined action schema " + action_name);
@@ -133,9 +133,9 @@ static mimir::formalism::ActionSchema translate(Context& context, const error_ha
     return it->second;
 }
 
-static ActionRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::ActionRuleEntry& node) {
-    auto memory_condition = translate(context, error_handler, node.memory_condition);
-    auto memory_effect = translate(context, error_handler, node.memory_effect);
+static ActionRule parse(const stage_1::ast::ActionRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+    auto memory_condition = parse(node.memory_condition, error_handler, context);
+    auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
         feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
@@ -144,17 +144,17 @@ static ActionRule translate(Context& context, const error_handler_type& error_ha
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto action_schema = translate(context, error_handler, node.action_reference);
+    auto action_schema = parse(node.action_reference, error_handler, context);
     RegisterList registers;
     for (const auto& register_node : node.register_references) {
-        registers.push_back(translate(context, error_handler, register_node));
+        registers.push_back(parse(register_node, error_handler, context));
     }
-    return create_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
+    return context.sketch_factory->make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
-static SearchRule translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::SearchRuleEntry& node) {
-    auto memory_condition = translate(context, error_handler, node.memory_condition);
-    auto memory_effect = translate(context, error_handler, node.memory_effect);
+static SearchRule parse(const stage_1::ast::SearchRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+    auto memory_condition = parse(node.memory_condition, error_handler, context);
+    auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
         feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
@@ -163,7 +163,7 @@ static SearchRule translate(Context& context, const error_handler_type& error_ha
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    return create_iwsearch_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
+    return context.sketch_factory->make_search_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
 }
 
 
@@ -175,18 +175,18 @@ private:
 public:
     boost::variant<LoadRule, CallRule, ActionRule, SearchRule> result;
 
-    RuleEntryVisitor(Context& context, const error_handler_type& error_handler)
+    RuleEntryVisitor(const error_handler_type& error_handler, Context& context)
         : context(context), error_handler(error_handler) { }
 
     template<typename Node>
     void operator()(const Node& node) {
-        result = translate(context, error_handler, node);
+        result = parse(node, error_handler, context);
     }
 };
 
 static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
-translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::RuleEntry& node) {
-    RuleEntryVisitor visitor(context, error_handler);
+parse(const stage_1::ast::RuleEntry& node, const error_handler_type& error_handler, Context& context) {
+    RuleEntryVisitor visitor(error_handler, context);
     boost::apply_visitor(visitor, node);
     return visitor.result;
 }
@@ -202,7 +202,7 @@ private:
     SearchRuleList& search_rules;
 
 public:
-    RuleVisitor(Context& context, const error_handler_type& error_handler,
+    RuleVisitor(const error_handler_type& error_handler, Context& context,
     LoadRuleList& load_rules, CallRuleList& call_rules,
     ActionRuleList& action_rules, SearchRuleList& search_rules)
         : context(context), error_handler(error_handler),
@@ -227,28 +227,28 @@ public:
 };
 
 static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
-translate(Context& context, const error_handler_type& error_handler, const stage_1::ast::Rules& node) {
+parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, Context& context) {
     auto load_rules = LoadRuleList();
     auto call_rules = CallRuleList();
     auto action_rules = ActionRuleList();
     auto search_rules = SearchRuleList();
-    RuleVisitor visitor(context, error_handler, load_rules, call_rules, action_rules, search_rules);
+    RuleVisitor visitor(error_handler, context, load_rules, call_rules, action_rules, search_rules);
     for (const auto& rule_node : node.rules) {
-        auto rule = translate(context, error_handler, rule_node);
+        auto rule = parse(rule_node, error_handler, context);
         boost::apply_visitor(visitor, rule);
     }
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch parse_sketch(Context& context, const error_handler_type& error_handler, const stage_1::ast::ExtendedSketch& node) {
-    auto name = translate(context, error_handler, node.name);
-    auto memory_states = translate(context, error_handler, node.memory_states);
-    auto initial_memory_state = translate(context, error_handler, node.initial_memory_state);
-    auto registers = translate(context, error_handler, node.registers);
+ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
+    auto name = parse(node.name, error_handler, context);
+    auto memory_states = parse(node.memory_states, error_handler, context);
+    auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
+    auto registers = parse(node.registers, error_handler, context);
     auto booleans = dlplan::policy::parsers::policy::stage_2::parser::parse(node.booleans, error_handler, context.dlplan_context);
     auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
     auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
-    auto [load_rules, call_rules, action_rules, search_rules] = translate(context, error_handler, node.rules);
+    auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
     return create_extended_sketch(
         name,
         memory_states, initial_memory_state,

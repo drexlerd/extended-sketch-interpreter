@@ -1,9 +1,8 @@
 #ifndef SRC_EXTENDED_SKETCH_EXTENDED_STATE_HPP_
 #define SRC_EXTENDED_SKETCH_EXTENDED_STATE_HPP_
 
+#include "src/external/mimir-iw/src/private/formalism/declarations.hpp"
 #include "declarations.hpp"
-
-#include "src/external/mimir-iw/src/private/formalism/state.hpp"
 
 
 namespace sketches::extended_sketch {

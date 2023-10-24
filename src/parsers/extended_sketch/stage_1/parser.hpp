@@ -10,7 +10,7 @@ namespace sketches::parsers::extended_sketch::stage_1::parser {
 
 
 /// @brief Parses the content from iter to end
-extern ast::ExtendedSketch parse_ast(
+extern ast::ExtendedSketch parse(
     dlplan::common::parsers::iterator_type& iter,
     dlplan::common::parsers::iterator_type end,
     dlplan::common::parsers::error_handler_type& error_handler);

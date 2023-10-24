@@ -16,7 +16,7 @@ using namespace dlplan::common::parsers;
 
 namespace sketches::parsers::extended_sketch::stage_1::parser {
 
-ast::ExtendedSketch parse_ast(
+ast::ExtendedSketch parse(
     iterator_type& iter,
     iterator_type end,
     error_handler_type& error_handler) {

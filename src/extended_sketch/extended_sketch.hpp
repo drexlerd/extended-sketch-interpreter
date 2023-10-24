@@ -6,6 +6,7 @@
 
 #include "declarations.hpp"
 
+
 namespace sketches::extended_sketch {
 class ExtendedSketchImpl {
 private:

@@ -90,23 +90,6 @@ void LoadRuleImpl::compute_repr(std::stringstream& out) const {
 }
 
 
-std::shared_ptr<LoadRuleImpl> create_load_rule(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
-    const ConditionSet& feature_conditions,
-    const EffectSet& feature_effects,
-    const Register& reg,
-    const Concept& concept) {
-    return std::make_shared<LoadRuleImpl>(
-        memory_state_condition,
-        memory_state_effect,
-        feature_conditions,
-        feature_effects,
-        reg,
-        concept);
-}
-
-
 CallRuleImpl::CallRuleImpl(
     const MemoryState& condition_memory_state,
     const MemoryState& effect_memory_state,
@@ -142,22 +125,6 @@ void CallRuleImpl::compute_repr(std::stringstream& out) const {
     out << ")";  // registers
     out << ")";  // effects
     out << ")";  // rule
-}
-
-std::shared_ptr<CallRuleImpl> create_call_rule(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
-    const ConditionSet& feature_conditions,
-    const EffectSet& feature_effects,
-    const std::string& extended_sketch_name,
-    const RegisterList& arguments) {
-    return std::make_shared<CallRuleImpl>(
-        memory_state_condition,
-        memory_state_effect,
-        feature_conditions,
-        feature_effects,
-        extended_sketch_name,
-        arguments);
 }
 
 
@@ -198,22 +165,6 @@ void ActionRuleImpl::compute_repr(std::stringstream& out) const {
     out << ")";  // rule
 }
 
-std::shared_ptr<ActionRuleImpl> create_action_rule(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
-    const ConditionSet& feature_conditions,
-    const EffectSet& feature_effects,
-    const mimir::formalism::ActionSchema& action_schema,
-    const RegisterList& arguments) {
-    return std::make_shared<ActionRuleImpl>(
-        memory_state_condition,
-        memory_state_effect,
-        feature_conditions,
-        feature_effects,
-        action_schema,
-        arguments);
-}
-
 
 SearchRuleImpl::SearchRuleImpl(
     const MemoryState& memory_state_condition,
@@ -243,14 +194,6 @@ void SearchRuleImpl::compute_repr(std::stringstream& out) const {
     }
     out << ")";  // effects
     out << ")";  // rule
-}
-
-std::shared_ptr<SearchRuleImpl> create_iwsearch_rule(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
-    const ConditionSet& feature_conditions,
-    const EffectSet& feature_effects) {
-    return std::make_shared<SearchRuleImpl>(memory_state_condition, memory_state_effect, feature_conditions, feature_effects);
 }
 
 }
