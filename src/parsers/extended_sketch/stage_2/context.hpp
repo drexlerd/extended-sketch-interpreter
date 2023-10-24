@@ -23,8 +23,8 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         std::map<std::string, mimir::formalism::ActionSchema> action_schema_map;
 
         std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory;
-        std::shared_ptr<ExtendedSketchFactory> sketch_factory;
 
+        ExtendedSketchFactory sketch_factory;
         MemoryStateFactory memory_state_factory;
         RegisterFactory register_factory;
 

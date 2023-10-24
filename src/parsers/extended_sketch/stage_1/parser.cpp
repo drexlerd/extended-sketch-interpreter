@@ -39,7 +39,7 @@ ast::ExtendedSketch parse(
     bool success = phrase_parse(iter, end, parser, space, ast) && iter == end;
     if (!success)
     {
-        throw std::runtime_error("Unsuccessful parse.");
+        throw std::runtime_error("Failed parse.");
     }
 
     return ast;

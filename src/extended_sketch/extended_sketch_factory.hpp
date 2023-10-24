@@ -14,6 +14,8 @@ private:
     Caches m_caches;
 
 public:
+    ExtendedSketchFactory();
+
     LoadRule make_load_rule(
         const MemoryState& memory_state_condition,
         const MemoryState& memory_state_effect,

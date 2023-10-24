@@ -34,7 +34,7 @@ static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const e
     auto memory_state = context.memory_state_factory.get_memory_state(key);
     if (!memory_state) {
         error_handler(node, "Undefined memory state " + key);
-        throw std::runtime_error("Unsuccessful parse.");
+        throw std::runtime_error("Failed parse.");
     }
     return memory_state;
 }
@@ -61,7 +61,7 @@ static Register parse(const stage_1::ast::RegisterReference& node, const error_h
     auto register_ = context.register_factory.get_register(key);
     if (!register_) {
         error_handler(node, "Undefined register " + key);
-        throw std::runtime_error("Unsuccessful parse.");
+        throw std::runtime_error("Failed parse.");
     }
     return register_;
 }
@@ -97,7 +97,7 @@ static LoadRule parse(const stage_1::ast::LoadRuleEntry& node, const error_handl
     }
     auto register_ = parse(node.register_reference, error_handler, context);
     auto concept_ = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concept_reference, error_handler, context.dlplan_context);
-    return context.sketch_factory->make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
+    return context.sketch_factory.make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
 static std::string parse(const stage_1::ast::ModuleReference& node, const error_handler_type& error_handler, Context& context) {
@@ -121,7 +121,7 @@ static CallRule parse(const stage_1::ast::CallRuleEntry& node, const error_handl
     for (const auto& register_node : node.register_references) {
         registers.push_back(parse(register_node, error_handler, context));
     }
-    return context.sketch_factory->make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
+    return context.sketch_factory.make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
 }
 
 static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference& node, const error_handler_type& error_handler, Context& context) {
@@ -149,7 +149,7 @@ static ActionRule parse(const stage_1::ast::ActionRuleEntry& node, const error_h
     for (const auto& register_node : node.register_references) {
         registers.push_back(parse(register_node, error_handler, context));
     }
-    return context.sketch_factory->make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
+    return context.sketch_factory.make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
 static SearchRule parse(const stage_1::ast::SearchRuleEntry& node, const error_handler_type& error_handler, Context& context) {
@@ -163,7 +163,7 @@ static SearchRule parse(const stage_1::ast::SearchRuleEntry& node, const error_h
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    return context.sketch_factory->make_search_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
+    return context.sketch_factory.make_search_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
 }
 
 

@@ -5,6 +5,8 @@
 
 namespace sketches::extended_sketch {
 
+ExtendedSketchFactory::ExtendedSketchFactory() : m_caches(Caches()) { }
+
 LoadRule ExtendedSketchFactory::make_load_rule(
     const MemoryState& memory_state_condition,
     const MemoryState& memory_state_effect,
