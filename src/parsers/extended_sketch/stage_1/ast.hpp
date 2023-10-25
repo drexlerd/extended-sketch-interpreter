@@ -27,13 +27,13 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     struct RegistersEntry;
     struct MemoryConditionEntry;
     struct MemoryEffectEntry;
-    struct LoadRuleEntry;
+    struct LoadRule;
     struct ModuleReference;
-    struct CallRuleEntry;
+    struct CallRule;
     struct ActionReference;
-    struct ActionRuleEntry;
-    struct SearchRuleEntry;
-    struct RuleEntry;
+    struct ActionRule;
+    struct SearchRule;
+    struct RuleVariant;
     struct Rules;
     struct ExtendedSketch;
 
@@ -81,24 +81,24 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
 
     /* Arguments */
-    struct ArgumentDefinitionRegister : x3::position_tagged {
+    struct ArgumentRegister : x3::position_tagged {
         Name key;
     };
 
-    struct ArgumentDefinitionConcept : x3::position_tagged {
+    struct ArgumentConcept : x3::position_tagged {
         Name key;
     };
 
-    struct ArgumentDefinition : x3::position_tagged,
+    struct ArgumentVariant : x3::position_tagged,
         x3::variant<
-            x3::forward_ast<ArgumentDefinitionRegister>,
-            x3::forward_ast<ArgumentDefinitionConcept>> {
+            x3::forward_ast<ArgumentRegister>,
+            x3::forward_ast<ArgumentConcept>> {
         using base_type::base_type;
         using base_type::operator=;
     };
 
-    struct ArgumentsEntry : x3::position_tagged {
-        std::vector<ArgumentDefinition> definitions;
+    struct Arguments : x3::position_tagged {
+        std::vector<ArgumentVariant> definitions;
     };
 
 
@@ -113,7 +113,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
 
     /* Rules */
-    struct LoadRuleEntry : x3::position_tagged {
+    struct LoadRule : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -126,7 +126,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name reference;
     };
 
-    struct CallRuleEntry : x3::position_tagged {
+    struct CallRule : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -139,7 +139,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name reference;
     };
 
-    struct ActionRuleEntry : x3::position_tagged {
+    struct ActionRule : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
@@ -148,25 +148,25 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         std::vector<RegisterReference> register_references;
     };
 
-    struct SearchRuleEntry : x3::position_tagged {
+    struct SearchRule : x3::position_tagged {
         MemoryConditionEntry memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
         MemoryEffectEntry memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
     };
 
-    struct RuleEntry : x3::position_tagged,
+    struct RuleVariant : x3::position_tagged,
         x3::variant<
-            x3::forward_ast<LoadRuleEntry>,
-            x3::forward_ast<CallRuleEntry>,
-            x3::forward_ast<ActionRuleEntry>,
-            x3::forward_ast<SearchRuleEntry>> {
+            x3::forward_ast<LoadRule>,
+            x3::forward_ast<CallRule>,
+            x3::forward_ast<ActionRule>,
+            x3::forward_ast<SearchRule>> {
         using base_type::base_type;
         using base_type::operator=;
     };
 
     struct Rules : x3::position_tagged {
-        std::vector<RuleEntry> rules;
+        std::vector<RuleVariant> rules;
     };
 
     /* Sketch */
@@ -174,7 +174,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         NameEntry name;
         MemoryStatesEntry memory_states;
         InitialMemoryStateEntry initial_memory_state;
-        ArgumentsEntry arguments;
+        Arguments arguments;
         RegistersEntry registers;
         dlplan::policy::parsers::policy::stage_1::ast::BooleansEntry booleans;
         dlplan::policy::parsers::policy::stage_1::ast::NumericalsEntry numericals;

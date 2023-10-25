@@ -1,9 +1,11 @@
-(:module
-    (:name hanoi)
+(:extended_module
+    (:name module_1)
     (:extended_sketch
-        (:name )
+        (:name sketch_1)
+        ...
     )
     (:extended_sketch
-        (:name )
+        (:name sketch_2)
+        ...
     )
 )

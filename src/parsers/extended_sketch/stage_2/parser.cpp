@@ -102,7 +102,7 @@ static MemoryState parse(const stage_1::ast::MemoryEffectEntry& node, const erro
 }
 
 
-static LoadRule parse(const stage_1::ast::LoadRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+static LoadRule parse(const stage_1::ast::LoadRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -123,7 +123,7 @@ static std::string parse(const stage_1::ast::ModuleReference& node, const error_
     return parse(node.reference, error_handler, context);
 }
 
-static CallRule parse(const stage_1::ast::CallRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -151,7 +151,7 @@ static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference&
     return it->second;
 }
 
-static ActionRule parse(const stage_1::ast::ActionRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+static ActionRule parse(const stage_1::ast::ActionRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -170,7 +170,7 @@ static ActionRule parse(const stage_1::ast::ActionRuleEntry& node, const error_h
     return context.sketch_factory.make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
-static SearchRule parse(const stage_1::ast::SearchRuleEntry& node, const error_handler_type& error_handler, Context& context) {
+static SearchRule parse(const stage_1::ast::SearchRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -203,7 +203,7 @@ public:
 };
 
 static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
-parse(const stage_1::ast::RuleEntry& node, const error_handler_type& error_handler, Context& context) {
+parse(const stage_1::ast::RuleVariant& node, const error_handler_type& error_handler, Context& context) {
     RuleEntryVisitor visitor(error_handler, context);
     boost::apply_visitor(visitor, node);
     return visitor.result;

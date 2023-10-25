@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "declarations.hpp"
+#include "arguments.hpp"
 
 
 namespace sketches::extended_sketch {
@@ -14,6 +15,8 @@ private:
 
     MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
+
+    ArgumentVariantList m_arguments;
 
     RegisterMap m_registers;
 

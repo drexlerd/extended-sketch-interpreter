@@ -35,9 +35,9 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryStateReferenceClass;
     struct MemoryStatesEntryClass;
     struct InitialMemoryStateEntryClass;
-    struct ArgumentDefinitionRegisterClass;
-    struct ArgumentDefinitionConceptClass;
-    struct ArgumentDefinitionClass;
+    struct ArgumentRegisterClass;
+    struct ArgumentConceptClass;
+    struct ArgumentVariantClass;
     struct ArgumentsEntryClass;
     struct RegisterDefinitionClass;
     struct RegisterReferenceClass;
@@ -45,13 +45,13 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     struct MemoryConditionEntryClass;
     struct MemoryEffectEntryClass;
-    struct LoadRuleEntryClass;
+    struct LoadRuleClass;
     struct ModuleReferenceClass;
-    struct CallRuleEntryClass;
+    struct CallRuleClass;
     struct ActionReferenceClass;
-    struct ActionRuleEntryClass;
-    struct SearchRuleEntryClass;
-    struct RuleEntryClass;
+    struct ActionRuleClass;
+    struct SearchRuleClass;
+    struct RuleVariantClass;
     struct RulesClass;
     struct ExtendedSketchClass;
 
@@ -78,17 +78,17 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     x3::rule<InitialMemoryStateEntryClass, ast::InitialMemoryStateEntry> const
         initial_memory_state_entry = "initial_memory_state_entry";
 
-    x3::rule<ArgumentDefinitionRegisterClass, ast::ArgumentDefinitionRegister> const
-        argument_definition_register = "argument_definition_register";
+    x3::rule<ArgumentRegisterClass, ast::ArgumentRegister> const
+        argument_register = "argument_register";
 
-    x3::rule<ArgumentDefinitionConceptClass, ast::ArgumentDefinitionConcept> const
-        argument_definition_concept = "argument_definition_concept";
+    x3::rule<ArgumentConceptClass, ast::ArgumentConcept> const
+        argument_concept = "argument_concept";
 
-    x3::rule<ArgumentDefinitionClass, ast::ArgumentDefinition> const
-        argument_definition = "argument_definition";
+    x3::rule<ArgumentVariantClass, ast::ArgumentVariant> const
+        argument_variant = "argument_variant";
 
-    x3::rule<ArgumentsEntryClass, ast::ArgumentsEntry> const
-        arguments_entry = "arguments_entry";
+    x3::rule<ArgumentsEntryClass, ast::Arguments> const
+        arguments = "arguments";
 
     x3::rule<RegisterDefinitionClass, ast::RegisterDefinition> const
         register_definition = "register_definition";
@@ -105,26 +105,26 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     x3::rule<MemoryEffectEntryClass, ast::MemoryEffectEntry> const
         memory_effect_entry = "memory_effect_entry";
 
-    x3::rule<LoadRuleEntryClass, ast::LoadRuleEntry> const
-        load_rule_entry = "load_rule_entry";
+    x3::rule<LoadRuleClass, ast::LoadRule> const
+        load_rule = "load_rule";
 
     x3::rule<ModuleReferenceClass, ast::ModuleReference> const
         module_reference = "module_reference";
 
-    x3::rule<CallRuleEntryClass, ast::CallRuleEntry> const
-        call_rule_entry = "call_rule_entry";
+    x3::rule<CallRuleClass, ast::CallRule> const
+        call_rule = "call_rule";
 
     x3::rule<ActionReferenceClass, ast::ActionReference> const
         action_reference = "action_reference";
 
-    x3::rule<ActionRuleEntryClass, ast::ActionRuleEntry> const
-        action_rule_entry = "action_rule_entry";
+    x3::rule<ActionRuleClass, ast::ActionRule> const
+        action_rule = "action_rule";
 
-    x3::rule<SearchRuleEntryClass, ast::SearchRuleEntry> const
-        search_rule_entry = "search_rule_entry";
+    x3::rule<SearchRuleClass, ast::SearchRule> const
+        search_rule = "search_rule";
 
-    x3::rule<RuleEntryClass, ast::RuleEntry> const
-        rule_entry = "rule_entry";
+    x3::rule<RuleVariantClass, ast::RuleVariant> const
+        rule_variant = "rule_variant";
 
     x3::rule<RulesClass, ast::Rules> const
         rules = "rules";
@@ -144,10 +144,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state_definition > lit(')') > lit(')');
     const auto initial_memory_state_entry_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
 
-    const auto argument_definition_register_def = lit('(') >> lit(":register") > name > lit(')');
-    const auto argument_definition_concept_def = lit('(') >> lit(":concept") > name > lit(')');
-    const auto argument_definition_def = argument_definition_register | argument_definition_concept;
-    const auto arguments_entry_def = lit('(') >> lit(":arguments") >> *argument_definition > lit(')');
+    const auto argument_register_def = lit('(') >> lit(":register") > name > lit(')');
+    const auto argument_concept_def = lit('(') >> lit(":concept") > name > lit(')');
+    const auto argument_variant_def = argument_register | argument_concept;
+    const auto arguments_def = lit('(') >> lit(":arguments") >> *argument_variant > lit(')');
 
     const auto register_definition_def = name;
     const auto register_reference_def = name;
@@ -156,7 +156,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto memory_condition_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
     const auto memory_effect_entry_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
 
-    const auto load_rule_entry_def =
+    const auto load_rule_def =
         lit('(') >> lit(":load_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
@@ -169,7 +169,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
             > lit(')')
         > lit(')');
     const auto module_reference_def = name;
-    const auto call_rule_entry_def =
+    const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
@@ -182,7 +182,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
             > lit(')')
         > lit(')');
     const auto action_reference_def = name;
-    const auto action_rule_entry_def =
+    const auto action_rule_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
@@ -194,7 +194,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
             > lit(')')
         > lit(')');
-    const auto search_rule_entry_def =
+    const auto search_rule_def =
         lit('(') >> lit(":search_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition_entry
@@ -204,15 +204,15 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 >> *dlplan::policy::parsers::policy::stage_1::feature_effect_entry()
             > lit(')')
         > lit(')');
-    const auto rule_entry_def =
-        load_rule_entry | call_rule_entry | action_rule_entry | search_rule_entry;
-    const auto rules_def = *rule_entry;
+    const auto rule_variant_def =
+        load_rule | call_rule | action_rule | search_rule;
+    const auto rules_def = *rule_variant;
     const auto extended_sketch_def = lit('(')
         > lit(":extended_sketch")
         > name_entry
         > memory_states_entry
         > initial_memory_state_entry
-        >> arguments_entry
+        >> arguments
         >> registers_entry
         >> dlplan::policy::parsers::policy::stage_1::booleans_entry()
         >> dlplan::policy::parsers::policy::stage_1::numericals_entry()
@@ -222,10 +222,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     BOOST_SPIRIT_DEFINE(name, name_entry,
         memory_state_definition, memory_state_reference, memory_states_entry, initial_memory_state_entry,
-        argument_definition_register, argument_definition_concept, argument_definition, arguments_entry,
+        argument_register, argument_concept, argument_variant, arguments,
         register_definition, register_reference, registers_entry,
         memory_condition_entry, memory_effect_entry,
-        load_rule_entry, module_reference, call_rule_entry, action_reference, action_rule_entry, search_rule_entry, rule_entry, rules,
+        load_rule, module_reference, call_rule, action_reference, action_rule, search_rule, rule_variant, rules,
         extended_sketch
     )
 
@@ -239,23 +239,23 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryStateDefinitionClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesEntryClass : x3::annotate_on_success {};
-    struct ArgumentDefinitionRegisterClass : x3::annotate_on_success {};
-    struct ArgumentDefinitionConceptClass : x3::annotate_on_success {};
-    struct ArgumentDefinitionClass : x3::annotate_on_success {};
-    struct ArgumentsEntryClass : x3::annotate_on_success {};
+    struct ArgumentRegisterClass : x3::annotate_on_success {};
+    struct ArgumentConceptClass : x3::annotate_on_success {};
+    struct ArgumentVariantClass : x3::annotate_on_success {};
+    struct ArgumentsClass : x3::annotate_on_success {};
     struct InitialMemoryStateEntryClass : x3::annotate_on_success {};
     struct RegisterDefinitionClass : x3::annotate_on_success {};
     struct RegisterReferenceClass : x3::annotate_on_success {};
     struct RegistersEntryClass : x3::annotate_on_success {};
     struct MemoryConditionEntryClass : x3::annotate_on_success {};
     struct MemoryEffectEntryClass : x3::annotate_on_success {};
-    struct LoadRuleEntryClass : x3::annotate_on_success {};
+    struct LoadRuleClass : x3::annotate_on_success {};
     struct ModuleReferenceClass : x3::annotate_on_success {};
-    struct CallRuleEntryClass : x3::annotate_on_success {};
+    struct CallRuleClass : x3::annotate_on_success {};
     struct ActionReferenceClass : x3::annotate_on_success {};
-    struct ActionRuleEntryClass : x3::annotate_on_success {};
-    struct SearchRuleEntryClass : x3::annotate_on_success {};
-    struct RuleEntryClass : x3::annotate_on_success {};
+    struct ActionRuleClass : x3::annotate_on_success {};
+    struct SearchRuleClass : x3::annotate_on_success {};
+    struct RuleVariantClass : x3::annotate_on_success {};
     struct ExtendedSketchClass : x3::annotate_on_success, error_handler_extended_sketch {};
 }}
 
