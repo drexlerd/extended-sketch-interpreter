@@ -20,15 +20,15 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     struct NameEntry;
     struct MemoryStateDefinition;
     struct MemoryStateReference;
-    struct MemoryStatesEntry;
-    struct InitialMemoryStateEntry;
+    struct MemoryStates;
+    struct InitialMemoryState;
     struct RegisterDefinition;
     struct RegisterReference;
-    struct RegistersEntry;
-    struct MemoryConditionEntry;
-    struct MemoryEffectEntry;
+    struct Registers;
+    struct MemoryCondition;
+    struct MemoryEffect;
     struct LoadRule;
-    struct ModuleReference;
+    struct ExtendedSketchReference;
     struct CallRule;
     struct ActionReference;
     struct ActionRule;
@@ -57,11 +57,11 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name key;
     };
 
-    struct MemoryStatesEntry : x3::position_tagged {
+    struct MemoryStates : x3::position_tagged {
         std::vector<MemoryStateDefinition> definitions;
     };
 
-    struct InitialMemoryStateEntry : x3::position_tagged {
+    struct InitialMemoryState : x3::position_tagged {
         MemoryStateReference reference;
     };
 
@@ -75,7 +75,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name key;
     };
 
-    struct RegistersEntry : x3::position_tagged {
+    struct Registers : x3::position_tagged {
         std::vector<RegisterDefinition> definitions;
     };
 
@@ -103,35 +103,35 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
 
     /* Condition and effects */
-    struct MemoryConditionEntry : x3::position_tagged {
+    struct MemoryCondition : x3::position_tagged {
         MemoryStateReference reference;
     };
 
-    struct MemoryEffectEntry : x3::position_tagged {
+    struct MemoryEffect : x3::position_tagged {
         MemoryStateReference reference;
     };
 
 
     /* Rules */
     struct LoadRule : x3::position_tagged {
-        MemoryConditionEntry memory_condition;
+        MemoryCondition memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
-        MemoryEffectEntry memory_effect;
+        MemoryEffect memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
         RegisterReference register_reference;
         dlplan::policy::parsers::policy::stage_1::ast::ConceptReference concept_reference;
     };
 
-    struct ModuleReference : x3::position_tagged {
+    struct ExtendedSketchReference : x3::position_tagged {
         Name reference;
     };
 
     struct CallRule : x3::position_tagged {
-        MemoryConditionEntry memory_condition;
+        MemoryCondition memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
-        MemoryEffectEntry memory_effect;
+        MemoryEffect memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
-        ModuleReference module_reference;
+        ExtendedSketchReference extended_sketch_reference;
         std::vector<RegisterReference> register_references;
     };
 
@@ -140,18 +140,18 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     struct ActionRule : x3::position_tagged {
-        MemoryConditionEntry memory_condition;
+        MemoryCondition memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
-        MemoryEffectEntry memory_effect;
+        MemoryEffect memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
         ActionReference action_reference;
         std::vector<RegisterReference> register_references;
     };
 
     struct SearchRule : x3::position_tagged {
-        MemoryConditionEntry memory_condition;
+        MemoryCondition memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
-        MemoryEffectEntry memory_effect;
+        MemoryEffect memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
     };
 
@@ -172,10 +172,10 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     /* Sketch */
     struct ExtendedSketch : x3::position_tagged {
         NameEntry name;
-        MemoryStatesEntry memory_states;
-        InitialMemoryStateEntry initial_memory_state;
+        MemoryStates memory_states;
+        InitialMemoryState initial_memory_state;
         Arguments arguments;
-        RegistersEntry registers;
+        Registers registers;
         dlplan::policy::parsers::policy::stage_1::ast::BooleansEntry booleans;
         dlplan::policy::parsers::policy::stage_1::ast::NumericalsEntry numericals;
         dlplan::policy::parsers::policy::stage_1::ast::ConceptsEntry concepts;

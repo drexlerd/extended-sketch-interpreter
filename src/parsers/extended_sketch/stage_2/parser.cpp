@@ -49,7 +49,7 @@ static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const e
     return memory_states.get_symbol(signature).get_definition();
 }
 
-static MemoryStateMap parse(const stage_1::ast::MemoryStatesEntry& node, const error_handler_type& error_handler, Context& context) {
+static MemoryStateMap parse(const stage_1::ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
     MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
         auto memory_state = parse(child, error_handler, context);
@@ -58,7 +58,7 @@ static MemoryStateMap parse(const stage_1::ast::MemoryStatesEntry& node, const e
     return memory_states;
 }
 
-static MemoryState parse(const stage_1::ast::InitialMemoryStateEntry& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const stage_1::ast::InitialMemoryState& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
@@ -84,7 +84,7 @@ static Register parse(const stage_1::ast::RegisterReference& node, const error_h
     return context.symbol_tables.registers.get_symbol(signature).get_definition();
 }
 
-static RegisterMap parse(const stage_1::ast::RegistersEntry& node, const error_handler_type& error_handler, Context& context) {
+static RegisterMap parse(const stage_1::ast::Registers& node, const error_handler_type& error_handler, Context& context) {
     RegisterMap registers;
     for (const auto& child : node.definitions) {
         auto register_ = parse(child, error_handler, context);
@@ -93,11 +93,11 @@ static RegisterMap parse(const stage_1::ast::RegistersEntry& node, const error_h
     return registers;
 }
 
-static MemoryState parse(const stage_1::ast::MemoryConditionEntry& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const stage_1::ast::MemoryCondition& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
-static MemoryState parse(const stage_1::ast::MemoryEffectEntry& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const stage_1::ast::MemoryEffect& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
@@ -118,7 +118,7 @@ static LoadRule parse(const stage_1::ast::LoadRule& node, const error_handler_ty
     return context.sketch_factory.make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static std::string parse(const stage_1::ast::ModuleReference& node, const error_handler_type& error_handler, Context& context) {
+static std::string parse(const stage_1::ast::ExtendedSketchReference& node, const error_handler_type& error_handler, Context& context) {
     // TODO: add check whether the module exists in a second stage?
     return parse(node.reference, error_handler, context);
 }
@@ -134,7 +134,7 @@ static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_ty
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto module_ = parse(node.module_reference, error_handler, context);
+    auto module_ = parse(node.extended_sketch_reference, error_handler, context);
     RegisterList registers;
     for (const auto& register_node : node.register_references) {
         registers.push_back(parse(register_node, error_handler, context));
