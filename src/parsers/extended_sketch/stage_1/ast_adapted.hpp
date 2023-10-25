@@ -18,6 +18,10 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::Memo
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::MemoryStatesEntry, definitions)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::InitialMemoryStateEntry, reference)
 
+BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ArgumentDefinitionRegister, key)
+BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ArgumentDefinitionConcept, key)
+BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ArgumentsEntry, definitions)
+
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::RegisterDefinition, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::RegisterReference, key)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::RegistersEntry, definitions)
@@ -32,6 +36,6 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::Acti
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ActionRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects, action_reference, register_references)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::SearchRuleEntry, memory_condition, feature_conditions, memory_effect, feature_effects)
 BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::Rules, rules)
-BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch, name, memory_states, initial_memory_state, registers, booleans, numericals, concepts, rules)
+BOOST_FUSION_ADAPT_STRUCT(sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch, name, memory_states, initial_memory_state, arguments, registers, booleans, numericals, concepts, rules)
 
 #endif

@@ -80,6 +80,28 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
 
+    /* Arguments */
+    struct ArgumentDefinitionRegister : x3::position_tagged {
+        Name key;
+    };
+
+    struct ArgumentDefinitionConcept : x3::position_tagged {
+        Name key;
+    };
+
+    struct ArgumentDefinition : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<ArgumentDefinitionRegister>,
+            x3::forward_ast<ArgumentDefinitionConcept>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
+    struct ArgumentsEntry : x3::position_tagged {
+        std::vector<ArgumentDefinition> definitions;
+    };
+
+
     /* Condition and effects */
     struct MemoryConditionEntry : x3::position_tagged {
         MemoryStateReference reference;
@@ -152,6 +174,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         NameEntry name;
         MemoryStatesEntry memory_states;
         InitialMemoryStateEntry initial_memory_state;
+        ArgumentsEntry arguments;
         RegistersEntry registers;
         dlplan::policy::parsers::policy::stage_1::ast::BooleansEntry booleans;
         dlplan::policy::parsers::policy::stage_1::ast::NumericalsEntry numericals;

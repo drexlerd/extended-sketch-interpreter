@@ -26,17 +26,27 @@ static std::string parse(const stage_1::ast::NameEntry& node, const error_handle
 }
 
 static MemoryState parse(const stage_1::ast::MemoryStateDefinition& node, const error_handler_type& error_handler, Context& context) {
-    return context.memory_state_factory.make_memory_state(parse(node.key, error_handler, context));
+    const auto signature = parse(node.key, error_handler, context);
+    auto& memory_states = context.symbol_tables.memory_states;
+    if (memory_states.exists_symbol(signature)) {
+        const auto& symbol = memory_states.get_symbol(signature);
+        error_handler(node, "Multiple definitions of memory state " + signature);
+        error_handler(symbol.node, "First defined here:");
+        throw std::runtime_error("Failed parse.");
+    }
+    auto& symbol = memory_states.add_symbol(signature, node);
+    auto memory_state = symbol.define(create_memory_state(signature));
+    return memory_state;
 }
 
 static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
-    auto key = parse(node.key, error_handler, context);
-    auto memory_state = context.memory_state_factory.get_memory_state(key);
-    if (!memory_state) {
-        error_handler(node, "Undefined memory state " + key);
+    auto signature = parse(node.key, error_handler, context);
+    auto& memory_states = context.symbol_tables.memory_states;
+    if (!memory_states.exists_symbol(signature)) {
+        error_handler(node, "Undefined memory state " + signature);
         throw std::runtime_error("Failed parse.");
     }
-    return memory_state;
+    return memory_states.get_symbol(signature).get_definition();
 }
 
 static MemoryStateMap parse(const stage_1::ast::MemoryStatesEntry& node, const error_handler_type& error_handler, Context& context) {
@@ -53,17 +63,25 @@ static MemoryState parse(const stage_1::ast::InitialMemoryStateEntry& node, cons
 }
 
 static Register parse(const stage_1::ast::RegisterDefinition& node, const error_handler_type& error_handler, Context& context) {
-    return context.register_factory.make_register(parse(node.key, error_handler, context));
+    const auto signature = parse(node.key, error_handler, context);
+    if (context.symbol_tables.registers.exists_symbol(signature)) {
+        const auto& symbol = context.symbol_tables.registers.get_symbol(signature);
+        error_handler(node, "Multiple definitions of register " + signature);
+        error_handler(symbol.node, "First defined here:");
+        throw std::runtime_error("Failed parse.");
+    }
+    auto& symbol = context.symbol_tables.registers.add_symbol(signature, node);
+    auto register_ = symbol.define(create_register(signature));
+    return register_;
 }
 
 static Register parse(const stage_1::ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
-    auto key = parse(node.key, error_handler, context);
-    auto register_ = context.register_factory.get_register(key);
-    if (!register_) {
-        error_handler(node, "Undefined register " + key);
+    auto signature = parse(node.key, error_handler, context);
+    if (!context.symbol_tables.registers.exists_symbol(signature)) {
+        error_handler(node, "Undefined register " + signature);
         throw std::runtime_error("Failed parse.");
     }
-    return register_;
+    return context.symbol_tables.registers.get_symbol(signature).get_definition();
 }
 
 static RegisterMap parse(const stage_1::ast::RegistersEntry& node, const error_handler_type& error_handler, Context& context) {
@@ -249,6 +267,7 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
     auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
     auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
+    // TODO: Check whether all symbols are defined!
     return create_extended_sketch(
         name,
         memory_states, initial_memory_state,

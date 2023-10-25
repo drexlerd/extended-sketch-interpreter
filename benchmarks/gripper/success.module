@@ -1,6 +1,5 @@
 (:module
     (:name hanoi)
-    (:sketches )
     (:extended_sketch
         (:name )
     )

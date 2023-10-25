@@ -35,6 +35,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryStateReferenceClass;
     struct MemoryStatesEntryClass;
     struct InitialMemoryStateEntryClass;
+    struct ArgumentDefinitionRegisterClass;
+    struct ArgumentDefinitionConceptClass;
+    struct ArgumentDefinitionClass;
+    struct ArgumentsEntryClass;
     struct RegisterDefinitionClass;
     struct RegisterReferenceClass;
     struct RegistersEntryClass;
@@ -73,6 +77,18 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     x3::rule<InitialMemoryStateEntryClass, ast::InitialMemoryStateEntry> const
         initial_memory_state_entry = "initial_memory_state_entry";
+
+    x3::rule<ArgumentDefinitionRegisterClass, ast::ArgumentDefinitionRegister> const
+        argument_definition_register = "argument_definition_register";
+
+    x3::rule<ArgumentDefinitionConceptClass, ast::ArgumentDefinitionConcept> const
+        argument_definition_concept = "argument_definition_concept";
+
+    x3::rule<ArgumentDefinitionClass, ast::ArgumentDefinition> const
+        argument_definition = "argument_definition";
+
+    x3::rule<ArgumentsEntryClass, ast::ArgumentsEntry> const
+        arguments_entry = "arguments_entry";
 
     x3::rule<RegisterDefinitionClass, ast::RegisterDefinition> const
         register_definition = "register_definition";
@@ -127,6 +143,11 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto memory_state_reference_def = name;
     const auto memory_states_entry_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state_definition > lit(')') > lit(')');
     const auto initial_memory_state_entry_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
+
+    const auto argument_definition_register_def = lit('(') >> lit(":register") > name > lit(')');
+    const auto argument_definition_concept_def = lit('(') >> lit(":concept") > name > lit(')');
+    const auto argument_definition_def = argument_definition_register | argument_definition_concept;
+    const auto arguments_entry_def = lit('(') >> lit(":arguments") >> *argument_definition > lit(')');
 
     const auto register_definition_def = name;
     const auto register_reference_def = name;
@@ -191,6 +212,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         > name_entry
         > memory_states_entry
         > initial_memory_state_entry
+        >> arguments_entry
         >> registers_entry
         >> dlplan::policy::parsers::policy::stage_1::booleans_entry()
         >> dlplan::policy::parsers::policy::stage_1::numericals_entry()
@@ -200,6 +222,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     BOOST_SPIRIT_DEFINE(name, name_entry,
         memory_state_definition, memory_state_reference, memory_states_entry, initial_memory_state_entry,
+        argument_definition_register, argument_definition_concept, argument_definition, arguments_entry,
         register_definition, register_reference, registers_entry,
         memory_condition_entry, memory_effect_entry,
         load_rule_entry, module_reference, call_rule_entry, action_reference, action_rule_entry, search_rule_entry, rule_entry, rules,
@@ -216,6 +239,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryStateDefinitionClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesEntryClass : x3::annotate_on_success {};
+    struct ArgumentDefinitionRegisterClass : x3::annotate_on_success {};
+    struct ArgumentDefinitionConceptClass : x3::annotate_on_success {};
+    struct ArgumentDefinitionClass : x3::annotate_on_success {};
+    struct ArgumentsEntryClass : x3::annotate_on_success {};
     struct InitialMemoryStateEntryClass : x3::annotate_on_success {};
     struct RegisterDefinitionClass : x3::annotate_on_success {};
     struct RegisterReferenceClass : x3::annotate_on_success {};
