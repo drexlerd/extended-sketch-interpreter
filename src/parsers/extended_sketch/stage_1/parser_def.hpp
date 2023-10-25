@@ -139,17 +139,17 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
     const auto name_entry_def = lit('(') >> lit(":name") > name > lit(')');
 
-    const auto memory_state_definition_def = name;
+    const auto memory_state_def = name;
     const auto memory_state_reference_def = name;
     const auto memory_states_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state > lit(')') > lit(')');
     const auto initial_memory_state_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
 
     const auto argument_register_def = lit('(') >> lit(":register") > name > lit(')');
     const auto argument_concept_def = lit('(') >> lit(":concept") > name > lit(')');
-    const auto argument_variant_def = argument_register | argument_concept;
+    const auto argument_def = argument_register | argument_concept;
     const auto arguments_def = lit('(') >> lit(":arguments") >> *argument > lit(')');
 
-    const auto register_definition_def = name;
+    const auto register__def = name;
     const auto register_reference_def = name;
     const auto registers_def = lit('(') >> lit(":registers") > lit('(') > *register_ > lit(')') > lit(')');
 
@@ -204,7 +204,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
             > lit(')')
         > lit(')');
-    const auto rule_variant_def =
+    const auto rule_def =
         load_rule | call_rule | action_rule | search_rule;
     const auto rules_def = *rule;
     const auto extended_sketch_def = lit('(')
@@ -223,7 +223,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     BOOST_SPIRIT_DEFINE(name, name_entry,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
         argument_register, argument_concept, argument, arguments,
-        register, register_reference, registers,
+        register_, register_reference, registers,
         memory_condition, memory_effect,
         load_rule, extended_sketch_reference, call_rule, action_reference, action_rule, search_rule, rule, rules,
         extended_sketch
