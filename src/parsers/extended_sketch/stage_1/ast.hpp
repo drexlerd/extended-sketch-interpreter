@@ -18,11 +18,11 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct Name;
     struct NameEntry;
-    struct MemoryStateDefinition;
+    struct MemoryState;
     struct MemoryStateReference;
     struct MemoryStates;
     struct InitialMemoryState;
-    struct RegisterDefinition;
+    struct Register;
     struct RegisterReference;
     struct Registers;
     struct MemoryCondition;
@@ -33,7 +33,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     struct ActionReference;
     struct ActionRule;
     struct SearchRule;
-    struct RuleVariant;
+    struct Rule;
     struct Rules;
     struct ExtendedSketch;
 
@@ -49,7 +49,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     /* Memory state entry and references */
-    struct MemoryStateDefinition : x3::position_tagged {
+    struct MemoryState : x3::position_tagged {
         Name key;
     };
 
@@ -58,7 +58,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     struct MemoryStates : x3::position_tagged {
-        std::vector<MemoryStateDefinition> definitions;
+        std::vector<MemoryState> definitions;
     };
 
     struct InitialMemoryState : x3::position_tagged {
@@ -67,7 +67,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
 
     /* Register entry and references */
-    struct RegisterDefinition : x3::position_tagged {
+    struct Register : x3::position_tagged {
         Name key;
     };
 
@@ -76,7 +76,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     struct Registers : x3::position_tagged {
-        std::vector<RegisterDefinition> definitions;
+        std::vector<Register> definitions;
     };
 
 
@@ -89,7 +89,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name key;
     };
 
-    struct ArgumentVariant : x3::position_tagged,
+    struct Argument : x3::position_tagged,
         x3::variant<
             x3::forward_ast<ArgumentRegister>,
             x3::forward_ast<ArgumentConcept>> {
@@ -98,7 +98,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     struct Arguments : x3::position_tagged {
-        std::vector<ArgumentVariant> definitions;
+        std::vector<Argument> definitions;
     };
 
 
@@ -115,9 +115,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     /* Rules */
     struct LoadRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
         RegisterReference register_reference;
         dlplan::policy::parsers::policy::stage_1::ast::ConceptReference concept_reference;
     };
@@ -128,9 +128,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct CallRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
         ExtendedSketchReference extended_sketch_reference;
         std::vector<RegisterReference> register_references;
     };
@@ -141,21 +141,21 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct ActionRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
         ActionReference action_reference;
         std::vector<RegisterReference> register_references;
     };
 
     struct SearchRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureConditionEntry> feature_conditions;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffectEntry> feature_effects;
+        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
     };
 
-    struct RuleVariant : x3::position_tagged,
+    struct Rule : x3::position_tagged,
         x3::variant<
             x3::forward_ast<LoadRule>,
             x3::forward_ast<CallRule>,
@@ -166,7 +166,7 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
     struct Rules : x3::position_tagged {
-        std::vector<RuleVariant> rules;
+        std::vector<Rule> rules;
     };
 
     /* Sketch */
@@ -176,9 +176,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         InitialMemoryState initial_memory_state;
         Arguments arguments;
         Registers registers;
-        dlplan::policy::parsers::policy::stage_1::ast::BooleansEntry booleans;
-        dlplan::policy::parsers::policy::stage_1::ast::NumericalsEntry numericals;
-        dlplan::policy::parsers::policy::stage_1::ast::ConceptsEntry concepts;
+        dlplan::policy::parsers::policy::stage_1::ast::Booleans booleans;
+        dlplan::policy::parsers::policy::stage_1::ast::Numericals numericals;
+        dlplan::policy::parsers::policy::stage_1::ast::Concepts concepts;
         Rules rules;
     };
 }

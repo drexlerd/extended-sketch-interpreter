@@ -61,8 +61,8 @@ public:
 };
 
 struct SymbolTables {
-    SymbolTable<sketches::parsers::extended_sketch::stage_1::ast::RegisterDefinition, Register> registers;
-    SymbolTable<sketches::parsers::extended_sketch::stage_1::ast::MemoryStateDefinition, MemoryState> memory_states;
+    SymbolTable<sketches::parsers::extended_sketch::stage_1::ast::Register, Register> registers;
+    SymbolTable<sketches::parsers::extended_sketch::stage_1::ast::MemoryState, MemoryState> memory_states;
     // SymbolTable<sketches::parsers::extended_sketch::stage_1::ast::ExtendedSketch, ExtendedSketch> extended_sketches;
 };
 

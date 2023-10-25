@@ -25,7 +25,7 @@ static std::string parse(const stage_1::ast::NameEntry& node, const error_handle
     return parse(node.name, error_handler, context);
 }
 
-static MemoryState parse(const stage_1::ast::MemoryStateDefinition& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const stage_1::ast::MemoryState& node, const error_handler_type& error_handler, Context& context) {
     const auto signature = parse(node.key, error_handler, context);
     auto& memory_states = context.symbol_tables.memory_states;
     if (memory_states.exists_symbol(signature)) {
@@ -62,7 +62,7 @@ static MemoryState parse(const stage_1::ast::InitialMemoryState& node, const err
     return parse(node.reference, error_handler, context);
 }
 
-static Register parse(const stage_1::ast::RegisterDefinition& node, const error_handler_type& error_handler, Context& context) {
+static Register parse(const stage_1::ast::Register& node, const error_handler_type& error_handler, Context& context) {
     const auto signature = parse(node.key, error_handler, context);
     if (context.symbol_tables.registers.exists_symbol(signature)) {
         const auto& symbol = context.symbol_tables.registers.get_symbol(signature);
@@ -203,7 +203,7 @@ public:
 };
 
 static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
-parse(const stage_1::ast::RuleVariant& node, const error_handler_type& error_handler, Context& context) {
+parse(const stage_1::ast::Rule& node, const error_handler_type& error_handler, Context& context) {
     RuleEntryVisitor visitor(error_handler, context);
     boost::apply_visitor(visitor, node);
     return visitor.result;
