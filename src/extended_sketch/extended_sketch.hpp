@@ -6,17 +6,18 @@
 
 #include "declarations.hpp"
 #include "arguments.hpp"
+#include "signature.hpp"
 
 
 namespace sketches::extended_sketch {
+
+
 class ExtendedSketchImpl {
 private:
-    std::string m_name;
+    Signature m_signature;
 
     MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
-
-    ArgumentVariantList m_arguments;
 
     RegisterMap m_registers;
 
@@ -31,7 +32,7 @@ private:
 
 public:
     ExtendedSketchImpl(
-        const std::string& name,
+        const Signature& signature,
         const MemoryStateMap& memory_states,
         const MemoryState& initial_memory_state,
         const RegisterMap& registers,
@@ -43,11 +44,11 @@ public:
         const ActionRuleList& action_rules,
         const SearchRuleList& iwsearch_rules);
 
-    const std::string& get_name() const;
+    const Signature& get_signature() const;
 };
 
 extern std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
-    const std::string& name,
+    const Signature& signature,
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
     const RegisterMap& registers,

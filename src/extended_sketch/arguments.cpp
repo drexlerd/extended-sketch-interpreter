@@ -3,18 +3,26 @@
 
 namespace sketches::extended_sketch {
 
-Argument::Argument(const std::string& key) : m_key(key) { }
+BaseArgument::BaseArgument() : m_type_name(""), m_value_name("") { }
 
-Argument::~Argument() = default;
+BaseArgument::BaseArgument(const std::string& type_name, const std::string& value_name)
+    : m_type_name(type_name), m_value_name(value_name) { }
 
-const std::string& Argument::get_key() const {
-    return m_key;
+BaseArgument::~BaseArgument() = default;
+
+const std::string& BaseArgument::get_type_name() const {
+    return m_type_name;
 }
 
-ArgumentRegister::ArgumentRegister(const std::string& key)
-    : Argument(key) { }
+const std::string& BaseArgument::get_value_name() const {
+    return m_value_name;
+}
 
-ArgumentConcept::ArgumentConcept(const std::string& key)
-    : Argument(key) { }
+
+ArgumentRegister::ArgumentRegister(const std::string& type_name, const std::string& value_name)
+    : BaseArgument(type_name, value_name) { }
+
+ArgumentConcept::ArgumentConcept(const std::string& type_name, const std::string& value_name)
+    : BaseArgument(type_name, value_name) { }
 
 }

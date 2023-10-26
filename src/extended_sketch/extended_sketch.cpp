@@ -4,7 +4,7 @@
 namespace sketches::extended_sketch {
 
 ExtendedSketchImpl::ExtendedSketchImpl(
-    const std::string& name,
+    const Signature& signature,
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
     const RegisterMap& registers,
@@ -15,7 +15,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
     const SearchRuleList& iwsearch_rules)
-    : m_name(name),
+    : m_signature(signature),
       m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
       m_registers(registers),
@@ -27,12 +27,12 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_action_rules(action_rules),
       m_iwsearch_rules(iwsearch_rules) { }
 
-const std::string& ExtendedSketchImpl::get_name() const {
-    return m_name;
+const Signature& ExtendedSketchImpl::get_signature() const {
+    return m_signature;
 }
 
 std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
-    const std::string& name,
+    const Signature& signature,
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
     const RegisterMap& registers,
@@ -44,7 +44,7 @@ std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const ActionRuleList& action_rules,
     const SearchRuleList& iwsearch_rules) {
     return std::make_shared<ExtendedSketchImpl>(
-        name,
+        signature,
         memory_states,
         initial_memory_state,
         registers,

@@ -8,6 +8,7 @@
 #include "src/extended_sketch/register.hpp"
 #include "src/extended_sketch/rules.hpp"
 #include "src/extended_sketch/extended_sketch.hpp"
+#include "src/extended_sketch/signature.hpp"
 
 using namespace dlplan::common::parsers;
 
@@ -21,8 +22,50 @@ static std::string parse(const stage_1::ast::Name& node, const error_handler_typ
     return ss.str();
 }
 
-static std::string parse(const stage_1::ast::NameEntry& node, const error_handler_type& error_handler, Context& context) {
-    return parse(node.name, error_handler, context);
+
+static ArgumentRegister parse(const stage_1::ast::ArgumentRegister& node, const error_handler_type& error_handler, Context& context) {
+    return ArgumentRegister(
+        node.type_name,
+        parse(node.value_name, error_handler, context));
+}
+
+static ArgumentConcept parse(const stage_1::ast::ArgumentConcept& node, const error_handler_type& error_handler, Context& context) {
+    return ArgumentConcept(
+        node.type_name,
+        parse(node.value_name, error_handler, context));
+}
+
+class ArgumentVisitor {
+private:
+    const error_handler_type& error_handler;
+    Context& context;
+
+public:
+    Argument result;
+
+    ArgumentVisitor(const error_handler_type& error_handler, Context& context)
+        : error_handler(error_handler), context(context) { }
+
+    template<typename Node>
+    void operator()(const Node& node) {
+        result = parse(node, error_handler, context);
+    }
+};
+
+static Argument parse(const stage_1::ast::Argument& node, const error_handler_type& error_handler, Context& context) {
+    ArgumentVisitor visitor(error_handler, context);
+    boost::apply_visitor(visitor, node);
+    return visitor.result;
+}
+
+
+static Signature parse(const stage_1::ast::Signature& node, const error_handler_type& error_handler, Context& context) {
+    const auto name = parse(node.name, error_handler, context);
+    ArgumentList arguments;
+    for (const auto& child_node : node.arguments) {
+        arguments.push_back(parse(child_node, error_handler, context));
+    }
+    return Signature(name, arguments);
 }
 
 static MemoryState parse(const stage_1::ast::MemoryState& node, const error_handler_type& error_handler, Context& context) {
@@ -259,7 +302,8 @@ parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, 
 }
 
 ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
-    auto name = parse(node.name, error_handler, context);
+    auto signature = parse(node.signature, error_handler, context);
+    auto& symbol = context.symbol_tables.extended_sketches.add_symbol(signature.get_signature(), node);
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);
@@ -267,13 +311,14 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
     auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
     auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
-    // TODO: Check whether all symbols are defined!
-    return create_extended_sketch(
-        name,
+    auto extended_sketch = create_extended_sketch(
+        signature,
         memory_states, initial_memory_state,
         registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules);
+    symbol.define(ExtendedSketch(extended_sketch));
+    return extended_sketch;
 }
 
 }

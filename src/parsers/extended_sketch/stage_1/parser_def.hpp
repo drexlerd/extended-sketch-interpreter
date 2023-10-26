@@ -30,15 +30,17 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
 
     struct NameClass;
-    struct NameEntryClass;
+
+    struct ArgumentRegisterClass;
+    struct ArgumentConceptClass;
+    struct ArgumentClass;
+    struct SignatureClass;
+
     struct MemoryStateClass;
     struct MemoryStateReferenceClass;
     struct MemoryStatesClass;
     struct InitialMemoryStateClass;
-    struct ArgumentRegisterClass;
-    struct ArgumentConceptClass;
-    struct ArgumentClass;
-    struct ArgumentsClass;
+
     struct RegisterClass;
     struct RegisterReferenceClass;
     struct RegistersClass;
@@ -53,6 +55,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct SearchRuleClass;
     struct RuleClass;
     struct RulesClass;
+
     struct ExtendedSketchClass;
 
 
@@ -63,8 +66,17 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     x3::rule<NameClass, ast::Name> const
         name = "name";
 
-    x3::rule<NameEntryClass, ast::NameEntry> const
-        name_entry = "name_entry";
+    x3::rule<ArgumentRegisterClass, ast::ArgumentRegister> const
+        argument_register = "argument_register";
+
+    x3::rule<ArgumentConceptClass, ast::ArgumentConcept> const
+        argument_concept = "argument_concept";
+
+    x3::rule<ArgumentClass, ast::Argument> const
+        argument = "argument";
+
+    x3::rule<SignatureClass, ast::Signature> const
+        signature = "signature";
 
     x3::rule<MemoryStateClass, ast::MemoryState> const
         memory_state = "memory_state";
@@ -77,18 +89,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     x3::rule<InitialMemoryStateClass, ast::InitialMemoryState> const
         initial_memory_state = "initial_memory_state";
-
-    x3::rule<ArgumentRegisterClass, ast::ArgumentRegister> const
-        argument_register = "argument_register";
-
-    x3::rule<ArgumentConceptClass, ast::ArgumentConcept> const
-        argument_concept = "argument_concept";
-
-    x3::rule<ArgumentClass, ast::Argument> const
-        argument = "argument";
-
-    x3::rule<ArgumentsClass, ast::Arguments> const
-        arguments = "arguments";
 
     x3::rule<RegisterClass, ast::Register> const
         register_ = "register";
@@ -137,17 +137,16 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
 
     const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
-    const auto name_entry_def = lit('(') >> lit(":name") > name > lit(')');
+
+    const auto argument_register_def = x3::string(":register") > name;
+    const auto argument_concept_def = x3::string(":concept") > name;
+    const auto argument_def = argument_register | argument_concept;
+    const auto signature_def = lit('(') >> lit(":signature") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
 
     const auto memory_state_def = name;
     const auto memory_state_reference_def = name;
     const auto memory_states_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state > lit(')') > lit(')');
     const auto initial_memory_state_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
-
-    const auto argument_register_def = lit('(') >> lit(":register") > name > lit(')');
-    const auto argument_concept_def = lit('(') >> lit(":concept") > name > lit(')');
-    const auto argument_def = argument_register | argument_concept;
-    const auto arguments_def = lit('(') >> lit(":arguments") >> *argument > lit(')');
 
     const auto register__def = name;
     const auto register_reference_def = name;
@@ -209,10 +208,9 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto rules_def = *rule;
     const auto extended_sketch_def = lit('(')
         > lit(":extended_sketch")
-        > name_entry
+        > signature
         > memory_states
         > initial_memory_state
-        >> arguments
         >> registers
         >> dlplan::policy::parsers::policy::stage_1::booleans()
         >> dlplan::policy::parsers::policy::stage_1::numericals()
@@ -220,14 +218,13 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         >> rules
         > lit(')');
 
-    BOOST_SPIRIT_DEFINE(name, name_entry,
+    BOOST_SPIRIT_DEFINE(name, signature,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
-        argument_register, argument_concept, argument, arguments,
+        argument_register, argument_concept, argument,
         register_, register_reference, registers,
         memory_condition, memory_effect,
         load_rule, extended_sketch_reference, call_rule, action_reference, action_rule, search_rule, rule, rules,
-        extended_sketch
-    )
+        extended_sketch)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
@@ -235,7 +232,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     struct NameClass : x3::annotate_on_success {};
     struct QuotedStringClass : x3::annotate_on_success {};
-    struct NameEntryClass : x3::annotate_on_success {};
+    struct SignatureClass : x3::annotate_on_success {};
     struct MemoryStateClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesClass : x3::annotate_on_success {};

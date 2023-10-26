@@ -1,6 +1,7 @@
 #ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
 #define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
 
+#include <string>
 #include <vector>
 
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
@@ -43,9 +44,29 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         std::string suffix;
     };
 
-    /* Name entry */
-    struct NameEntry : x3::position_tagged {
+
+    /* Signature entry */
+    struct ArgumentRegister : x3::position_tagged {
+        std::string type_name;
+        Name value_name;
+    };
+
+    struct ArgumentConcept : x3::position_tagged {
+        std::string type_name;
+        Name value_name;
+    };
+
+    struct Argument : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<ArgumentRegister>,
+            x3::forward_ast<ArgumentConcept>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
+    struct Signature : x3::position_tagged {
         Name name;
+        std::vector<Argument> arguments;
     };
 
     /* Memory state entry and references */
@@ -77,28 +98,6 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct Registers : x3::position_tagged {
         std::vector<Register> definitions;
-    };
-
-
-    /* Arguments */
-    struct ArgumentRegister : x3::position_tagged {
-        Name key;
-    };
-
-    struct ArgumentConcept : x3::position_tagged {
-        Name key;
-    };
-
-    struct Argument : x3::position_tagged,
-        x3::variant<
-            x3::forward_ast<ArgumentRegister>,
-            x3::forward_ast<ArgumentConcept>> {
-        using base_type::base_type;
-        using base_type::operator=;
-    };
-
-    struct Arguments : x3::position_tagged {
-        std::vector<Argument> definitions;
     };
 
 
@@ -171,10 +170,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     /* Sketch */
     struct ExtendedSketch : x3::position_tagged {
-        NameEntry name;
+        Signature signature;
         MemoryStates memory_states;
         InitialMemoryState initial_memory_state;
-        Arguments arguments;
         Registers registers;
         dlplan::policy::parsers::policy::stage_1::ast::Booleans booleans;
         dlplan::policy::parsers::policy::stage_1::ast::Numericals numericals;
