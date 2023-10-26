@@ -30,6 +30,10 @@ struct Symbol {
         return static_cast<bool>(*value);
     }
 
+    T& define(const T& value_) {
+        return *(*value = std::make_unique<T>(value_));
+    }
+
     T& define(T&& value_) {
         return *(*value = std::make_unique<T>(std::move(value_)));
     }
