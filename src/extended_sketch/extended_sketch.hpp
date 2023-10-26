@@ -7,6 +7,8 @@
 #include "declarations.hpp"
 #include "arguments.hpp"
 #include "signature.hpp"
+#include "register.hpp"
+#include "memory_state.hpp"
 
 
 namespace sketches::extended_sketch {
@@ -16,10 +18,10 @@ class ExtendedSketchImpl {
 private:
     Signature m_signature;
 
-    MemoryStateMap m_memory_states;
-    MemoryState m_initial_memory_state;
+    MemoryStateHandleList m_memory_states;
+    MemoryStateHandle m_initial_memory_state;
 
-    RegisterMap m_registers;
+    RegisterHandleList m_registers;
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
@@ -33,9 +35,9 @@ private:
 public:
     ExtendedSketchImpl(
         const Signature& signature,
-        const MemoryStateMap& memory_states,
-        const MemoryState& initial_memory_state,
-        const RegisterMap& registers,
+        const MemoryStateHandleList& memory_states,
+        const MemoryStateHandle& initial_memory_state,
+        const RegisterHandleList& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
@@ -49,9 +51,9 @@ public:
 
 extern std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const Signature& signature,
-    const MemoryStateMap& memory_states,
-    const MemoryState& initial_memory_state,
-    const RegisterMap& registers,
+    const MemoryStateHandleList& memory_states,
+    const MemoryStateHandle& initial_memory_state,
+    const RegisterHandleList& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,

@@ -5,23 +5,43 @@
 
 #include "src/external/mimir-iw/src/private/formalism/action_schema.hpp"
 
+#include "symbol_factory.hpp"
+#include "symbol_table.hpp"
+
 
 namespace sketches::extended_sketch {
+struct LoadRule;
+using LoadRuleHandle = SymbolHandle<LoadRule>;
+using LoadRuleHandleList = std::vector<LoadRuleHandle>;
 
-class ExtendedRuleImpl {
-protected:
-    MemoryState m_memory_state_condition;
-    MemoryState m_memory_state_effect;
+struct CallRule;
+using CallRuleHandle = SymbolHandle<CallRule>;
+using CallRuleHandleList = std::vector<CallRuleHandle>;
+
+struct ActionRule;
+using ActionRuleHandle = SymbolHandle<ActionRule>;
+using ActionRuleHandleList = std::vector<ActionRuleHandle>;
+
+struct SearchRule;
+using SearchRuleHandle = SymbolHandle<SearchRule>;
+using SearchRuleHandleList = std::vector<SearchRuleHandle>;
+
+
+class ExtendedRule {
+public:
+    SymbolTable& m_symbol_table;
+    MemoryStateHandle m_memory_state_condition;
+    MemoryStateHandle m_memory_state_effect;
     ConditionSet m_feature_conditions;
     EffectSet m_feature_effects;
 
-public:
-    ExtendedRuleImpl(
-        const MemoryState& memory_state_condition,
-        const MemoryState& memory_state_effect,
+    ExtendedRule(
+        SymbolTable& symbol_table,
+        const MemoryStateHandle& memory_state_condition,
+        const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
-    virtual ~ExtendedRuleImpl();
+    virtual ~ExtendedRule();
 
     bool evaluate_conditions(const ExtendedState& state) const;
 
@@ -29,92 +49,104 @@ public:
     virtual std::string compute_repr() const;
     virtual void compute_repr(std::stringstream& out) const = 0;
 
-    const MemoryState& get_memory_state_condition() const;
-    const MemoryState& get_memory_state_effect() const;
+    const MemoryStateHandle& get_memory_state_condition() const;
+    const MemoryStateHandle& get_memory_state_effect() const;
     const ConditionSet& get_feature_conditions() const;
     const EffectSet& get_feature_effects() const;
 };
 
-class LoadRuleImpl : public ExtendedRuleImpl {
-protected:
-    Register m_register;
+class LoadRule : public ExtendedRule {
+public:
+    RegisterHandle m_register;
     Concept m_concept;
 
-public:
-    using ExtendedRuleImpl::compute_repr;
+    using ExtendedRule::compute_repr;
 
-    LoadRuleImpl(
-        const MemoryState& condition_memory_state,
-        const MemoryState& effect_memory_state,
+    LoadRule(
+        SymbolTable& symbol_table,
+        const MemoryStateHandle& condition_memory_state,
+        const MemoryStateHandle& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const Register& reg,
+        const RegisterHandle& reg,
         const Concept& concept);
-    ~LoadRuleImpl() override;
+    ~LoadRule() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
 
-
-class CallRuleImpl : public ExtendedRuleImpl {
-protected:
-    std::string m_extended_sketch_name;
-    RegisterList m_arguments;
-
+class CallRule : public ExtendedRule {
 public:
-    using ExtendedRuleImpl::compute_repr;
+    std::string m_extended_sketch_name;
+    RegisterHandleList m_arguments;
 
-    CallRuleImpl(
-        const MemoryState& condition_memory_state,
-        const MemoryState& effect_memory_state,
+    using ExtendedRule::compute_repr;
+
+    CallRule(
+        SymbolTable& symbol_table,
+        const MemoryStateHandle& condition_memory_state,
+        const MemoryStateHandle& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
         const std::string& extended_sketch_name,
-        const RegisterList& arguments);
-    ~CallRuleImpl() override;
+        const RegisterHandleList& arguments);
+    ~CallRule() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
 
-
-class ActionRuleImpl : public ExtendedRuleImpl {
-protected:
-    mimir::formalism::ActionSchema m_action_schema;
-    RegisterList m_arguments;
-
+class ActionRule : public ExtendedRule {
 public:
-    using ExtendedRuleImpl::compute_repr;
+    mimir::formalism::ActionSchema m_action_schema;
+    RegisterHandleList m_arguments;
 
-    ActionRuleImpl(
-        const MemoryState& memory_state_condition,
-        const MemoryState& memory_state_effect,
+    using ExtendedRule::compute_repr;
+
+    ActionRule(
+        SymbolTable& symbol_table,
+        const MemoryStateHandle& memory_state_condition,
+        const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
         const mimir::formalism::ActionSchema& action_schema,
-        const RegisterList& arguments);
-    ~ActionRuleImpl() override;
+        const RegisterHandleList& arguments);
+    ~ActionRule() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
 
-
-class SearchRuleImpl : public ExtendedRuleImpl {
+class SearchRule : public ExtendedRule {
 public:
-    using ExtendedRuleImpl::compute_repr;
+    using ExtendedRule::compute_repr;
 
-    SearchRuleImpl(
-        const MemoryState& memory_state_condition,
-        const MemoryState& memory_state_effect,
+    SearchRule(
+        SymbolTable& symbol_table,
+        const MemoryStateHandle& memory_state_condition,
+        const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
-    ~SearchRuleImpl() override;
+    ~SearchRule() override;
 
     int compute_evaluate_time_score() const override;
     void compute_repr(std::stringstream& out) const override;
 };
+
+
+class LoadRuleFactory : public SymbolFactory<LoadRule> {
+};
+
+class CallRuleFactory : public SymbolFactory<CallRule> {
+};
+
+class ActionRuleFactory : public SymbolFactory<ActionRule> {
+};
+
+class SearchRuleFactory : public SymbolFactory<SearchRule> {
+};
+
 
 }
 

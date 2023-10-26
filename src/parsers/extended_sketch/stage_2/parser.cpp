@@ -11,6 +11,7 @@
 #include "src/extended_sketch/signature.hpp"
 
 using namespace dlplan::common::parsers;
+using namespace sketches::extended_sketch;
 
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
@@ -69,34 +70,31 @@ static Signature parse(const stage_1::ast::Signature& node, const error_handler_
 }
 
 static MemoryState parse(const stage_1::ast::MemoryState& node, const error_handler_type& error_handler, Context& context) {
-    const auto signature = parse(node.key, error_handler, context);
-    auto& memory_states = context.symbol_tables.memory_states;
-    if (memory_states.exists_symbol(signature)) {
-        const auto& symbol = memory_states.get_symbol(signature);
-        error_handler(node, "Multiple definitions of memory state " + signature);
-        error_handler(symbol.node, "First defined here:");
+    const auto key = parse(node.key, error_handler, context);
+    const auto it = context.memory_states.find(key);
+    if (it != context.memory_states.end()) {
+        error_handler(node, "Multiple definitions of memory state " + key);
+        error_handler(it->second, "First defined here:");
         throw std::runtime_error("Failed parse.");
     }
-    auto& symbol = memory_states.add_symbol(signature, node);
-    auto memory_state = symbol.define(create_memory_state(signature));
-    return memory_state;
+    context.memory_states.emplace(key, node).first->second;
+    return MemoryState(key);
 }
 
 static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
-    auto signature = parse(node.key, error_handler, context);
-    auto& memory_states = context.symbol_tables.memory_states;
-    if (!memory_states.exists_symbol(signature)) {
-        error_handler(node, "Undefined memory state " + signature);
+    auto key = parse(node.key, error_handler, context);
+    if (!context.memory_states.count(key)) {
+        error_handler(node, "Undefined memory state " + key);
         throw std::runtime_error("Failed parse.");
     }
-    return memory_states.get_symbol(signature).get_definition();
+    return MemoryState(key);
 }
 
 static MemoryStateMap parse(const stage_1::ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
     MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
         auto memory_state = parse(child, error_handler, context);
-        memory_states.emplace(memory_state->get_key(), memory_state);
+        memory_states.emplace(memory_state.get_key(), memory_state);
     }
     return memory_states;
 }
@@ -105,33 +103,30 @@ static MemoryState parse(const stage_1::ast::InitialMemoryState& node, const err
     return parse(node.reference, error_handler, context);
 }
 
-static Register parse(const stage_1::ast::Register& node, const error_handler_type& error_handler, Context& context) {
-    const auto signature = parse(node.key, error_handler, context);
-    if (context.symbol_tables.registers.exists_symbol(signature)) {
-        const auto& symbol = context.symbol_tables.registers.get_symbol(signature);
-        error_handler(node, "Multiple definitions of register " + signature);
-        error_handler(symbol.node, "First defined here:");
+static RegisterHandle parse(const stage_1::ast::Register& node, const error_handler_type& error_handler, Context& context) {
+    const auto key = parse(node.key, error_handler, context);
+    const auto handle = context.registers.get_register(key);
+    if (handle != RegisterHandle::undefined) {
+        error_handler(node, "Multiple definitions of register " + key);
         throw std::runtime_error("Failed parse.");
     }
-    auto& symbol = context.symbol_tables.registers.add_symbol(signature, node);
-    auto register_ = symbol.define(create_register(signature));
-    return register_;
+    return context.registers.make_register(key);
 }
 
-static Register parse(const stage_1::ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
-    auto signature = parse(node.key, error_handler, context);
-    if (!context.symbol_tables.registers.exists_symbol(signature)) {
-        error_handler(node, "Undefined register " + signature);
+static RegisterHandle parse(const stage_1::ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
+    auto key = parse(node.key, error_handler, context);
+    const auto handle = context.registers.get_register(key);
+    if (handle == RegisterHandle::undefined) {
+        error_handler(node, "Undefined register " + key);
         throw std::runtime_error("Failed parse.");
     }
-    return context.symbol_tables.registers.get_symbol(signature).get_definition();
+    return handle;
 }
 
-static RegisterMap parse(const stage_1::ast::Registers& node, const error_handler_type& error_handler, Context& context) {
-    RegisterMap registers;
+static RegisterHandleList parse(const stage_1::ast::Registers& node, const error_handler_type& error_handler, Context& context) {
+    RegisterHandleList registers;
     for (const auto& child : node.definitions) {
-        auto register_ = parse(child, error_handler, context);
-        registers.emplace(register_->get_key(), register_);
+        registers.push_back(parse(child, error_handler, context));
     }
     return registers;
 }
@@ -178,7 +173,7 @@ static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_ty
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto module_ = parse(node.extended_sketch_reference, error_handler, context);
-    RegisterList registers;
+    RegisterHandleList registers;
     for (const auto& register_node : node.register_references) {
         registers.push_back(parse(register_node, error_handler, context));
     }
@@ -206,7 +201,7 @@ static ActionRule parse(const stage_1::ast::ActionRule& node, const error_handle
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto action_schema = parse(node.action_reference, error_handler, context);
-    RegisterList registers;
+    RegisterHandleList registers;
     for (const auto& register_node : node.register_references) {
         registers.push_back(parse(register_node, error_handler, context));
     }
@@ -303,7 +298,7 @@ parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, 
 
 ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
     auto signature = parse(node.signature, error_handler, context);
-    auto& symbol = context.symbol_tables.extended_sketches.add_symbol(signature.get_signature(), node);
+
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);
@@ -317,7 +312,7 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
         registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules);
-    symbol.define(ExtendedSketch(extended_sketch));
+
     return extended_sketch;
 }
 

@@ -13,7 +13,7 @@
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
 
-extern ExtendedSketch parse(
+extern sketches::extended_sketch::ExtendedSketch parse(
     const stage_1::ast::ExtendedSketch& node,
     const dlplan::common::parsers::error_handler_type& error_handler,
     Context& context);

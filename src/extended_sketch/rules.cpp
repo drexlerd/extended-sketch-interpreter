@@ -5,23 +5,26 @@
 #include "extended_state.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
+#include "symbol_table.hpp"
 
 
 namespace sketches::extended_sketch {
 
-ExtendedRuleImpl::ExtendedRuleImpl(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
+ExtendedRule::ExtendedRule(
+    SymbolTable& symbol_table,
+    const MemoryStateHandle& memory_state_condition,
+    const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
-    : m_memory_state_condition(memory_state_condition),
+    : m_symbol_table(symbol_table),
+      m_memory_state_condition(memory_state_condition),
       m_memory_state_effect(memory_state_effect),
       m_feature_conditions(feature_conditions),
       m_feature_effects(feature_effects) { }
 
-ExtendedRuleImpl::~ExtendedRuleImpl() = default;
+ExtendedRule::~ExtendedRule() = default;
 
-int ExtendedRuleImpl::compute_evaluate_time_score() const {
+int ExtendedRule::compute_evaluate_time_score() const {
     int score = 0;
     for (const auto& condition : m_feature_conditions) {
         score += condition->compute_evaluate_time_score();
@@ -32,95 +35,97 @@ int ExtendedRuleImpl::compute_evaluate_time_score() const {
     return score;
 }
 
-std::string ExtendedRuleImpl::compute_repr() const {
+std::string ExtendedRule::compute_repr() const {
     std::stringstream ss;
     compute_repr(ss);
     return ss.str();
 }
 
-const MemoryState& ExtendedRuleImpl::get_memory_state_condition() const {
+const MemoryStateHandle& ExtendedRule::get_memory_state_condition() const {
     return m_memory_state_condition;
 }
 
-const MemoryState& ExtendedRuleImpl::get_memory_state_effect() const {
+const MemoryStateHandle& ExtendedRule::get_memory_state_effect() const {
     return m_memory_state_effect;
 }
 
-const ConditionSet& ExtendedRuleImpl::get_feature_conditions() const {
+const ConditionSet& ExtendedRule::get_feature_conditions() const {
     return m_feature_conditions;
 }
 
-const EffectSet& ExtendedRuleImpl::get_feature_effects() const {
+const EffectSet& ExtendedRule::get_feature_effects() const {
     return m_feature_effects;
 }
 
 
-LoadRuleImpl::LoadRuleImpl(
-    const MemoryState& condition_memory_state,
-    const MemoryState& effect_memory_state,
+LoadRule::LoadRule(
+    SymbolTable& symbol_table,
+    const MemoryStateHandle& condition_memory_state,
+    const MemoryStateHandle& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Register& reg,
+    const RegisterHandle& reg,
     const Concept& concept)
-    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
+    : ExtendedRule(symbol_table, condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_register(reg), m_concept(concept) { }
 
-LoadRuleImpl::~LoadRuleImpl() = default;
+LoadRule::~LoadRule() = default;
 
-int LoadRuleImpl::compute_evaluate_time_score() const {
-    return ExtendedRuleImpl::compute_evaluate_time_score();
+int LoadRule::compute_evaluate_time_score() const {
+    return ExtendedRule::compute_evaluate_time_score();
 }
 
-void LoadRuleImpl::compute_repr(std::stringstream& out) const {
+void LoadRule::compute_repr(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
     for (const auto& effect : m_feature_effects) {
         out << effect->compute_repr();
     }
-    out << "(:load " << m_register->get_key() << " " << m_concept->get_key() << ")";
+    out << "(:load " << m_symbol_table.registers[m_register].name << " " << m_concept->get_key() << ")";
     out << ")";  // effects
     out << ")";  // rule
 }
 
 
-CallRuleImpl::CallRuleImpl(
-    const MemoryState& condition_memory_state,
-    const MemoryState& effect_memory_state,
+CallRule::CallRule(
+    SymbolTable& symbol_table,
+    const MemoryStateHandle& condition_memory_state,
+    const MemoryStateHandle& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
     const std::string& extended_sketch_name,
-    const RegisterList& arguments)
-    : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
+    const RegisterHandleList& arguments)
+    : ExtendedRule(symbol_table, condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_extended_sketch_name(extended_sketch_name),
       m_arguments(arguments) { }
 
-CallRuleImpl::~CallRuleImpl() = default;
+CallRule::~CallRule() = default;
 
-int CallRuleImpl::compute_evaluate_time_score() const {
-    return ExtendedRuleImpl::compute_evaluate_time_score();
+int CallRule::compute_evaluate_time_score() const {
+    return ExtendedRule::compute_evaluate_time_score();
 }
 
-void CallRuleImpl::compute_repr(std::stringstream& out) const {
+void CallRule::compute_repr(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
     out << "(:extended_sketch_name " << m_extended_sketch_name << ")";
     out << "(:registers ";
     for (const auto& argument : m_arguments) {
-        out << argument->get_key() << " ";
+        out << m_symbol_table.registers[argument].name << " ";
     }
     out << ")";  // registers
     out << ")";  // effects
@@ -128,37 +133,38 @@ void CallRuleImpl::compute_repr(std::stringstream& out) const {
 }
 
 
-ActionRuleImpl::ActionRuleImpl(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
+ActionRule::ActionRule(
+    SymbolTable& symbol_table,
+    const MemoryStateHandle& memory_state_condition,
+    const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
     const mimir::formalism::ActionSchema& action_schema,
-    const RegisterList& arguments)
-    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions, feature_effects),
+    const RegisterHandleList& arguments)
+    : ExtendedRule(symbol_table, memory_state_condition, memory_state_effect, feature_conditions, feature_effects),
       m_action_schema(action_schema),
       m_arguments(arguments) { }
 
-ActionRuleImpl::~ActionRuleImpl() = default;
+ActionRule::~ActionRule() = default;
 
-int ActionRuleImpl::compute_evaluate_time_score() const {
-    return ExtendedRuleImpl::compute_evaluate_time_score();
+int ActionRule::compute_evaluate_time_score() const {
+    return ExtendedRule::compute_evaluate_time_score();
 }
 
-void ActionRuleImpl::compute_repr(std::stringstream& out) const {
+void ActionRule::compute_repr(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
     out << "(:action_name " << m_action_schema->name << ")";
     out << "(:registers ";
     for (const auto& argument : m_arguments) {
-        out << argument->get_key() << " ";
+        out << m_symbol_table.registers[argument].name << " ";
     }
     out << ")";  // registers
     out << ")";  // effects
@@ -166,29 +172,30 @@ void ActionRuleImpl::compute_repr(std::stringstream& out) const {
 }
 
 
-SearchRuleImpl::SearchRuleImpl(
-    const MemoryState& memory_state_condition,
-    const MemoryState& memory_state_effect,
+SearchRule::SearchRule(
+    SymbolTable& symbol_table,
+    const MemoryStateHandle& memory_state_condition,
+    const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
-    : ExtendedRuleImpl(memory_state_condition, memory_state_effect, feature_conditions, feature_effects) { }
+    : ExtendedRule(symbol_table, memory_state_condition, memory_state_effect, feature_conditions, feature_effects) { }
 
-SearchRuleImpl::~SearchRuleImpl() = default;
+SearchRule::~SearchRule() = default;
 
-int SearchRuleImpl::compute_evaluate_time_score() const {
-    return ExtendedRuleImpl::compute_evaluate_time_score();
+int SearchRule::compute_evaluate_time_score() const {
+    return ExtendedRule::compute_evaluate_time_score();
 }
 
-void SearchRuleImpl::compute_repr(std::stringstream& out) const {
+void SearchRule::compute_repr(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->get_key() << ")";
+    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
     for (const auto& effect : m_feature_effects) {
         out << effect->compute_repr();
     }

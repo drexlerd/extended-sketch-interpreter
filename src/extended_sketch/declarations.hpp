@@ -9,17 +9,8 @@
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 
 
+
 namespace sketches::extended_sketch {
-    class MemoryStateImpl;
-    using MemoryState = std::shared_ptr<MemoryStateImpl>;
-    using MemoryStateList = std::vector<MemoryState>;
-    using MemoryStateMap = std::unordered_map<std::string, MemoryState>;
-
-    class RegisterImpl;
-    using Register = std::shared_ptr<RegisterImpl>;
-    using RegisterList = std::vector<Register>;
-    using RegisterMap = std::unordered_map<std::string, Register>;
-
     using Boolean = std::shared_ptr<const dlplan::policy::NamedBoolean>;
     using BooleanList = std::vector<Boolean>;
     using BooleanMap = std::unordered_map<std::string, Boolean>;
@@ -39,23 +30,6 @@ namespace sketches::extended_sketch {
     using Effect = std::shared_ptr<const dlplan::policy::BaseEffect>;
     using EffectList = std::vector<Effect>;
     using EffectSet = dlplan::policy::Effects;
-
-    class LoadRuleImpl;
-    using LoadRule = std::shared_ptr<const LoadRuleImpl>;
-    using LoadRuleList = std::vector<LoadRule>;
-    using LoadRuleSet = std::set<LoadRule, dlplan::policy::ScoreCompare<LoadRule>>;
-
-    class CallRuleImpl;
-    using CallRule = std::shared_ptr<const CallRuleImpl>;
-    using CallRuleList = std::vector<CallRule>;
-
-    class ActionRuleImpl;
-    using ActionRule = std::shared_ptr<const ActionRuleImpl>;
-    using ActionRuleList = std::vector<ActionRule>;
-
-    class SearchRuleImpl;
-    using SearchRule = std::shared_ptr<const SearchRuleImpl>;
-    using SearchRuleList = std::vector<SearchRule>;
 
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;

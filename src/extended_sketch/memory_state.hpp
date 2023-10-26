@@ -3,20 +3,28 @@
 
 #include <string>
 #include <memory>
+#include <vector>
+
+#include "declarations.hpp"
+#include "symbol_factory.hpp"
+#include "symbol_table.hpp"
 
 
 namespace sketches::extended_sketch {
-class MemoryStateImpl {
-private:
-    std::string m_key;
+struct SymbolTable;
+struct MemoryState;
+using MemoryStateHandle = SymbolHandle<MemoryState>;
+using MemoryStateHandleList = std::vector<MemoryStateHandle>;
 
-public:
-    explicit MemoryStateImpl(const std::string& key);
 
-    const std::string& get_key() const;
+struct MemoryState {
+    SymbolTable& symbol_table;
+    std::string name;
 };
 
-extern std::shared_ptr<MemoryStateImpl> create_memory_state(const std::string& key);
+
+class MemoryStateFactory : public SymbolFactory<MemoryState> {
+};
 
 }
 

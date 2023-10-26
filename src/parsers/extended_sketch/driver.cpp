@@ -19,7 +19,7 @@ Driver::Driver(
     : domain_description(domain_description),
       policy_factory(policy_factory) { }
 
-ExtendedSketch Driver::parse(
+sketches::extended_sketch::ExtendedSketch Driver::parse(
     const std::string& source,
     const std::string& filename) {
 
@@ -29,7 +29,7 @@ ExtendedSketch Driver::parse(
     return parse(iter, end, filename);
 }
 
-ExtendedSketch Driver::parse(
+sketches::extended_sketch::ExtendedSketch Driver::parse(
     iterator_type& iter,
     iterator_type end,
     const std::string& filename) {
