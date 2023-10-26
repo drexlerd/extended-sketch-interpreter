@@ -9,6 +9,7 @@
 #include "signature.hpp"
 #include "register.hpp"
 #include "memory_state.hpp"
+#include "rules.hpp"
 
 
 namespace sketches::extended_sketch {
@@ -27,10 +28,10 @@ private:
     NumericalMap m_numericals;
     ConceptMap m_concepts;
 
-    LoadRuleList m_load_rules;
-    CallRuleList m_call_rules;
-    ActionRuleList m_action_rules;
-    SearchRuleList m_iwsearch_rules;
+    LoadRuleHandleList m_load_rules;
+    CallRuleHandleList m_call_rules;
+    ActionRuleHandleList m_action_rules;
+    SearchRuleHandleList m_iwsearch_rules;
 
 public:
     ExtendedSketchImpl(
@@ -41,10 +42,10 @@ public:
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
-        const LoadRuleList& load_rules,
-        const CallRuleList& call_rules,
-        const ActionRuleList& action_rules,
-        const SearchRuleList& iwsearch_rules);
+        const LoadRuleHandleList& load_rules,
+        const CallRuleHandleList& call_rules,
+        const ActionRuleHandleList& action_rules,
+        const SearchRuleHandleList& iwsearch_rules);
 
     const Signature& get_signature() const;
 };
@@ -57,10 +58,10 @@ extern std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
-    const LoadRuleList& load_rules,
-    const CallRuleList& call_rules,
-    const ActionRuleList& action_rules,
-    const SearchRuleList& iwsearch_rules);
+    const LoadRuleHandleList& load_rules,
+    const CallRuleHandleList& call_rules,
+    const ActionRuleHandleList& action_rules,
+    const SearchRuleHandleList& iwsearch_rules);
 
 }
 

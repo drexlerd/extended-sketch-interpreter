@@ -6,10 +6,13 @@
 #include "src/external/mimir-iw/src/private/formalism/action_schema.hpp"
 
 #include "symbol_factory.hpp"
-#include "symbol_table.hpp"
+#include "memory_state.hpp"
+#include "register.hpp"
 
 
 namespace sketches::extended_sketch {
+class SymbolTable;
+
 struct LoadRule;
 using LoadRuleHandle = SymbolHandle<LoadRule>;
 using LoadRuleHandleList = std::vector<LoadRuleHandle>;
@@ -118,7 +121,7 @@ public:
     void compute_repr(std::stringstream& out) const override;
 };
 
-class SearchRule : public ExtendedRule {
+class SearchRule : public ExtendedRule, public Symbol {
 public:
     using ExtendedRule::compute_repr;
 

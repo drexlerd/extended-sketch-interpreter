@@ -12,6 +12,12 @@ template<typename Data>
 class SymbolFactory;
 
 
+struct Symbol {
+    virtual ~Symbol() = default;
+    virtual std::string compute_signature() const = 0;
+};
+
+
 template<typename Data>
 class SymbolHandle {
 private:

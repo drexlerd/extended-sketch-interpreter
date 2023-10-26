@@ -7,7 +7,6 @@
 
 #include "declarations.hpp"
 #include "symbol_factory.hpp"
-#include "symbol_table.hpp"
 
 
 namespace sketches::extended_sketch {
@@ -17,9 +16,13 @@ using RegisterHandle = SymbolHandle<Register>;
 using RegisterHandleList = std::vector<RegisterHandle>;
 
 
-struct Register {
+struct Register : public Symbol {
     SymbolTable& symbol_table;
     std::string name;
+
+    Register(SymbolTable& symbol_table, const std::string& name);
+
+    std::string compute_signature() const override;
 };
 
 

@@ -10,7 +10,6 @@
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/context.hpp"
-#include "src/extended_sketch/extended_sketch_factory.hpp"
 #include "src/parsers/extended_sketch/stage_1/ast.hpp"
 
 
@@ -26,10 +25,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
 
         // Our context
-        sketches::extended_sketch::ExtendedSketchFactory sketch_factory;
-
         std::unordered_map<std::string, sketches::parsers::extended_sketch::stage_1::ast::MemoryState> memory_states;
-        RegisterFactory registers;
 
         /// @brief Constructor for parsing an extended sketch
         Context(

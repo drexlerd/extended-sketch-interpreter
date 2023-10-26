@@ -7,19 +7,22 @@
 
 #include "declarations.hpp"
 #include "symbol_factory.hpp"
-#include "symbol_table.hpp"
 
 
 namespace sketches::extended_sketch {
-struct SymbolTable;
+class SymbolTable;
 struct MemoryState;
 using MemoryStateHandle = SymbolHandle<MemoryState>;
 using MemoryStateHandleList = std::vector<MemoryStateHandle>;
 
 
-struct MemoryState {
+struct MemoryState : public Symbol {
     SymbolTable& symbol_table;
     std::string name;
+
+    MemoryState(SymbolTable& symbol_table, const std::string& name);
+
+    std::string compute_signature() const override;
 };
 
 

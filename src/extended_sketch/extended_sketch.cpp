@@ -5,16 +5,16 @@ namespace sketches::extended_sketch {
 
 ExtendedSketchImpl::ExtendedSketchImpl(
     const Signature& signature,
-    const MemoryStateMap& memory_states,
-    const MemoryState& initial_memory_state,
+    const MemoryStateHandleList& memory_states,
+    const MemoryStateHandle& initial_memory_state,
     const RegisterHandleList& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
-    const LoadRuleList& load_rules,
-    const CallRuleList& call_rules,
-    const ActionRuleList& action_rules,
-    const SearchRuleList& iwsearch_rules)
+    const LoadRuleHandleList& load_rules,
+    const CallRuleHandleList& call_rules,
+    const ActionRuleHandleList& action_rules,
+    const SearchRuleHandleList& iwsearch_rules)
     : m_signature(signature),
       m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
@@ -33,16 +33,16 @@ const Signature& ExtendedSketchImpl::get_signature() const {
 
 std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
     const Signature& signature,
-    const MemoryStateMap& memory_states,
-    const MemoryState& initial_memory_state,
+    const MemoryStateHandleList& memory_states,
+    const MemoryStateHandle& initial_memory_state,
     const RegisterHandleList& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
-    const LoadRuleList& load_rules,
-    const CallRuleList& call_rules,
-    const ActionRuleList& action_rules,
-    const SearchRuleList& iwsearch_rules) {
+    const LoadRuleHandleList& load_rules,
+    const CallRuleHandleList& call_rules,
+    const ActionRuleHandleList& action_rules,
+    const SearchRuleHandleList& iwsearch_rules) {
     return std::make_shared<ExtendedSketchImpl>(
         signature,
         memory_states,
