@@ -10,13 +10,19 @@
 #include "register.hpp"
 #include "memory_state.hpp"
 #include "rules.hpp"
+#include "symbol_factory.hpp"
 
 
 namespace sketches::extended_sketch {
+class SymbolTable;
+class ExtendedSketch;
+using ExtendedSketchHandle = SymbolHandle<ExtendedSketch>;
 
 
-class ExtendedSketchImpl {
+class ExtendedSketch : public BaseSymbol {
 private:
+    const SymbolTable* m_symbol_table;
+
     Signature m_signature;
 
     MemoryStateHandleList m_memory_states;
@@ -34,7 +40,8 @@ private:
     SearchRuleHandleList m_iwsearch_rules;
 
 public:
-    ExtendedSketchImpl(
+    ExtendedSketch(
+        const SymbolTable& symbol_table,
         const Signature& signature,
         const MemoryStateHandleList& memory_states,
         const MemoryStateHandle& initial_memory_state,
@@ -47,21 +54,13 @@ public:
         const ActionRuleHandleList& action_rules,
         const SearchRuleHandleList& iwsearch_rules);
 
-    const Signature& get_signature() const;
+    std::string compute_signature() const override;
 };
 
-extern std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
-    const Signature& signature,
-    const MemoryStateHandleList& memory_states,
-    const MemoryStateHandle& initial_memory_state,
-    const RegisterHandleList& registers,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts,
-    const LoadRuleHandleList& load_rules,
-    const CallRuleHandleList& call_rules,
-    const ActionRuleHandleList& action_rules,
-    const SearchRuleHandleList& iwsearch_rules);
+class ExtendedSketchFactory : public SymbolFactory<ExtendedSketch> {
+public:
+    ExtendedSketchFactory(const SymbolTable& symbol_table);
+};
 
 }
 

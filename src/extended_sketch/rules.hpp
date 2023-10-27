@@ -32,14 +32,14 @@ using SearchRuleHandleList = std::vector<SearchRuleHandle>;
 
 class ExtendedRule : public BaseSymbol {
 public:
-    SymbolTable& m_symbol_table;
+    const SymbolTable* m_symbol_table;
     MemoryStateHandle m_memory_state_condition;
     MemoryStateHandle m_memory_state_effect;
     ConditionSet m_feature_conditions;
     EffectSet m_feature_effects;
 
     ExtendedRule(
-        SymbolTable& symbol_table,
+        const SymbolTable& symbol_table,
         const MemoryStateHandle& memory_state_condition,
         const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
@@ -63,7 +63,7 @@ public:
     using ExtendedRule::compute_signature;
 
     LoadRule(
-        SymbolTable& symbol_table,
+        const SymbolTable& symbol_table,
         const MemoryStateHandle& condition_memory_state,
         const MemoryStateHandle& effect_memory_state,
         const ConditionSet& feature_conditions,
@@ -83,7 +83,7 @@ public:
     using ExtendedRule::compute_signature;
 
     CallRule(
-        SymbolTable& symbol_table,
+        const SymbolTable& symbol_table,
         const MemoryStateHandle& condition_memory_state,
         const MemoryStateHandle& effect_memory_state,
         const ConditionSet& feature_conditions,
@@ -103,7 +103,7 @@ public:
     using ExtendedRule::compute_signature;
 
     ActionRule(
-        SymbolTable& symbol_table,
+        const SymbolTable& symbol_table,
         const MemoryStateHandle& memory_state_condition,
         const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
@@ -120,7 +120,7 @@ public:
     using ExtendedRule::compute_signature;
 
     SearchRule(
-        SymbolTable& symbol_table,
+        const SymbolTable& symbol_table,
         const MemoryStateHandle& memory_state_condition,
         const MemoryStateHandle& memory_state_effect,
         const ConditionSet& feature_conditions,
@@ -133,22 +133,22 @@ public:
 
 class LoadRuleFactory : public SymbolFactory<LoadRule> {
 public:
-    LoadRuleFactory(SymbolTable& symbol_table);
+    LoadRuleFactory(const SymbolTable& symbol_table);
 };
 
 class CallRuleFactory : public SymbolFactory<CallRule> {
 public:
-    CallRuleFactory(SymbolTable& symbol_table);
+    CallRuleFactory(const SymbolTable& symbol_table);
 };
 
 class ActionRuleFactory : public SymbolFactory<ActionRule> {
 public:
-    ActionRuleFactory(SymbolTable& symbol_table);
+    ActionRuleFactory(const SymbolTable& symbol_table);
 };
 
 class SearchRuleFactory : public SymbolFactory<SearchRule> {
 public:
-    SearchRuleFactory(SymbolTable& symbol_table);
+    SearchRuleFactory(const SymbolTable& symbol_table);
 };
 
 

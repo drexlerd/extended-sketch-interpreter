@@ -17,10 +17,10 @@ using MemoryStateHandleList = std::vector<MemoryStateHandle>;
 
 
 struct MemoryState : public BaseSymbol {
-    SymbolTable& symbol_table;
+    const SymbolTable* symbol_table;
     std::string name;
 
-    MemoryState(SymbolTable& symbol_table, const std::string& name);
+    MemoryState(const SymbolTable& symbol_table, const std::string& name);
 
     std::string compute_signature() const override;
 };
@@ -28,7 +28,7 @@ struct MemoryState : public BaseSymbol {
 
 class MemoryStateFactory : public SymbolFactory<MemoryState> {
 public:
-    MemoryStateFactory(SymbolTable& symbol_table);
+    MemoryStateFactory(const SymbolTable& symbol_table);
 };
 
 }

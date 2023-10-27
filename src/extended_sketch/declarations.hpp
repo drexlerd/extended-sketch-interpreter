@@ -34,11 +34,6 @@ namespace sketches::extended_sketch {
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;
-
-    class ExtendedSketchImpl;
-    using ExtendedSketch = std::shared_ptr<ExtendedSketchImpl>;
-    using ExtendedSketchList = std::vector<ExtendedSketch>;
-    using ExtendedSketchMap = std::unordered_map<std::string, ExtendedSketch>;
 }
 
 #endif

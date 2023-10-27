@@ -11,12 +11,12 @@
 namespace sketches::extended_sketch {
 
 ExtendedRule::ExtendedRule(
-    SymbolTable& symbol_table,
+    const SymbolTable& symbol_table,
     const MemoryStateHandle& memory_state_condition,
     const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
-    : m_symbol_table(symbol_table),
+    : m_symbol_table(&symbol_table),
       m_memory_state_condition(memory_state_condition),
       m_memory_state_effect(memory_state_effect),
       m_feature_conditions(feature_conditions),
@@ -48,7 +48,7 @@ const EffectSet& ExtendedRule::get_feature_effects() const {
 
 
 LoadRule::LoadRule(
-    SymbolTable& symbol_table,
+    const SymbolTable& symbol_table,
     const MemoryStateHandle& condition_memory_state,
     const MemoryStateHandle& effect_memory_state,
     const ConditionSet& feature_conditions,
@@ -63,24 +63,24 @@ LoadRule::~LoadRule() = default;
 void LoadRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_effect].name << ")";
     for (const auto& effect : m_feature_effects) {
         out << effect->compute_repr();
     }
-    out << "(:load " << m_symbol_table.registers[m_register].name << " " << m_concept->get_key() << ")";
+    out << "(:load " << m_symbol_table->registers[m_register].name << " " << m_concept->get_key() << ")";
     out << ")";  // effects
     out << ")";  // rule
 }
 
 
 CallRule::CallRule(
-    SymbolTable& symbol_table,
+    const SymbolTable& symbol_table,
     const MemoryStateHandle& condition_memory_state,
     const MemoryStateHandle& effect_memory_state,
     const ConditionSet& feature_conditions,
@@ -96,17 +96,17 @@ CallRule::~CallRule() = default;
 void CallRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_effect].name << ")";
     out << "(:extended_sketch_name " << m_extended_sketch_name << ")";
     out << "(:registers ";
     for (const auto& argument : m_arguments) {
-        out << m_symbol_table.registers[argument].name << " ";
+        out << m_symbol_table->registers[argument].name << " ";
     }
     out << ")";  // registers
     out << ")";  // effects
@@ -115,7 +115,7 @@ void CallRule::compute_signature(std::stringstream& out) const {
 
 
 ActionRule::ActionRule(
-    SymbolTable& symbol_table,
+    const SymbolTable& symbol_table,
     const MemoryStateHandle& memory_state_condition,
     const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
@@ -131,17 +131,17 @@ ActionRule::~ActionRule() = default;
 void ActionRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_effect].name << ")";
     out << "(:action_name " << m_action_schema->name << ")";
     out << "(:registers ";
     for (const auto& argument : m_arguments) {
-        out << m_symbol_table.registers[argument].name << " ";
+        out << m_symbol_table->registers[argument].name << " ";
     }
     out << ")";  // registers
     out << ")";  // effects
@@ -150,7 +150,7 @@ void ActionRule::compute_signature(std::stringstream& out) const {
 
 
 SearchRule::SearchRule(
-    SymbolTable& symbol_table,
+    const SymbolTable& symbol_table,
     const MemoryStateHandle& memory_state_condition,
     const MemoryStateHandle& memory_state_effect,
     const ConditionSet& feature_conditions,
@@ -162,13 +162,13 @@ SearchRule::~SearchRule() = default;
 void SearchRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_condition].name << ")";
     for (const auto& condition : m_feature_conditions) {
         out << condition->compute_repr();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_symbol_table.memory_states[m_memory_state_effect].name << ")";
+    out << "(:memory " << m_symbol_table->memory_states[m_memory_state_effect].name << ")";
     for (const auto& effect : m_feature_effects) {
         out << effect->compute_repr();
     }
@@ -177,16 +177,16 @@ void SearchRule::compute_signature(std::stringstream& out) const {
 }
 
 
-LoadRuleFactory::LoadRuleFactory(SymbolTable& symbol_table)
+LoadRuleFactory::LoadRuleFactory(const SymbolTable& symbol_table)
     : SymbolFactory<LoadRule>(symbol_table) { }
 
-CallRuleFactory::CallRuleFactory(SymbolTable& symbol_table)
+CallRuleFactory::CallRuleFactory(const SymbolTable& symbol_table)
     : SymbolFactory<CallRule>(symbol_table) { }
 
-ActionRuleFactory::ActionRuleFactory(SymbolTable& symbol_table)
+ActionRuleFactory::ActionRuleFactory(const SymbolTable& symbol_table)
     : SymbolFactory<ActionRule>(symbol_table) { }
 
-SearchRuleFactory::SearchRuleFactory(SymbolTable& symbol_table)
+SearchRuleFactory::SearchRuleFactory(const SymbolTable& symbol_table)
     : SymbolFactory<SearchRule>(symbol_table) { }
 
 }

@@ -51,12 +51,12 @@ SymbolHandle<Symbol> SymbolHandle<Symbol>::undefined = SymbolHandle<Symbol>(-1);
 template<typename Symbol>
 class SymbolFactory {
 protected:
-    SymbolTable& symbol_table;
+    const SymbolTable* symbol_table;
     std::unordered_map<std::string, int> signature_to_handle;
     std::vector<Symbol> symbols;
 
 public:
-    explicit SymbolFactory(SymbolTable& symbol_table_) : symbol_table(symbol_table_) { }
+    explicit SymbolFactory(const SymbolTable& symbol_table_) : symbol_table(&symbol_table_) { }
 
     template<class... Args>
     SymbolHandle<Symbol> register_symbol(Args... args) {
@@ -66,7 +66,7 @@ public:
         if (it != signature_to_handle.end()) {
             return SymbolHandle<Symbol>{it->second};
         }
-        int index = data.size();
+        int index = symbols.size();
         signature_to_handle.emplace(signature, index);
         symbols.push_back(symbol);
         return SymbolHandle<Symbol>{index};

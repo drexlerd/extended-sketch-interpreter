@@ -3,7 +3,8 @@
 
 namespace sketches::extended_sketch {
 
-ExtendedSketchImpl::ExtendedSketchImpl(
+ExtendedSketch::ExtendedSketch(
+    const SymbolTable& symbol_table,
     const Signature& signature,
     const MemoryStateHandleList& memory_states,
     const MemoryStateHandle& initial_memory_state,
@@ -15,7 +16,8 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const CallRuleHandleList& call_rules,
     const ActionRuleHandleList& action_rules,
     const SearchRuleHandleList& iwsearch_rules)
-    : m_signature(signature),
+    : m_symbol_table(&symbol_table),
+      m_signature(signature),
       m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
       m_registers(registers),
@@ -25,36 +27,16 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_load_rules(load_rules),
       m_call_rules(call_rules),
       m_action_rules(action_rules),
-      m_iwsearch_rules(iwsearch_rules) { }
-
-const Signature& ExtendedSketchImpl::get_signature() const {
-    return m_signature;
+      m_iwsearch_rules(iwsearch_rules) {
 }
 
-std::shared_ptr<ExtendedSketchImpl> create_extended_sketch(
-    const Signature& signature,
-    const MemoryStateHandleList& memory_states,
-    const MemoryStateHandle& initial_memory_state,
-    const RegisterHandleList& registers,
-    const BooleanMap& booleans,
-    const NumericalMap& numericals,
-    const ConceptMap& concepts,
-    const LoadRuleHandleList& load_rules,
-    const CallRuleHandleList& call_rules,
-    const ActionRuleHandleList& action_rules,
-    const SearchRuleHandleList& iwsearch_rules) {
-    return std::make_shared<ExtendedSketchImpl>(
-        signature,
-        memory_states,
-        initial_memory_state,
-        registers,
-        booleans,
-        numericals,
-        concepts,
-        load_rules,
-        call_rules,
-        action_rules,
-        iwsearch_rules);
+std::string ExtendedSketch::compute_signature() const {
+    // TODO
+    return std::string("");
 }
+
+
+ExtendedSketchFactory::ExtendedSketchFactory(const SymbolTable& symbol_table)
+    : SymbolFactory<ExtendedSketch>(symbol_table) { }
 
 }
