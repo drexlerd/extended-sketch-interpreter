@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cassert>
+#include <iostream>
 
 
 namespace sketches::extended_sketch {
@@ -25,6 +26,8 @@ private:
     friend class SymbolFactory<Symbol>;
 
 public:
+    SymbolHandle() : index(-1) { }  // undefined
+
     bool operator==(const SymbolHandle& other) const {
         return index == other.index;
     }
@@ -49,11 +52,12 @@ protected:
     std::vector<Symbol> symbols;
 
 public:
-    explicit SymbolFactory(const SymbolTable& symbol_table_) : symbol_table(&symbol_table_) { }
+    explicit SymbolFactory(const SymbolTable& symbol_table_) : symbol_table(&symbol_table_) {
+    }
 
     template<class... Args>
     SymbolHandle<Symbol> register_symbol(Args... args) {
-        Symbol symbol(symbol_table, args...);
+        Symbol symbol(*symbol_table, std::forward<Args>(args)...);
         std::string signature = symbol.compute_signature();
         const auto& it = signature_to_handle.find(signature);
         if (it != signature_to_handle.end()) {
@@ -61,16 +65,18 @@ public:
         }
         int index = symbols.size();
         signature_to_handle.emplace(signature, index);
-        symbols.push_back(symbol);
+        symbols.push_back(std::move(symbol));
         return SymbolHandle<Symbol>{index};
     }
 
     template<class... Args>
     SymbolHandle<Symbol> get_handle(Args... args) const {
-        Symbol symbol(symbol_table, args...);
+        Symbol symbol(*symbol_table, std::forward<Args>(args)...);
         std::string signature = symbol.compute_signature();
-        assert(signature_to_handle.count(signature));
-        return signature_to_handle.at(signature);
+        if (signature_to_handle.count(signature)) {
+            return signature_to_handle.at(signature);
+        }
+        return SymbolHandle<Symbol>::undefined;
     }
 
     Symbol& get_symbol(SymbolHandle<Symbol> handle) {

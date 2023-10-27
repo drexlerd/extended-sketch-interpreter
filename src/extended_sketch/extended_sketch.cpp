@@ -7,7 +7,7 @@ namespace sketches::extended_sketch {
 
 ExtendedSketch::ExtendedSketch(
     const SymbolTable& parent_symbol_table,
-    std::unique_ptr<const SymbolTable>&& symbol_table,
+    std::unique_ptr<SymbolTable>&& symbol_table,
     const Signature& signature,
     const MemoryStateHandleList& memory_states,
     const MemoryStateHandle& initial_memory_state,

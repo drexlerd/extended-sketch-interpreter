@@ -27,8 +27,6 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
 
         // Our context
-        std::unique_ptr<sketches::extended_sketch::SymbolTable> symbol_table;
-
         /// @brief Constructor for parsing an extended sketch
         Context(
             const mimir::formalism::DomainDescription& domain_description,

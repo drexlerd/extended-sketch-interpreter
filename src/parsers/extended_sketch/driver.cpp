@@ -15,25 +15,25 @@ namespace sketches::parsers::extended_sketch {
 
 Driver::Driver(
     const mimir::formalism::DomainDescription& domain_description,
-    const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory)
+    const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory,
+    sketches::extended_sketch::SymbolTable& symbol_table)
     : domain_description(domain_description),
-      policy_factory(policy_factory) { }
+      policy_factory(policy_factory),
+      symbol_table(&symbol_table) { }
 
 sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
     const std::string& source,
-    sketches::extended_sketch::SymbolTable& parent_symbol_table,
     const std::string& filename) {
 
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
 
-    return parse(iter, end, parent_symbol_table, filename);
+    return parse(iter, end, filename);
 }
 
 sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
     iterator_type& iter,
     iterator_type end,
-    sketches::extended_sketch::SymbolTable& parent_symbol_table,
     const std::string& filename) {
 
     // Our error handler
@@ -44,7 +44,7 @@ sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
 
     // Stage 2 parse
     stage_2::Context context(domain_description, policy_factory);
-    auto sketch = stage_2::parser::parse(root_node, error_handler, context, parent_symbol_table);
+    auto sketch = stage_2::parser::parse(root_node, error_handler, context, *symbol_table);
 
     return sketch;
 }

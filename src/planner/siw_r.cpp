@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/filesystem.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
@@ -61,8 +62,8 @@ int main(int argc, char** argv) {
     auto policy_factory = std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
     auto symbol_table = std::make_unique<sketches::extended_sketch::SymbolTable>();
-    sketches::parsers::extended_sketch::Driver driver(domain_description, policy_factory);
-    driver.parse(dlplan::common::parsers::read_file(sketch_file), *symbol_table, sketch_file);
+    sketches::parsers::extended_sketch::Driver driver(domain_description, policy_factory, *symbol_table);
+    driver.parse(dlplan::common::parsers::read_file(sketch_file), sketch_file);
     // 4. Run SIW_M
     return 0;
 }
