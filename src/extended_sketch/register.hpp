@@ -14,21 +14,16 @@ struct SymbolTable;
 struct Register;
 using RegisterHandle = SymbolHandle<Register>;
 using RegisterHandleList = std::vector<RegisterHandle>;
+using RegisterFactory = SymbolFactory<Register>;
 
 
-struct Register : public BaseSymbol {
+struct Register {
     const SymbolTable* symbol_table;
     std::string name;
 
     Register(const SymbolTable& symbol_table, const std::string& name);
 
-    std::string compute_signature() const override;
-};
-
-
-class RegisterFactory : public SymbolFactory<Register> {
-public:
-    RegisterFactory(const SymbolTable& symbol_table);
+    std::string compute_signature() const;
 };
 
 }

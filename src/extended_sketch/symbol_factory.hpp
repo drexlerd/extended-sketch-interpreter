@@ -12,13 +12,6 @@ struct SymbolTable;
 template<typename Symbol>
 class SymbolFactory;
 
-/// @brief Interface for symbols.
-///        Each symbol must provide a way to construct a unique signature.
-struct BaseSymbol {
-    virtual ~BaseSymbol() = default;
-    virtual std::string compute_signature() const = 0;
-};
-
 
 /// @brief Lightweight reference to the Symbol.
 ///        This allows fast reference from one place in the ast to another

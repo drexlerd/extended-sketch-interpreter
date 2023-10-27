@@ -17,9 +17,9 @@ namespace sketches::extended_sketch {
 class SymbolTable;
 class ExtendedSketch;
 using ExtendedSketchHandle = SymbolHandle<ExtendedSketch>;
+using ExtendedSketchFactory = SymbolFactory<ExtendedSketch>;
 
-
-class ExtendedSketch : public BaseSymbol {
+class ExtendedSketch {
 private:
     const SymbolTable* m_symbol_table;
 
@@ -54,12 +54,7 @@ public:
         const ActionRuleHandleList& action_rules,
         const SearchRuleHandleList& iwsearch_rules);
 
-    std::string compute_signature() const override;
-};
-
-class ExtendedSketchFactory : public SymbolFactory<ExtendedSketch> {
-public:
-    ExtendedSketchFactory(const SymbolTable& symbol_table);
+    std::string compute_signature() const;
 };
 
 }

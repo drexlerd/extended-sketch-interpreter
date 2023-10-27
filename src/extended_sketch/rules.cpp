@@ -176,17 +176,4 @@ void SearchRule::compute_signature(std::stringstream& out) const {
     out << ")";  // rule
 }
 
-
-LoadRuleFactory::LoadRuleFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<LoadRule>(symbol_table) { }
-
-CallRuleFactory::CallRuleFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<CallRule>(symbol_table) { }
-
-ActionRuleFactory::ActionRuleFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<ActionRule>(symbol_table) { }
-
-SearchRuleFactory::SearchRuleFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<SearchRule>(symbol_table) { }
-
 }

@@ -11,7 +11,4 @@ std::string Register::compute_signature() const {
     return name;
 }
 
-RegisterFactory::RegisterFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<Register>(symbol_table) { }
-
 }

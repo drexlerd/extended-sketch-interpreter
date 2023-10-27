@@ -35,8 +35,4 @@ std::string ExtendedSketch::compute_signature() const {
     return std::string("");
 }
 
-
-ExtendedSketchFactory::ExtendedSketchFactory(const SymbolTable& symbol_table)
-    : SymbolFactory<ExtendedSketch>(symbol_table) { }
-
 }

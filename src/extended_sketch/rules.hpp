@@ -16,21 +16,25 @@ class SymbolTable;
 struct LoadRule;
 using LoadRuleHandle = SymbolHandle<LoadRule>;
 using LoadRuleHandleList = std::vector<LoadRuleHandle>;
+using LoadRuleFactory = SymbolFactory<LoadRule>;
 
 struct CallRule;
 using CallRuleHandle = SymbolHandle<CallRule>;
 using CallRuleHandleList = std::vector<CallRuleHandle>;
+using CallRuleFactory = SymbolFactory<CallRule>;
 
 struct ActionRule;
 using ActionRuleHandle = SymbolHandle<ActionRule>;
 using ActionRuleHandleList = std::vector<ActionRuleHandle>;
+using ActionRuleFactory = SymbolFactory<ActionRule>;
 
 struct SearchRule;
 using SearchRuleHandle = SymbolHandle<SearchRule>;
 using SearchRuleHandleList = std::vector<SearchRuleHandle>;
+using SearchRuleFactory = SymbolFactory<SearchRule>;
 
 
-class ExtendedRule : public BaseSymbol {
+class ExtendedRule {
 public:
     const SymbolTable* m_symbol_table;
     MemoryStateHandle m_memory_state_condition;
@@ -46,7 +50,7 @@ public:
         const EffectSet& feature_effects);
     virtual ~ExtendedRule();
 
-    virtual std::string compute_signature() const;
+    std::string compute_signature() const;
     virtual void compute_signature(std::stringstream& out) const = 0;
 
     const MemoryStateHandle& get_memory_state_condition() const;
@@ -129,28 +133,6 @@ public:
 
     void compute_signature(std::stringstream& out) const override;
 };
-
-
-class LoadRuleFactory : public SymbolFactory<LoadRule> {
-public:
-    LoadRuleFactory(const SymbolTable& symbol_table);
-};
-
-class CallRuleFactory : public SymbolFactory<CallRule> {
-public:
-    CallRuleFactory(const SymbolTable& symbol_table);
-};
-
-class ActionRuleFactory : public SymbolFactory<ActionRule> {
-public:
-    ActionRuleFactory(const SymbolTable& symbol_table);
-};
-
-class SearchRuleFactory : public SymbolFactory<SearchRule> {
-public:
-    SearchRuleFactory(const SymbolTable& symbol_table);
-};
-
 
 }
 
