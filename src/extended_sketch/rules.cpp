@@ -24,20 +24,9 @@ ExtendedRule::ExtendedRule(
 
 ExtendedRule::~ExtendedRule() = default;
 
-int ExtendedRule::compute_evaluate_time_score() const {
-    int score = 0;
-    for (const auto& condition : m_feature_conditions) {
-        score += condition->compute_evaluate_time_score();
-    }
-    for (const auto& effect : m_feature_effects) {
-        score += effect->compute_evaluate_time_score();
-    }
-    return score;
-}
-
-std::string ExtendedRule::compute_repr() const {
+std::string ExtendedRule::compute_signature() const {
     std::stringstream ss;
-    compute_repr(ss);
+    compute_signature(ss);
     return ss.str();
 }
 
@@ -71,11 +60,7 @@ LoadRule::LoadRule(
 
 LoadRule::~LoadRule() = default;
 
-int LoadRule::compute_evaluate_time_score() const {
-    return ExtendedRule::compute_evaluate_time_score();
-}
-
-void LoadRule::compute_repr(std::stringstream& out) const {
+void LoadRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
     out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
@@ -108,11 +93,7 @@ CallRule::CallRule(
 
 CallRule::~CallRule() = default;
 
-int CallRule::compute_evaluate_time_score() const {
-    return ExtendedRule::compute_evaluate_time_score();
-}
-
-void CallRule::compute_repr(std::stringstream& out) const {
+void CallRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
     out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
@@ -147,11 +128,7 @@ ActionRule::ActionRule(
 
 ActionRule::~ActionRule() = default;
 
-int ActionRule::compute_evaluate_time_score() const {
-    return ExtendedRule::compute_evaluate_time_score();
-}
-
-void ActionRule::compute_repr(std::stringstream& out) const {
+void ActionRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
     out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
@@ -182,11 +159,7 @@ SearchRule::SearchRule(
 
 SearchRule::~SearchRule() = default;
 
-int SearchRule::compute_evaluate_time_score() const {
-    return ExtendedRule::compute_evaluate_time_score();
-}
-
-void SearchRule::compute_repr(std::stringstream& out) const {
+void SearchRule::compute_signature(std::stringstream& out) const {
     out << "(:rule "
         << "(:conditions ";
     out << "(:memory " << m_symbol_table.memory_states[m_memory_state_condition].name << ")";
@@ -202,5 +175,18 @@ void SearchRule::compute_repr(std::stringstream& out) const {
     out << ")";  // effects
     out << ")";  // rule
 }
+
+
+LoadRuleFactory::LoadRuleFactory(SymbolTable& symbol_table)
+    : SymbolFactory<LoadRule>(symbol_table) { }
+
+CallRuleFactory::CallRuleFactory(SymbolTable& symbol_table)
+    : SymbolFactory<CallRule>(symbol_table) { }
+
+ActionRuleFactory::ActionRuleFactory(SymbolTable& symbol_table)
+    : SymbolFactory<ActionRule>(symbol_table) { }
+
+SearchRuleFactory::SearchRuleFactory(SymbolTable& symbol_table)
+    : SymbolFactory<SearchRule>(symbol_table) { }
 
 }

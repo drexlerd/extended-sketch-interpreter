@@ -11,4 +11,7 @@ std::string MemoryState::compute_signature() const {
     return name;
 }
 
+MemoryStateFactory::MemoryStateFactory(SymbolTable& symbol_table)
+    : SymbolFactory<MemoryState>(symbol_table) { }
+
 }

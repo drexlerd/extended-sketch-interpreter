@@ -16,7 +16,7 @@ using RegisterHandle = SymbolHandle<Register>;
 using RegisterHandleList = std::vector<RegisterHandle>;
 
 
-struct Register : public Symbol {
+struct Register : public BaseSymbol {
     SymbolTable& symbol_table;
     std::string name;
 
@@ -27,6 +27,8 @@ struct Register : public Symbol {
 
 
 class RegisterFactory : public SymbolFactory<Register> {
+public:
+    RegisterFactory(SymbolTable& symbol_table);
 };
 
 }

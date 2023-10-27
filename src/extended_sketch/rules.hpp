@@ -30,7 +30,7 @@ using SearchRuleHandle = SymbolHandle<SearchRule>;
 using SearchRuleHandleList = std::vector<SearchRuleHandle>;
 
 
-class ExtendedRule {
+class ExtendedRule : public BaseSymbol {
 public:
     SymbolTable& m_symbol_table;
     MemoryStateHandle m_memory_state_condition;
@@ -46,11 +46,8 @@ public:
         const EffectSet& feature_effects);
     virtual ~ExtendedRule();
 
-    bool evaluate_conditions(const ExtendedState& state) const;
-
-    virtual int compute_evaluate_time_score() const;
-    virtual std::string compute_repr() const;
-    virtual void compute_repr(std::stringstream& out) const = 0;
+    virtual std::string compute_signature() const;
+    virtual void compute_signature(std::stringstream& out) const = 0;
 
     const MemoryStateHandle& get_memory_state_condition() const;
     const MemoryStateHandle& get_memory_state_effect() const;
@@ -63,7 +60,7 @@ public:
     RegisterHandle m_register;
     Concept m_concept;
 
-    using ExtendedRule::compute_repr;
+    using ExtendedRule::compute_signature;
 
     LoadRule(
         SymbolTable& symbol_table,
@@ -75,8 +72,7 @@ public:
         const Concept& concept);
     ~LoadRule() override;
 
-    int compute_evaluate_time_score() const override;
-    void compute_repr(std::stringstream& out) const override;
+    void compute_signature(std::stringstream& out) const override;
 };
 
 class CallRule : public ExtendedRule {
@@ -84,7 +80,7 @@ public:
     std::string m_extended_sketch_name;
     RegisterHandleList m_arguments;
 
-    using ExtendedRule::compute_repr;
+    using ExtendedRule::compute_signature;
 
     CallRule(
         SymbolTable& symbol_table,
@@ -96,8 +92,7 @@ public:
         const RegisterHandleList& arguments);
     ~CallRule() override;
 
-    int compute_evaluate_time_score() const override;
-    void compute_repr(std::stringstream& out) const override;
+    void compute_signature(std::stringstream& out) const override;
 };
 
 class ActionRule : public ExtendedRule {
@@ -105,7 +100,7 @@ public:
     mimir::formalism::ActionSchema m_action_schema;
     RegisterHandleList m_arguments;
 
-    using ExtendedRule::compute_repr;
+    using ExtendedRule::compute_signature;
 
     ActionRule(
         SymbolTable& symbol_table,
@@ -117,13 +112,12 @@ public:
         const RegisterHandleList& arguments);
     ~ActionRule() override;
 
-    int compute_evaluate_time_score() const override;
-    void compute_repr(std::stringstream& out) const override;
+    void compute_signature(std::stringstream& out) const override;
 };
 
-class SearchRule : public ExtendedRule, public Symbol {
+class SearchRule : public ExtendedRule {
 public:
-    using ExtendedRule::compute_repr;
+    using ExtendedRule::compute_signature;
 
     SearchRule(
         SymbolTable& symbol_table,
@@ -133,21 +127,28 @@ public:
         const EffectSet& feature_effects);
     ~SearchRule() override;
 
-    int compute_evaluate_time_score() const override;
-    void compute_repr(std::stringstream& out) const override;
+    void compute_signature(std::stringstream& out) const override;
 };
 
 
 class LoadRuleFactory : public SymbolFactory<LoadRule> {
+public:
+    LoadRuleFactory(SymbolTable& symbol_table);
 };
 
 class CallRuleFactory : public SymbolFactory<CallRule> {
+public:
+    CallRuleFactory(SymbolTable& symbol_table);
 };
 
 class ActionRuleFactory : public SymbolFactory<ActionRule> {
+public:
+    ActionRuleFactory(SymbolTable& symbol_table);
 };
 
 class SearchRuleFactory : public SymbolFactory<SearchRule> {
+public:
+    SearchRuleFactory(SymbolTable& symbol_table);
 };
 
 

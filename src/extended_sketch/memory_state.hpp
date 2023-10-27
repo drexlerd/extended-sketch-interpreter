@@ -16,7 +16,7 @@ using MemoryStateHandle = SymbolHandle<MemoryState>;
 using MemoryStateHandleList = std::vector<MemoryStateHandle>;
 
 
-struct MemoryState : public Symbol {
+struct MemoryState : public BaseSymbol {
     SymbolTable& symbol_table;
     std::string name;
 
@@ -27,6 +27,8 @@ struct MemoryState : public Symbol {
 
 
 class MemoryStateFactory : public SymbolFactory<MemoryState> {
+public:
+    MemoryStateFactory(SymbolTable& symbol_table);
 };
 
 }

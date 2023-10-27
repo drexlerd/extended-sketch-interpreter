@@ -17,9 +17,17 @@ struct SymbolTable {
     CallRuleFactory call_rules;
     ActionRuleFactory action_rules;
     SearchRuleFactory search_rules;
+
+    SymbolTable();
 };
 
-
+SymbolTable::SymbolTable()
+    : memory_states(MemoryStateFactory(*this)),
+      registers(RegisterFactory(*this)),
+      load_rules(LoadRuleFactory(*this)),
+      call_rules(CallRuleFactory(*this)),
+      action_rules(ActionRuleFactory(*this)),
+      search_rules(SearchRuleFactory(*this)) {}
 }
 
 #endif
