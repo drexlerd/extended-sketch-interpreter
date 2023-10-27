@@ -282,12 +282,12 @@ public:
     }
 };
 
-static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
+static std::tuple<LoadRuleHandleList, CallRuleHandleList, ActionRuleHandleList, SearchRuleHandleList>
 parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, Context& context) {
-    auto load_rules = LoadRuleList();
-    auto call_rules = CallRuleList();
-    auto action_rules = ActionRuleList();
-    auto search_rules = SearchRuleList();
+    auto load_rules = LoadRuleHandleList();
+    auto call_rules = CallRuleHandleList();
+    auto action_rules = ActionRuleHandleList();
+    auto search_rules = SearchRuleHandleList();
     RuleVisitor visitor(error_handler, context, load_rules, call_rules, action_rules, search_rules);
     for (const auto& rule_node : node.rules) {
         auto rule = parse(rule_node, error_handler, context);
@@ -296,9 +296,8 @@ parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, 
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context, Scope& global_scope) {
-    // create a local scope
-    Scope local_scope;
+ExtendedSketchHandle parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context, SymbolTable& parent_symbol_table) {
+    std::unique_ptr<SymbolTable> symbol_table;
     auto signature = parse(node.signature, error_handler, context);
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
@@ -307,14 +306,13 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
     auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
     auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
-    auto extended_sketch = create_extended_sketch(
+    auto extended_sketch = parent_symbol_table.extended_sketches.register_symbol(
+        std::move(symbol_table),
         signature,
         memory_states, initial_memory_state,
         registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules);
-    global_scope.child_scopes.push_back(std::move(local_scope));
-    // TODO: add extended sketch to global scope.
     return extended_sketch;
 }
 

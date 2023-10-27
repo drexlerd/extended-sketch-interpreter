@@ -7,7 +7,9 @@
 #include "src/external/mimir-iw/src/private/pddl/pddl_parser.hpp"
 
 #include "src/extended_sketch/extended_sketch.hpp"
+#include "src/extended_sketch/symbol_table.hpp"
 #include "src/parsers/extended_sketch/driver.hpp"
+
 
 using namespace std;
 
@@ -58,9 +60,9 @@ int main(int argc, char** argv) {
     auto element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
     auto policy_factory = std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
-    sketches::extended_sketch::ExtendedSketch sketch;
+    auto symbol_table = std::make_unique<sketches::extended_sketch::SymbolTable>();
     sketches::parsers::extended_sketch::Driver driver(domain_description, policy_factory);
-    driver.parse(dlplan::common::parsers::read_file(sketch_file), sketch_file);
+    driver.parse(dlplan::common::parsers::read_file(sketch_file), *symbol_table, sketch_file);
     // 4. Run SIW_M
     return 0;
 }

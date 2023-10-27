@@ -8,19 +8,17 @@
 #include "src/extended_sketch/declarations.hpp"
 #include "src/parsers/extended_sketch/stage_1/ast.hpp"
 
-#include "src/parsers/scope.hpp"
-
 #include "context.hpp"
 
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
 // We add sketches to the global scope
 // Their individual components are stored in their respective local scopes.
-extern sketches::extended_sketch::ExtendedSketch parse(
+extern sketches::extended_sketch::ExtendedSketchHandle parse(
     const stage_1::ast::ExtendedSketch& node,
     const dlplan::common::parsers::error_handler_type& error_handler,
     Context& context,
-    Scope& global_scope);
+    sketches::extended_sketch::SymbolTable& parent_symbol_table);
 
 }
 

@@ -1,10 +1,13 @@
 #include "extended_sketch.hpp"
 
+#include "symbol_table.hpp"
+
 
 namespace sketches::extended_sketch {
 
 ExtendedSketch::ExtendedSketch(
-    const SymbolTable& symbol_table,
+    const SymbolTable& parent_symbol_table,
+    std::unique_ptr<const SymbolTable>&& symbol_table,
     const Signature& signature,
     const MemoryStateHandleList& memory_states,
     const MemoryStateHandle& initial_memory_state,
@@ -16,7 +19,8 @@ ExtendedSketch::ExtendedSketch(
     const CallRuleHandleList& call_rules,
     const ActionRuleHandleList& action_rules,
     const SearchRuleHandleList& iwsearch_rules)
-    : m_symbol_table(&symbol_table),
+    : m_parent_symbol_table(&parent_symbol_table),
+      m_symbol_table(std::move(symbol_table)),
       m_signature(signature),
       m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),

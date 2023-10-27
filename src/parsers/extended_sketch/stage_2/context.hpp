@@ -12,6 +12,7 @@
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/context.hpp"
 
 #include "src/parsers/extended_sketch/stage_1/ast.hpp"
+#include "src/extended_sketch/symbol_table.hpp"
 
 
 namespace sketches::parsers::extended_sketch::stage_2 {
@@ -26,6 +27,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
 
         // Our context
+        std::unique_ptr<sketches::extended_sketch::SymbolTable> symbol_table;
 
         /// @brief Constructor for parsing an extended sketch
         Context(

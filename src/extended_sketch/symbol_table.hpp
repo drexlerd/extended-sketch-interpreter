@@ -32,6 +32,9 @@ SymbolTable::SymbolTable()
       action_rules(ActionRuleFactory(*this)),
       search_rules(SearchRuleFactory(*this)),
       extended_sketches(ExtendedSketchFactory(*this)) {}
+
+
+
 }
 
 #endif

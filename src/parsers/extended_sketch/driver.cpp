@@ -19,19 +19,21 @@ Driver::Driver(
     : domain_description(domain_description),
       policy_factory(policy_factory) { }
 
-sketches::extended_sketch::ExtendedSketch Driver::parse(
+sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
     const std::string& source,
+    sketches::extended_sketch::SymbolTable& parent_symbol_table,
     const std::string& filename) {
 
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
 
-    return parse(iter, end, filename);
+    return parse(iter, end, parent_symbol_table, filename);
 }
 
-sketches::extended_sketch::ExtendedSketch Driver::parse(
+sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
     iterator_type& iter,
     iterator_type end,
+    sketches::extended_sketch::SymbolTable& parent_symbol_table,
     const std::string& filename) {
 
     // Our error handler
@@ -42,7 +44,7 @@ sketches::extended_sketch::ExtendedSketch Driver::parse(
 
     // Stage 2 parse
     stage_2::Context context(domain_description, policy_factory);
-    auto sketch = stage_2::parser::parse(root_node, error_handler, context);
+    auto sketch = stage_2::parser::parse(root_node, error_handler, context, parent_symbol_table);
 
     return sketch;
 }

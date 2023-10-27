@@ -34,6 +34,7 @@ namespace sketches::extended_sketch {
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;
+
 }
 
 #endif
