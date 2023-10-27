@@ -18,7 +18,7 @@ using MemoryStateFactory = SymbolFactory<MemoryState>;
 
 
 struct MemoryState {
-    const SymbolTable* symbol_table;
+    SymbolTable const* symbol_table;
     std::string name;
 
     MemoryState(const SymbolTable& symbol_table, const std::string& name);

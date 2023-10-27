@@ -48,7 +48,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryConditionClass;
     struct MemoryEffectClass;
     struct LoadRuleClass;
-    struct ExtendedSketchReferenceClass;
+    struct CallClass;
     struct CallRuleClass;
     struct ActionReferenceClass;
     struct ActionRuleClass;
@@ -108,8 +108,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     x3::rule<LoadRuleClass, ast::LoadRule> const
         load_rule = "load_rule";
 
-    x3::rule<ExtendedSketchReferenceClass, ast::ExtendedSketchReference> const
-        extended_sketch_reference = "extended_sketch_reference";
+    x3::rule<CallClass, ast::Call> const
+        call = "call";
 
     x3::rule<CallRuleClass, ast::CallRule> const
         call_rule = "call_rule";
@@ -167,7 +167,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 > lit('(') > lit("load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
             > lit(')')
         > lit(')');
-    const auto extended_sketch_reference_def = name;
+    const auto call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
@@ -177,7 +177,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
-                > lit('(') >> extended_sketch_reference >> lit('(') >> *register_reference >> lit(')') >> lit(')')
+                > call
             > lit(')')
         > lit(')');
     const auto action_reference_def = name;
@@ -223,7 +223,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         argument_register, argument_concept, argument,
         register_, register_reference, registers,
         memory_condition, memory_effect,
-        load_rule, extended_sketch_reference, call_rule, action_reference, action_rule, search_rule, rule, rules,
+        load_rule, call, call_rule, action_reference, action_rule, search_rule, rule, rules,
         extended_sketch)
 
     ///////////////////////////////////////////////////////////////////////////
@@ -247,6 +247,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryConditionClass : x3::annotate_on_success {};
     struct MemoryEffectClass : x3::annotate_on_success {};
     struct LoadRuleClass : x3::annotate_on_success {};
+    struct CallClass : x3::annotate_on_success {};
     struct CallRuleClass : x3::annotate_on_success {};
     struct ActionReferenceClass : x3::annotate_on_success {};
     struct ActionRuleClass : x3::annotate_on_success {};

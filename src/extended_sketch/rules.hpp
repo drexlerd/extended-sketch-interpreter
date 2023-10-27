@@ -8,6 +8,7 @@
 #include "symbol_factory.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
+#include "call.hpp"
 
 
 namespace sketches::extended_sketch {
@@ -35,8 +36,8 @@ using SearchRuleFactory = SymbolFactory<SearchRule>;
 
 
 class ExtendedRule {
-public:
-    const SymbolTable* m_symbol_table;
+protected:
+    SymbolTable const* m_symbol_table;
     MemoryStateHandle m_memory_state_condition;
     MemoryStateHandle m_memory_state_effect;
     ConditionSet m_feature_conditions;
@@ -81,8 +82,7 @@ public:
 
 class CallRule : public ExtendedRule {
 public:
-    std::string m_extended_sketch_name;
-    RegisterHandleList m_arguments;
+    Call m_call;
 
     using ExtendedRule::compute_signature;
 
@@ -92,8 +92,7 @@ public:
         const MemoryStateHandle& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const std::string& extended_sketch_name,
-        const RegisterHandleList& arguments);
+        const Call& call);
     ~CallRule() override;
 
     void compute_signature(std::stringstream& out) const override;

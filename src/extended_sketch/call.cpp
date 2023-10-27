@@ -1,22 +1,22 @@
-#include "signature.hpp"
+#include "call.hpp"
 
 #include <sstream>
 
 
 namespace sketches::extended_sketch {
 
-Signature::Signature(const std::string& name, const ArgumentList& arguments)
+Call::Call(const std::string& name, const ArgumentList& arguments)
     : name(name), arguments(arguments) { }
 
-const std::string& Signature::get_name() const {
+const std::string& Call::get_name() const {
     return name;
 }
 
-const ArgumentList& Signature::get_arguments() const {
+const ArgumentList& Call::get_arguments() const {
     return arguments;
 }
 
-std::string Signature::compute_signature() const {
+std::string Call::compute_signature() const {
     std::stringstream ss;
     ss << name
        << "(";

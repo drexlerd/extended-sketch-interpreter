@@ -85,11 +85,9 @@ CallRule::CallRule(
     const MemoryStateHandle& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const std::string& extended_sketch_name,
-    const RegisterHandleList& arguments)
+    const Call& call)
     : ExtendedRule(symbol_table, condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
-      m_extended_sketch_name(extended_sketch_name),
-      m_arguments(arguments) { }
+      m_call(call) { }
 
 CallRule::~CallRule() = default;
 
@@ -103,12 +101,7 @@ void CallRule::compute_signature(std::stringstream& out) const {
     out << ")";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_symbol_table->memory_states[m_memory_state_effect].name << ")";
-    out << "(:extended_sketch_name " << m_extended_sketch_name << ")";
-    out << "(:registers ";
-    for (const auto& argument : m_arguments) {
-        out << m_symbol_table->registers[argument].name << " ";
-    }
-    out << ")";  // registers
+    out << "(:call " << m_call.compute_signature() << ")";
     out << ")";  // effects
     out << ")";  // rule
 }

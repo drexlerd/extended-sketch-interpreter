@@ -35,8 +35,8 @@ ExtendedSketch::ExtendedSketch(
 }
 
 std::string ExtendedSketch::compute_signature() const {
-    // TODO
-    return std::string("");
+    std::cout << m_signature.compute_signature() << std::endl;
+    return m_signature.compute_signature();
 }
 
 }

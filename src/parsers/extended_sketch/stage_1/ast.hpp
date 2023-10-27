@@ -125,13 +125,17 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name reference;
     };
 
+    struct Call : x3::position_tagged {
+        Name name;
+        std::vector<Argument> arguments;
+    };
+
     struct CallRule : x3::position_tagged {
         MemoryCondition memory_condition;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
         std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
-        ExtendedSketchReference extended_sketch_reference;
-        std::vector<RegisterReference> register_references;
+        Call call;
     };
 
     struct ActionReference : x3::position_tagged {

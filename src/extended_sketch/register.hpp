@@ -18,7 +18,7 @@ using RegisterFactory = SymbolFactory<Register>;
 
 
 struct Register {
-    const SymbolTable* symbol_table;
+    SymbolTable const* symbol_table;
     std::string name;
 
     Register(const SymbolTable& symbol_table, const std::string& name);

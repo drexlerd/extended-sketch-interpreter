@@ -9,6 +9,7 @@
 #include "src/extended_sketch/rules.hpp"
 #include "src/extended_sketch/extended_sketch.hpp"
 #include "src/extended_sketch/signature.hpp"
+#include "src/extended_sketch/call.hpp"
 
 using namespace dlplan::common::parsers;
 using namespace sketches::extended_sketch;
@@ -16,7 +17,7 @@ using namespace sketches::extended_sketch;
 
 namespace sketches::parsers::extended_sketch::stage_2::parser {
 
-static std::string parse(const stage_1::ast::Name& node, const error_handler_type&, Context&, SymbolTable& symbol_table) {
+static std::string parse(const stage_1::ast::Name& node, const error_handler_type&, Context&, SymbolTable&) {
     std::stringstream ss;
     ss << node.alphabetical;
     ss << node.suffix;;
@@ -156,9 +157,13 @@ static LoadRuleHandle parse(const stage_1::ast::LoadRule& node, const error_hand
     return symbol_table.load_rules.register_symbol(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static std::string parse(const stage_1::ast::ExtendedSketchReference& node, const error_handler_type& error_handler, Context& context, SymbolTable& symbol_table) {
-    // TODO: add check whether the module exists in a second stage?
-    return parse(node.reference, error_handler, context, symbol_table);
+static Call parse(const stage_1::ast::Call& node, const error_handler_type& error_handler, Context& context, SymbolTable& symbol_table) {
+    const auto name = parse(node.name, error_handler, context, symbol_table);
+    ArgumentList arguments;
+    for (const auto& child_node : node.arguments) {
+        arguments.push_back(parse(child_node, error_handler, context, symbol_table));
+    }
+    return Call(name, arguments);
 }
 
 static CallRuleHandle parse(const stage_1::ast::CallRule& node, const error_handler_type& error_handler, Context& context, SymbolTable& symbol_table) {
@@ -172,12 +177,8 @@ static CallRuleHandle parse(const stage_1::ast::CallRule& node, const error_hand
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto module_ = parse(node.extended_sketch_reference, error_handler, context, symbol_table);
-    RegisterHandleList registers;
-    for (const auto& register_node : node.register_references) {
-        registers.push_back(parse(register_node, error_handler, context, symbol_table));
-    }
-    return symbol_table.call_rules.register_symbol(memory_condition, memory_effect, feature_conditions, feature_effects, module_, registers);
+    auto call = parse(node.call, error_handler, context, symbol_table);
+    return symbol_table.call_rules.register_symbol(memory_condition, memory_effect, feature_conditions, feature_effects, call);
 }
 
 static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference& node, const error_handler_type& error_handler, Context& context, SymbolTable& symbol_table) {

@@ -22,7 +22,7 @@ using ExtendedSketchFactory = SymbolFactory<ExtendedSketch>;
 class ExtendedSketch {
 private:
     // We can get access to other sketches here
-    const SymbolTable* m_parent_symbol_table;
+    SymbolTable const* m_parent_symbol_table;
 
     std::unique_ptr<SymbolTable> m_symbol_table;
 

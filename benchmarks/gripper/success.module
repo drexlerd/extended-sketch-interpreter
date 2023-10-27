@@ -1,11 +1,13 @@
 (:extended_module
-    (:name module_1)
     (:extended_sketch
-        (:name sketch_1)
+        (:signature sketch_1)
         ...
     )
     (:extended_sketch
-        (:name sketch_2)
+        (:signature sketch_2)
+        ...
+    )
+    (:extended_module
         ...
     )
 )
