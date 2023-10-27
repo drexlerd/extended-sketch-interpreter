@@ -296,9 +296,10 @@ parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, 
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
+ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context, Scope& global_scope) {
+    // create a local scope
+    Scope local_scope;
     auto signature = parse(node.signature, error_handler, context);
-
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);
@@ -312,7 +313,8 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
         registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules);
-
+    global_scope.child_scopes.push_back(std::move(local_scope));
+    // TODO: add extended sketch to global scope.
     return extended_sketch;
 }
 
