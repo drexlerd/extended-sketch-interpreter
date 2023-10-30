@@ -108,7 +108,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
-                > lit('(') > lit("load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
+                > lit('(') > lit(":load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
             > lit(')')
         > lit(')');
 

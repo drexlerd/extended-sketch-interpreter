@@ -7,7 +7,7 @@
         (:booleans (b1 "b_empty(r_primitive(carry, 0, 1))") (b2 "b_empty(r_primitive(carry, 0, 1))"))
         (:numericals (n1 "n_count(r_primitive(carry, 0, 1))"))
         (:concepts (c1 "c_primitive(carry, 0)"))
-        (:load_rule (:conditions (:memory m1) (:c_b_pos b1)) (:effects (:memory m1) (load (r1 c1))))
+        (:load_rule (:conditions (:memory m1) (:c_b_pos b1)) (:effects (:memory m1) (:load (r1 c1))))
         (:call_rule (:conditions (:memory m1) (:c_b_pos b1)) (:effects (:memory m1) (:call gripper(:register r0, :concept c0))))
     )
 )
