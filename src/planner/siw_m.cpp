@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/filesystem.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
@@ -6,8 +7,9 @@
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/external/mimir-iw/src/private/pddl/pddl_parser.hpp"
 
-#include "src/extended_sketch/extended_sketch.hpp"
-#include "src/parsers/extended_sketch/driver.hpp"
+#include "src/module/module.hpp"
+#include "src/parsers/module/driver.hpp"
+
 
 using namespace std;
 
@@ -38,16 +40,13 @@ construct_instance_info(
 
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cout << "Usage: interpreter <domain:str> <problem:str> [<sketch:ExtendedSketch>,...]" << std::endl;
+    if (argc != 4) {
+        std::cout << "Usage: interpreter <domain:str> <problem:str> <sketch:ExtendedSketch>" << std::endl;
         return 1;
     }
     string domain_file = argv[1];
     string problem_file = argv[2];
-    vector<string> sketch_files;
-    for (int i = 3; i < argc; ++i) {
-        sketch_files.push_back(argv[i]);
-    }
+    string sketch_file = argv[3];
 
     // 1. Parse the domain
     mimir::parsers::DomainParser domain_parser(domain_file);
@@ -61,12 +60,11 @@ int main(int argc, char** argv) {
     auto element_factory = std::make_shared<dlplan::core::SyntacticElementFactory>(vocabulary_info);
     auto policy_factory = std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
-    sketches::extended_sketch::ExtendedSketch sketch;
-    sketches::parsers::extended_sketch::Driver driver(domain_description, policy_factory);
-    driver.parse(dlplan::common::parsers::read_file(sketch_file))
+    sketches::parsers::module::Driver driver(domain_description, policy_factory);
+    driver.parse(dlplan::common::parsers::read_file(sketch_file), sketch_file);
     // 4. Run SIW_M
     return 0;
 }
 
 
-// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siwm  benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/sketch.pddl
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/success.sketch

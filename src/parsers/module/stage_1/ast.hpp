@@ -26,7 +26,7 @@ namespace sketches::parsers::module::stage_1::ast
 
     struct Module : x3::position_tagged {
         Signature signature;
-        extended_sketch::stage_1::ast::ExtendedSketch extended_sketches;
+        extended_sketch::stage_1::ast::ExtendedSketch extended_sketch;
     };
 }
 

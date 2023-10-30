@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "arguments.hpp"
+#include "src/extended_sketch/arguments.hpp"
 
 namespace sketches::extended_sketch {
 
