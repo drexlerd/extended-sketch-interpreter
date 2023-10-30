@@ -115,7 +115,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto argument_register_def = x3::string(":register") > name;
     const auto argument_concept_def = x3::string(":concept") > name;
     const auto argument_def = argument_register | argument_concept;
-    //const auto signature_def = lit('(') >> lit(":signature") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")

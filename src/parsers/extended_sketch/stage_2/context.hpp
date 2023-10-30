@@ -23,7 +23,6 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         std::map<std::string, mimir::formalism::ActionSchema> action_schema_map;
 
         // Dlplan context
-        std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory;
         dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
 
         // Our context
@@ -34,6 +33,14 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         Context(
             const mimir::formalism::DomainDescription& domain_description,
             const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory);
+
+        /// @brief Constructor for parsing module
+        Context(
+            const mimir::formalism::DomainDescription& domain_description,
+            const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory,
+            dlplan::policy::parsers::policy::stage_2::parser::Context& dlplan_context,
+            std::unordered_map<std::string, sketches::extended_sketch::Register>& registers,
+            std::unordered_map<std::string, sketches::extended_sketch::MemoryState>& memory_states);
     };
 }
 
