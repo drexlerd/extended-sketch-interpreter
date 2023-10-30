@@ -9,6 +9,7 @@
 
 
 using namespace dlplan::common::parsers;
+using namespace sketches::extended_sketch;
 
 
 namespace sketches::parsers::extended_sketch {
@@ -16,12 +17,12 @@ namespace sketches::parsers::extended_sketch {
 Driver::Driver(
     const mimir::formalism::DomainDescription& domain_description,
     const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory,
-    sketches::extended_sketch::SymbolTable& symbol_table)
+    SymbolTable& symbol_table)
     : domain_description(domain_description),
       policy_factory(policy_factory),
       symbol_table(&symbol_table) { }
 
-sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
+Handle<ExtendedSketch> Driver::parse(
     const std::string& source,
     const std::string& filename) {
 
@@ -31,7 +32,7 @@ sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
     return parse(iter, end, filename);
 }
 
-sketches::extended_sketch::ExtendedSketchHandle Driver::parse(
+Handle<ExtendedSketch> Driver::parse(
     iterator_type& iter,
     iterator_type end,
     const std::string& filename) {

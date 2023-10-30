@@ -13,13 +13,13 @@ namespace sketches::extended_sketch {
 ///        Factories are used for controlled creation of objects and to retrieve handles to existing objects.
 ///        A SymbolTable must be allocated on the heap for pointers to not become invalid.
 struct SymbolTable {
-    MemoryStateFactory memory_states;
-    RegisterFactory registers;
-    LoadRuleFactory load_rules;
-    CallRuleFactory call_rules;
-    ActionRuleFactory action_rules;
-    SearchRuleFactory search_rules;
-    ExtendedSketchFactory extended_sketches;
+    Factory<MemoryState> memory_states;
+    Factory<Register> registers;
+    Factory<LoadRule> load_rules;
+    Factory<CallRule> call_rules;
+    Factory<ActionRule> action_rules;
+    Factory<SearchRule> search_rules;
+    Factory<ExtendedSketch> extended_sketches;
 
     SymbolTable();
 };

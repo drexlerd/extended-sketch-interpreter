@@ -15,48 +15,45 @@
 
 namespace sketches::extended_sketch {
 class SymbolTable;
-class ExtendedSketch;
-using ExtendedSketchHandle = SymbolHandle<ExtendedSketch>;
-using ExtendedSketchFactory = SymbolFactory<ExtendedSketch>;
+
 
 class ExtendedSketch {
 private:
-    // We can get access to other sketches here
+    // Data underlying handles.
     SymbolTable const* m_parent_symbol_table;
-
-    std::unique_ptr<SymbolTable> m_symbol_table;
+    std::unique_ptr<const SymbolTable> m_symbol_table;
 
     Signature m_signature;
 
-    MemoryStateHandleList m_memory_states;
-    MemoryStateHandle m_initial_memory_state;
+    std::vector<Handle<MemoryState>> m_memory_states;
+    Handle<MemoryState> m_initial_memory_state;
 
-    RegisterHandleList m_registers;
+    std::vector<Handle<Register>> m_registers;
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
     ConceptMap m_concepts;
 
-    LoadRuleHandleList m_load_rules;
-    CallRuleHandleList m_call_rules;
-    ActionRuleHandleList m_action_rules;
-    SearchRuleHandleList m_iwsearch_rules;
+    std::vector<Handle<LoadRule>> m_load_rules;
+    std::vector<Handle<CallRule>> m_call_rules;
+    std::vector<Handle<ActionRule>> m_action_rules;
+    std::vector<Handle<SearchRule>> m_iwsearch_rules;
 
 public:
     ExtendedSketch(
         const SymbolTable& parent_symbol_table,
-        std::unique_ptr<SymbolTable>&& symbol_table,
+        std::unique_ptr<const SymbolTable>&& symbol_table,
         const Signature& signature,
-        const MemoryStateHandleList& memory_states,
-        const MemoryStateHandle& initial_memory_state,
-        const RegisterHandleList& registers,
+        const std::vector<Handle<MemoryState>>& memory_states,
+        const Handle<MemoryState>& initial_memory_state,
+        const std::vector<Handle<Register>>& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
-        const LoadRuleHandleList& load_rules,
-        const CallRuleHandleList& call_rules,
-        const ActionRuleHandleList& action_rules,
-        const SearchRuleHandleList& iwsearch_rules);
+        const std::vector<Handle<LoadRule>>& load_rules,
+        const std::vector<Handle<CallRule>>& call_rules,
+        const std::vector<Handle<ActionRule>>& action_rules,
+        const std::vector<Handle<SearchRule>>& iwsearch_rules);
 
     std::string compute_signature() const;
 };

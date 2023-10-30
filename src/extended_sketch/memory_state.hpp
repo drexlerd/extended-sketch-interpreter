@@ -11,10 +11,6 @@
 
 namespace sketches::extended_sketch {
 class SymbolTable;
-struct MemoryState;
-using MemoryStateHandle = SymbolHandle<MemoryState>;
-using MemoryStateHandleList = std::vector<MemoryStateHandle>;
-using MemoryStateFactory = SymbolFactory<MemoryState>;
 
 
 struct MemoryState {

@@ -12,8 +12,8 @@ namespace sketches::extended_sketch {
 
 ExtendedRule::ExtendedRule(
     const SymbolTable& symbol_table,
-    const MemoryStateHandle& memory_state_condition,
-    const MemoryStateHandle& memory_state_effect,
+    const Handle<MemoryState>& memory_state_condition,
+    const Handle<MemoryState>& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
     : m_symbol_table(&symbol_table),
@@ -30,11 +30,11 @@ std::string ExtendedRule::compute_signature() const {
     return ss.str();
 }
 
-const MemoryStateHandle& ExtendedRule::get_memory_state_condition() const {
+const Handle<MemoryState>& ExtendedRule::get_memory_state_condition() const {
     return m_memory_state_condition;
 }
 
-const MemoryStateHandle& ExtendedRule::get_memory_state_effect() const {
+const Handle<MemoryState>& ExtendedRule::get_memory_state_effect() const {
     return m_memory_state_effect;
 }
 
@@ -49,11 +49,11 @@ const EffectSet& ExtendedRule::get_feature_effects() const {
 
 LoadRule::LoadRule(
     const SymbolTable& symbol_table,
-    const MemoryStateHandle& condition_memory_state,
-    const MemoryStateHandle& effect_memory_state,
+    const Handle<MemoryState>& condition_memory_state,
+    const Handle<MemoryState>& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const RegisterHandle& reg,
+    const Handle<Register>& reg,
     const Concept& concept)
     : ExtendedRule(symbol_table, condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_register(reg), m_concept(concept) { }
@@ -81,8 +81,8 @@ void LoadRule::compute_signature(std::stringstream& out) const {
 
 CallRule::CallRule(
     const SymbolTable& symbol_table,
-    const MemoryStateHandle& condition_memory_state,
-    const MemoryStateHandle& effect_memory_state,
+    const Handle<MemoryState>& condition_memory_state,
+    const Handle<MemoryState>& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
     const Call& call)
@@ -109,12 +109,12 @@ void CallRule::compute_signature(std::stringstream& out) const {
 
 ActionRule::ActionRule(
     const SymbolTable& symbol_table,
-    const MemoryStateHandle& memory_state_condition,
-    const MemoryStateHandle& memory_state_effect,
+    const Handle<MemoryState>& memory_state_condition,
+    const Handle<MemoryState>& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
     const mimir::formalism::ActionSchema& action_schema,
-    const RegisterHandleList& arguments)
+    const std::vector<Handle<Register>>& arguments)
     : ExtendedRule(symbol_table, memory_state_condition, memory_state_effect, feature_conditions, feature_effects),
       m_action_schema(action_schema),
       m_arguments(arguments) { }
@@ -144,8 +144,8 @@ void ActionRule::compute_signature(std::stringstream& out) const {
 
 SearchRule::SearchRule(
     const SymbolTable& symbol_table,
-    const MemoryStateHandle& memory_state_condition,
-    const MemoryStateHandle& memory_state_effect,
+    const Handle<MemoryState>& memory_state_condition,
+    const Handle<MemoryState>& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects)
     : ExtendedRule(symbol_table, memory_state_condition, memory_state_effect, feature_conditions, feature_effects) { }

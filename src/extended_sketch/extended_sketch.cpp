@@ -7,18 +7,18 @@ namespace sketches::extended_sketch {
 
 ExtendedSketch::ExtendedSketch(
     const SymbolTable& parent_symbol_table,
-    std::unique_ptr<SymbolTable>&& symbol_table,
+    std::unique_ptr<const SymbolTable>&& symbol_table,
     const Signature& signature,
-    const MemoryStateHandleList& memory_states,
-    const MemoryStateHandle& initial_memory_state,
-    const RegisterHandleList& registers,
+    const std::vector<Handle<MemoryState>>& memory_states,
+    const Handle<MemoryState>& initial_memory_state,
+    const std::vector<Handle<Register>>& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
-    const LoadRuleHandleList& load_rules,
-    const CallRuleHandleList& call_rules,
-    const ActionRuleHandleList& action_rules,
-    const SearchRuleHandleList& iwsearch_rules)
+    const std::vector<Handle<LoadRule>>& load_rules,
+    const std::vector<Handle<CallRule>>& call_rules,
+    const std::vector<Handle<ActionRule>>& action_rules,
+    const std::vector<Handle<SearchRule>>& iwsearch_rules)
     : m_parent_symbol_table(&parent_symbol_table),
       m_symbol_table(std::move(symbol_table)),
       m_signature(signature),

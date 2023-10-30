@@ -11,10 +11,6 @@
 
 namespace sketches::extended_sketch {
 struct SymbolTable;
-struct Register;
-using RegisterHandle = SymbolHandle<Register>;
-using RegisterHandleList = std::vector<RegisterHandle>;
-using RegisterFactory = SymbolFactory<Register>;
 
 
 struct Register {

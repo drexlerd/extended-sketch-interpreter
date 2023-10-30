@@ -7,93 +7,64 @@
 #include <cassert>
 #include <iostream>
 
+#include "symbol_handle.hpp"
+
 
 namespace sketches::extended_sketch {
 struct SymbolTable;
-template<typename Symbol>
-class SymbolFactory;
-
-
-/// @brief Lightweight reference to the Symbol.
-///        This allows fast reference from one place in the ast to another
-template<typename Symbol>
-class SymbolHandle {
-private:
-    int index;
-
-    SymbolHandle(int index_) : index(index_) { }
-
-    friend class SymbolFactory<Symbol>;
-
-public:
-    SymbolHandle() : index(-1) { }  // undefined
-
-    bool operator==(const SymbolHandle& other) const {
-        return index == other.index;
-    }
-
-    bool operator!=(const SymbolHandle& other) const {
-        return !(*this == other);
-    }
-
-    static SymbolHandle undefined;
-};
-
-template<typename Symbol>
-SymbolHandle<Symbol> SymbolHandle<Symbol>::undefined = SymbolHandle<Symbol>(-1);
 
 
 /// @brief Factory for the controlled creation and access of symbols.
 template<typename Symbol>
-class SymbolFactory {
+class Factory {
 protected:
     const SymbolTable* symbol_table;
     std::unordered_map<std::string, int> signature_to_handle;
     std::vector<Symbol> symbols;
 
 public:
-    explicit SymbolFactory(const SymbolTable& symbol_table_) : symbol_table(&symbol_table_) {
+    explicit Factory(const SymbolTable& symbol_table_) : symbol_table(&symbol_table_) {
     }
 
     template<class... Args>
-    SymbolHandle<Symbol> register_symbol(Args... args) {
+    Handle<Symbol> register_symbol(Args... args) {
         Symbol symbol(*symbol_table, std::forward<Args>(args)...);
         std::string signature = symbol.compute_signature();
         const auto& it = signature_to_handle.find(signature);
         if (it != signature_to_handle.end()) {
-            return SymbolHandle<Symbol>{it->second};
+            return Handle<Symbol>{it->second};
         }
         int index = symbols.size();
         signature_to_handle.emplace(signature, index);
         symbols.push_back(std::move(symbol));
-        return SymbolHandle<Symbol>{index};
+        return Handle<Symbol>{index};
     }
 
     template<class... Args>
-    SymbolHandle<Symbol> get_handle(Args... args) const {
+    Handle<Symbol> get_handle(Args... args) const {
         Symbol symbol(*symbol_table, std::forward<Args>(args)...);
         std::string signature = symbol.compute_signature();
         if (signature_to_handle.count(signature)) {
             return signature_to_handle.at(signature);
         }
-        return SymbolHandle<Symbol>::undefined;
+        return Handle<Symbol>::undefined;
     }
 
-    Symbol& get_symbol(SymbolHandle<Symbol> handle) {
-        assert(handle != SymbolHandle<Symbol>::undefined);
+    Symbol& get_symbol(Handle<Symbol> handle) {
+        assert(handle != Handle<Symbol>::undefined);
         return symbols[handle.index];
     }
 
-    const Symbol& get_symbol(SymbolHandle<Symbol> handle) const {
-        assert(handle != SymbolHandle<Symbol>::undefined);
+    const Symbol& get_symbol(Handle<Symbol> handle) const {
+        assert(handle != Handle<Symbol>::undefined);
         return symbols[handle.index];
     }
 
-    Symbol& operator[](SymbolHandle<Symbol> handle) {
+    Symbol& operator[](Handle<Symbol> handle) {
         return get_symbol(handle);
     }
 
-    const Symbol& operator[](SymbolHandle<Symbol> handle) const {
+    const Symbol& operator[](Handle<Symbol> handle) const {
         return get_symbol(handle);
     }
 };

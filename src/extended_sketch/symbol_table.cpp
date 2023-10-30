@@ -4,12 +4,12 @@
 namespace sketches::extended_sketch {
 
 SymbolTable::SymbolTable()
-    : memory_states(MemoryStateFactory(*this)),
-      registers(RegisterFactory(*this)),
-      load_rules(LoadRuleFactory(*this)),
-      call_rules(CallRuleFactory(*this)),
-      action_rules(ActionRuleFactory(*this)),
-      search_rules(SearchRuleFactory(*this)),
-      extended_sketches(ExtendedSketchFactory(*this)) {}
+    : memory_states(Factory<MemoryState>(*this)),
+      registers(Factory<Register>(*this)),
+      load_rules(Factory<LoadRule>(*this)),
+      call_rules(Factory<CallRule>(*this)),
+      action_rules(Factory<ActionRule>(*this)),
+      search_rules(Factory<SearchRule>(*this)),
+      extended_sketches(Factory<ExtendedSketch>(*this)) {}
 
 }
