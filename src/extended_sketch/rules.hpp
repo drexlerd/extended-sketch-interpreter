@@ -67,7 +67,9 @@ extern LoadRule make_load_rule(
 class CallRuleImpl : public ExtendedRuleImpl {
 public:
     Call m_call;
-    Handle<ExtendedSketch> callee;
+
+    class ExtendedSketchImpl;
+    std::weak_ptr<ExtendedSketchImpl> callee;
 
     using ExtendedRuleImpl::compute_signature;
 

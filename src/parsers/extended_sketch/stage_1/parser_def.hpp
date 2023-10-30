@@ -34,7 +34,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct ArgumentRegisterClass;
     struct ArgumentConceptClass;
     struct ArgumentClass;
-    struct SignatureClass;
 
     struct MemoryStateClass;
     struct MemoryStateReferenceClass;
@@ -47,12 +46,20 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     struct MemoryConditionClass;
     struct MemoryEffectClass;
+
     struct LoadRuleClass;
+
+    struct ArgumentRegisterClass;
+    struct ArgumentConceptClass;
+    struct ArgumentClass;
     struct CallClass;
     struct CallRuleClass;
+
     struct ActionReferenceClass;
     struct ActionRuleClass;
+
     struct SearchRuleClass;
+
     struct RuleClass;
     struct RulesClass;
 
@@ -63,71 +70,47 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     // Rules
     ///////////////////////////////////////////////////////////////////////////
 
-    x3::rule<NameClass, ast::Name> const
-        name = "name";
+    name_type const name = "name";
 
-    x3::rule<ArgumentRegisterClass, ast::ArgumentRegister> const
-        argument_register = "argument_register";
+    memory_state_type const memory_state = "memory_state";
 
-    x3::rule<ArgumentConceptClass, ast::ArgumentConcept> const
-        argument_concept = "argument_concept";
+    memory_state_reference_type const memory_state_reference = "memory_state_reference";
 
-    x3::rule<ArgumentClass, ast::Argument> const
-        argument = "argument";
+    memory_states_type const memory_states = "memory_states";
 
-    //x3::rule<SignatureClass, ast::Signature> const
-    //    signature = "signature";
+    initial_memory_state_type const initial_memory_state = "initial_memory_state";
 
-    x3::rule<MemoryStateClass, ast::MemoryState> const
-        memory_state = "memory_state";
+    register_type const register_ = "register";
 
-    x3::rule<MemoryStateReferenceClass, ast::MemoryStateReference> const
-        memory_state_reference = "memory_state_reference";
+    register_reference_type const register_reference = "register_reference";
 
-    x3::rule<MemoryStatesClass, ast::MemoryStates> const
-        memory_states = "memory_states";
+    registers_type const registers = "registers";
 
-    x3::rule<InitialMemoryStateClass, ast::InitialMemoryState> const
-        initial_memory_state = "initial_memory_state";
+    memory_condition_type const memory_condition = "memory_condition";
 
-    x3::rule<RegisterClass, ast::Register> const
-        register_ = "register";
+    memory_effect_type const memory_effect = "memory_effect";
 
-    x3::rule<RegisterReferenceClass, ast::RegisterReference> const
-        register_reference = "register_reference";
+    load_rule_type const load_rule = "load_rule";
 
-    x3::rule<RegistersClass, ast::Registers> const
-        registers = "registers";
+    argument_register_type const argument_register = "argument_register";
 
-    x3::rule<MemoryConditionClass, ast::MemoryCondition> const
-        memory_condition = "memory_condition";
+    argument_concept_type const argument_concept = "argument_concept";
 
-    x3::rule<MemoryEffectClass, ast::MemoryEffect> const
-        memory_effect = "memory_effect";
+    argument_type const argument = "argument";
 
-    x3::rule<LoadRuleClass, ast::LoadRule> const
-        load_rule = "load_rule";
+    call_type const call = "call";
 
-    x3::rule<CallClass, ast::Call> const
-        call = "call";
+    call_rule_type const call_rule = "call_rule";
 
-    x3::rule<CallRuleClass, ast::CallRule> const
-        call_rule = "call_rule";
+    action_reference_type const action_reference = "action_reference";
 
-    x3::rule<ActionReferenceClass, ast::ActionReference> const
-        action_reference = "action_reference";
+    action_rule_type const action_rule = "action_rule";
 
-    x3::rule<ActionRuleClass, ast::ActionRule> const
-        action_rule = "action_rule";
+    search_rule_type const search_rule = "search_rule";
 
-    x3::rule<SearchRuleClass, ast::SearchRule> const
-        search_rule = "search_rule";
+    rule_type const rule = "rule";
 
-    x3::rule<RuleClass, ast::Rule> const
-        rule = "rule";
-
-    x3::rule<RulesClass, ast::Rules> const
-        rules = "rules";
+    rules_type const rules = "rules";
 
     extended_sketch_type const extended_sketch = "extended_sketch";
 
@@ -137,11 +120,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
 
     const auto name_def = alpha >> lexeme[*(alnum | char_('-') | char_('_'))];
-
-    const auto argument_register_def = x3::string(":register") > name;
-    const auto argument_concept_def = x3::string(":concept") > name;
-    const auto argument_def = argument_register | argument_concept;
-    const auto signature_def = lit('(') >> lit(":signature") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
 
     const auto memory_state_def = name;
     const auto memory_state_reference_def = name;
@@ -167,6 +145,11 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 > lit('(') > lit("load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
             > lit(')')
         > lit(')');
+
+    const auto argument_register_def = x3::string(":register") > name;
+    const auto argument_concept_def = x3::string(":concept") > name;
+    const auto argument_def = argument_register | argument_concept;
+    //const auto signature_def = lit('(') >> lit(":signature") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
@@ -180,6 +163,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 > call
             > lit(')')
         > lit(')');
+
     const auto action_reference_def = name;
     const auto action_rule_def =
         lit('(') >> lit(":action_rule")
@@ -193,6 +177,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
             > lit(')')
         > lit(')');
+
     const auto search_rule_def =
         lit('(') >> lit(":search_rule")
             > lit('(') > lit(":conditions")
@@ -203,9 +188,11 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
                 >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
             > lit(')')
         > lit(')');
+
     const auto rule_def =
         load_rule | call_rule | action_rule | search_rule;
     const auto rules_def = *rule;
+
     const auto extended_sketch_def = lit('(')
         > lit(":extended_sketch")
         > memory_states
@@ -260,6 +247,98 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
 namespace sketches::parsers::extended_sketch::stage_1
 {
+    parser::name_type const& name() {
+        return parser::name;
+    }
+
+    parser::memory_state_type const& memory_state() {
+        return parser::memory_state;
+    }
+
+    parser::memory_state_reference_type const& memory_state_reference() {
+        return parser::memory_state_reference;
+    }
+
+    parser::memory_states_type const& memory_states() {
+        return parser::memory_states;
+    }
+
+    parser::initial_memory_state_type const& initial_memory_state() {
+        return parser::initial_memory_state;
+    }
+
+
+    parser::register_type const& register_() {
+        return parser::register_;
+    }
+
+    parser::register_reference_type const& register_reference() {
+        return parser::register_reference;
+    }
+
+    parser::registers_type const& registers() {
+        return parser::registers;
+    }
+
+
+    parser::memory_condition_type const& memory_condition() {
+        return parser::memory_condition;
+    }
+
+    parser::memory_effect_type const& memory_effect() {
+        return parser::memory_effect;
+    }
+
+
+    parser::load_rule_type const& load_rule() {
+        return parser::load_rule;
+    }
+
+
+    parser::argument_register_type const& argument_register() {
+        return parser::argument_register;
+    }
+
+    parser::argument_concept_type const& argument_concept() {
+        return parser::argument_concept;
+    }
+
+    parser::argument_type const& argument() {
+        return parser::argument;
+    }
+
+    parser::call_type const& call() {
+        return parser::call;
+    }
+
+    parser::call_rule_type const& call_rule() {
+        return parser::call_rule;
+    }
+
+
+    parser::action_reference_type const& action_reference() {
+        return parser::action_reference;
+    }
+
+    parser::action_rule_type const& action_rule() {
+        return parser::action_rule;
+    }
+
+
+    parser::search_rule_type const& search_rule() {
+        return parser::search_rule;
+    }
+
+
+    parser::rule_type const& rule() {
+        return parser::rule;
+    }
+
+    parser::rules_type const& rules() {
+        return parser::rules;
+    }
+
+
     parser::extended_sketch_type const& extended_sketch()
     {
         return parser::extended_sketch;

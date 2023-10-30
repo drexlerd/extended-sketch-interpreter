@@ -7,6 +7,7 @@
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
+#include "src/extended_sketch/extended_sketch.hpp"
 #include "src/parsers/extended_sketch/stage_1/ast.hpp"
 
 
@@ -19,8 +20,8 @@ namespace sketches::parsers::module::stage_1::ast
 
     /* Signature entry */
     struct Signature : x3::position_tagged {
-        Name name;
-        std::vector<Argument> arguments;
+        sketches::parsers::extended_sketch::stage_1::ast::Name name;
+        std::vector<sketches::parsers::extended_sketch::stage_1::ast::Argument> arguments;
     };
 
     struct Module : x3::position_tagged {

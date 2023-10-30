@@ -97,7 +97,7 @@ CallRuleImpl::CallRuleImpl(
     const Call& call)
     : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_call(call),
-      callee(Handle<ExtendedSketch>::undefined) { }
+      callee() { }
 
 CallRuleImpl::~CallRuleImpl() = default;
 
