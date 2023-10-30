@@ -3,12 +3,16 @@
 
 namespace sketches::extended_sketch {
 
-Register::Register(const SymbolTable& symbol_table, const std::string& name)
-    : symbol_table(&symbol_table), name(name) {
+RegisterImpl::RegisterImpl(const std::string& name)
+    : name(name) {
 }
 
-std::string Register::compute_signature() const {
+std::string RegisterImpl::compute_signature() const {
     return name;
+}
+
+Register make_register(const std::string& name) {
+    return std::make_shared<RegisterImpl>(name);
 }
 
 }

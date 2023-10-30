@@ -7,7 +7,7 @@
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
-#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_1/ast.hpp"
+#include "src/parsers/extended_sketch/stage_1/ast.hpp"
 
 
 namespace sketches::parsers::module::stage_1::ast
@@ -17,8 +17,15 @@ namespace sketches::parsers::module::stage_1::ast
     ///////////////////////////////////////////////////////////////////////////
     namespace x3 = boost::spirit::x3;
 
-    struct Module : x3::position_tagged {
+    /* Signature entry */
+    struct Signature : x3::position_tagged {
+        Name name;
+        std::vector<Argument> arguments;
+    };
 
+    struct Module : x3::position_tagged {
+        Signature signature;
+        extended_sketch::stage_1::ast::ExtendedSketch extended_sketches;
     };
 }
 

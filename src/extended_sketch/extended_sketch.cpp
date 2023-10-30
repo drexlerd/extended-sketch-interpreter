@@ -1,28 +1,20 @@
 #include "extended_sketch.hpp"
 
-#include "symbol_table.hpp"
-
 
 namespace sketches::extended_sketch {
 
-ExtendedSketch::ExtendedSketch(
-    const SymbolTable& parent_symbol_table,
-    std::unique_ptr<const SymbolTable>&& symbol_table,
-    const Signature& signature,
-    const std::vector<Handle<MemoryState>>& memory_states,
-    const Handle<MemoryState>& initial_memory_state,
-    const std::vector<Handle<Register>>& registers,
+ExtendedSketchImpl::ExtendedSketchImpl(
+    const MemoryStateList& memory_states,
+    const MemoryState& initial_memory_state,
+    const RegisterList& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
-    const std::vector<Handle<LoadRule>>& load_rules,
-    const std::vector<Handle<CallRule>>& call_rules,
-    const std::vector<Handle<ActionRule>>& action_rules,
-    const std::vector<Handle<SearchRule>>& iwsearch_rules)
-    : m_parent_symbol_table(&parent_symbol_table),
-      m_symbol_table(std::move(symbol_table)),
-      m_signature(signature),
-      m_memory_states(memory_states),
+    const LoadRuleList& load_rules,
+    const CallRuleList& call_rules,
+    const ActionRuleList& action_rules,
+    const SearchRuleList& search_rules)
+    : m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
       m_registers(registers),
       m_booleans(booleans),
@@ -31,12 +23,29 @@ ExtendedSketch::ExtendedSketch(
       m_load_rules(load_rules),
       m_call_rules(call_rules),
       m_action_rules(action_rules),
-      m_iwsearch_rules(iwsearch_rules) {
+      m_search_rules(search_rules) {
 }
 
-std::string ExtendedSketch::compute_signature() const {
-    std::cout << m_signature.compute_signature() << std::endl;
-    return m_signature.compute_signature();
+std::string ExtendedSketchImpl::compute_signature() const {
+    return "";
+}
+
+ExtendedSketch make_extended_sketch(
+    const MemoryStateList& memory_states,
+    const MemoryState& initial_memory_state,
+    const RegisterList& registers,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts,
+    const LoadRuleList& load_rules,
+    const CallRuleList& call_rules,
+    const ActionRuleList& action_rules,
+    const SearchRuleList& search_rules) {
+    return std::make_shared<ExtendedSketchImpl>(
+        memory_states, initial_memory_state,
+        registers,
+        booleans, numericals, concepts,
+        load_rules, call_rules, action_rules, search_rules);
 }
 
 }

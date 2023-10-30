@@ -31,6 +31,33 @@ namespace sketches::extended_sketch {
     using EffectList = std::vector<Effect>;
     using EffectSet = dlplan::policy::Effects;
 
+    class RegisterImpl;
+    using Register = std::shared_ptr<RegisterImpl>;
+    using RegisterList = std::vector<Register>;
+
+    class MemoryStateImpl;
+    using MemoryState = std::shared_ptr<MemoryStateImpl>;
+    using MemoryStateList = std::vector<MemoryState>;
+
+    class LoadRuleImpl;
+    using LoadRule = std::shared_ptr<LoadRuleImpl>;
+    using LoadRuleList = std::vector<LoadRule>;
+
+    class CallRuleImpl;
+    using CallRule = std::shared_ptr<CallRuleImpl>;
+    using CallRuleList = std::vector<CallRule>;
+
+    class ActionRuleImpl;
+    using ActionRule = std::shared_ptr<ActionRuleImpl>;
+    using ActionRuleList = std::vector<ActionRule>;
+
+    class SearchRuleImpl;
+    using SearchRule = std::shared_ptr<SearchRuleImpl>;
+    using SearchRuleList = std::vector<SearchRule>;
+
+    class ExtendedSketchImpl;
+    using ExtendedSketch = std::shared_ptr<ExtendedSketchImpl>;
+
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;

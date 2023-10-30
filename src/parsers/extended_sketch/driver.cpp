@@ -16,13 +16,11 @@ namespace sketches::parsers::extended_sketch {
 
 Driver::Driver(
     const mimir::formalism::DomainDescription& domain_description,
-    const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory,
-    SymbolTable& symbol_table)
+    const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory)
     : domain_description(domain_description),
-      policy_factory(policy_factory),
-      symbol_table(&symbol_table) { }
+      policy_factory(policy_factory) { }
 
-Handle<ExtendedSketch> Driver::parse(
+ExtendedSketch Driver::parse(
     const std::string& source,
     const std::string& filename) {
 
@@ -32,7 +30,7 @@ Handle<ExtendedSketch> Driver::parse(
     return parse(iter, end, filename);
 }
 
-Handle<ExtendedSketch> Driver::parse(
+ExtendedSketch Driver::parse(
     iterator_type& iter,
     iterator_type end,
     const std::string& filename) {
@@ -45,7 +43,7 @@ Handle<ExtendedSketch> Driver::parse(
 
     // Stage 2 parse
     stage_2::Context context(domain_description, policy_factory);
-    auto sketch = stage_2::parser::parse(root_node, error_handler, context, *symbol_table);
+    auto sketch = stage_2::parser::parse(root_node, error_handler, context);
 
     return sketch;
 }

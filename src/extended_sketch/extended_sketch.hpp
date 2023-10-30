@@ -5,58 +5,53 @@
 #include <vector>
 
 #include "declarations.hpp"
-#include "arguments.hpp"
-#include "signature.hpp"
-#include "register.hpp"
-#include "memory_state.hpp"
-#include "rules.hpp"
-#include "symbol_factory.hpp"
 
 
 namespace sketches::extended_sketch {
-class SymbolTable;
 
-
-class ExtendedSketch {
+class ExtendedSketchImpl {
 private:
-    // Data underlying handles.
-    SymbolTable const* m_parent_symbol_table;
-    std::unique_ptr<const SymbolTable> m_symbol_table;
+    MemoryStateList m_memory_states;
+    MemoryState m_initial_memory_state;
 
-    Signature m_signature;
-
-    std::vector<Handle<MemoryState>> m_memory_states;
-    Handle<MemoryState> m_initial_memory_state;
-
-    std::vector<Handle<Register>> m_registers;
+    RegisterList m_registers;
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
     ConceptMap m_concepts;
 
-    std::vector<Handle<LoadRule>> m_load_rules;
-    std::vector<Handle<CallRule>> m_call_rules;
-    std::vector<Handle<ActionRule>> m_action_rules;
-    std::vector<Handle<SearchRule>> m_iwsearch_rules;
+    LoadRuleList m_load_rules;
+    CallRuleList m_call_rules;
+    ActionRuleList m_action_rules;
+    SearchRuleList m_search_rules;
 
 public:
-    ExtendedSketch(
-        const SymbolTable& parent_symbol_table,
-        std::unique_ptr<const SymbolTable>&& symbol_table,
-        const Signature& signature,
-        const std::vector<Handle<MemoryState>>& memory_states,
-        const Handle<MemoryState>& initial_memory_state,
-        const std::vector<Handle<Register>>& registers,
+    ExtendedSketchImpl(
+        const MemoryStateList& memory_states,
+        const MemoryState& initial_memory_state,
+        const RegisterList& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
-        const std::vector<Handle<LoadRule>>& load_rules,
-        const std::vector<Handle<CallRule>>& call_rules,
-        const std::vector<Handle<ActionRule>>& action_rules,
-        const std::vector<Handle<SearchRule>>& iwsearch_rules);
+        const LoadRuleList& load_rules,
+        const CallRuleList& call_rules,
+        const ActionRuleList& action_rules,
+        const SearchRuleList& search_rules);
 
     std::string compute_signature() const;
 };
+
+extern ExtendedSketch make_extended_sketch(
+    const MemoryStateList& memory_states,
+    const MemoryState& initial_memory_state,
+    const RegisterList& registers,
+    const BooleanMap& booleans,
+    const NumericalMap& numericals,
+    const ConceptMap& concepts,
+    const LoadRuleList& load_rules,
+    const CallRuleList& call_rules,
+    const ActionRuleList& action_rules,
+    const SearchRuleList& search_rules);
 
 }
 

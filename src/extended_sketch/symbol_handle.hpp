@@ -36,6 +36,10 @@ public:
         return !(*this == other);
     }
 
+    operator int() const {
+        return index;
+    }
+
     static Handle undefined;
 };
 

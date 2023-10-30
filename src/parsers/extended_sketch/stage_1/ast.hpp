@@ -45,30 +45,6 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     };
 
 
-    /* Signature entry */
-    struct ArgumentRegister : x3::position_tagged {
-        std::string type_name;
-        Name value_name;
-    };
-
-    struct ArgumentConcept : x3::position_tagged {
-        std::string type_name;
-        Name value_name;
-    };
-
-    struct Argument : x3::position_tagged,
-        x3::variant<
-            x3::forward_ast<ArgumentRegister>,
-            x3::forward_ast<ArgumentConcept>> {
-        using base_type::base_type;
-        using base_type::operator=;
-    };
-
-    struct Signature : x3::position_tagged {
-        Name name;
-        std::vector<Argument> arguments;
-    };
-
     /* Memory state entry and references */
     struct MemoryState : x3::position_tagged {
         Name key;
@@ -125,6 +101,24 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         Name reference;
     };
 
+    struct ArgumentRegister : x3::position_tagged {
+        std::string type_name;
+        Name value_name;
+    };
+
+    struct ArgumentConcept : x3::position_tagged {
+        std::string type_name;
+        Name value_name;
+    };
+
+    struct Argument : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<ArgumentRegister>,
+            x3::forward_ast<ArgumentConcept>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
     struct Call : x3::position_tagged {
         Name name;
         std::vector<Argument> arguments;
@@ -174,7 +168,6 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     /* Sketch */
     struct ExtendedSketch : x3::position_tagged {
-        Signature signature;
         MemoryStates memory_states;
         InitialMemoryState initial_memory_state;
         Registers registers;

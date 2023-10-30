@@ -75,8 +75,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     x3::rule<ArgumentClass, ast::Argument> const
         argument = "argument";
 
-    x3::rule<SignatureClass, ast::Signature> const
-        signature = "signature";
+    //x3::rule<SignatureClass, ast::Signature> const
+    //    signature = "signature";
 
     x3::rule<MemoryStateClass, ast::MemoryState> const
         memory_state = "memory_state";
@@ -208,7 +208,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     const auto rules_def = *rule;
     const auto extended_sketch_def = lit('(')
         > lit(":extended_sketch")
-        > signature
         > memory_states
         > initial_memory_state
         >> registers
@@ -218,12 +217,15 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         >> rules
         > lit(')');
 
-    BOOST_SPIRIT_DEFINE(name, signature,
+    BOOST_SPIRIT_DEFINE(name,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
-        argument_register, argument_concept, argument,
         register_, register_reference, registers,
         memory_condition, memory_effect,
-        load_rule, call, call_rule, action_reference, action_rule, search_rule, rule, rules,
+        load_rule,
+        argument_register, argument_concept, argument, call, call_rule,
+        action_reference, action_rule,
+        search_rule,
+        rule, rules,
         extended_sketch)
 
     ///////////////////////////////////////////////////////////////////////////
@@ -232,14 +234,9 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
 
     struct NameClass : x3::annotate_on_success {};
     struct QuotedStringClass : x3::annotate_on_success {};
-    struct SignatureClass : x3::annotate_on_success {};
     struct MemoryStateClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesClass : x3::annotate_on_success {};
-    struct ArgumentRegisterClass : x3::annotate_on_success {};
-    struct ArgumentConceptClass : x3::annotate_on_success {};
-    struct ArgumentClass : x3::annotate_on_success {};
-    struct ArgumentsClass : x3::annotate_on_success {};
     struct InitialMemoryStateClass : x3::annotate_on_success {};
     struct RegisterClass : x3::annotate_on_success {};
     struct RegisterReferenceClass : x3::annotate_on_success {};
@@ -247,6 +244,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct MemoryConditionClass : x3::annotate_on_success {};
     struct MemoryEffectClass : x3::annotate_on_success {};
     struct LoadRuleClass : x3::annotate_on_success {};
+    struct ArgumentRegisterClass : x3::annotate_on_success {};
+    struct ArgumentConceptClass : x3::annotate_on_success {};
+    struct ArgumentClass : x3::annotate_on_success {};
+    struct ArgumentsClass : x3::annotate_on_success {};
     struct CallClass : x3::annotate_on_success {};
     struct CallRuleClass : x3::annotate_on_success {};
     struct ActionReferenceClass : x3::annotate_on_success {};

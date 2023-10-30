@@ -3,12 +3,16 @@
 
 namespace sketches::extended_sketch {
 
-MemoryState::MemoryState(const SymbolTable& symbol_table, const std::string& name)
-    : symbol_table(&symbol_table), name(name) {
+MemoryStateImpl::MemoryStateImpl(const std::string& name)
+    : name(name) {
 }
 
-std::string MemoryState::compute_signature() const {
+std::string MemoryStateImpl::compute_signature() const {
     return name;
+}
+
+MemoryState make_memory_state(const std::string& name) {
+    return std::make_shared<MemoryStateImpl>(name);
 }
 
 }

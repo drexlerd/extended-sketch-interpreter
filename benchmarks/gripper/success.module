@@ -1,13 +1,15 @@
-(:extended_module
-    (:extended_sketch
-        (:signature sketch_1)
-        ...
-    )
-    (:extended_sketch
-        (:signature sketch_2)
-        ...
-    )
-    (:extended_module
-        ...
+(:module
+    (:signature gripper())
+    (:module
+        (:signature gripper(:register r0, :concept c0))
+        (:extended_sketch
+            (:memory_states (m0 m1 m2))
+            (:initial_memory_state m0)
+            (:registers (r0 r1 r2))
+            (:booleans (b1 "b_empty(r_primitive(carry, 0, 1))") (b2 "b_empty(r_primitive(carry, 0, 1))"))
+            (:numericals (n1 "n_count(r_primitive(carry, 0, 1))"))
+            (:concepts (c1 "c_primitive(carry, 0)"))
+            (:load_rule (:conditions (:memory m1) (:c_b_pos b1)) (:effects (:memory m1) (load (r1 c1))))
+        )
     )
 )

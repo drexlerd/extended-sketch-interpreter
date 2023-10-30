@@ -12,106 +12,131 @@
 
 
 namespace sketches::extended_sketch {
-class SymbolTable;
 
-
-class ExtendedRule {
+class ExtendedRuleImpl {
 protected:
-    SymbolTable const* m_symbol_table;
-    Handle<MemoryState> m_memory_state_condition;
-    Handle<MemoryState> m_memory_state_effect;
+    MemoryState m_memory_state_condition;
+    MemoryState m_memory_state_effect;
     ConditionSet m_feature_conditions;
     EffectSet m_feature_effects;
 
-    ExtendedRule(
-        const SymbolTable& symbol_table,
-        const Handle<MemoryState>& memory_state_condition,
-        const Handle<MemoryState>& memory_state_effect,
+    ExtendedRuleImpl(
+        const MemoryState& memory_state_condition,
+        const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
-    virtual ~ExtendedRule();
+    virtual ~ExtendedRuleImpl();
 
     std::string compute_signature() const;
     virtual void compute_signature(std::stringstream& out) const = 0;
 
-    const Handle<MemoryState>& get_memory_state_condition() const;
-    const Handle<MemoryState>& get_memory_state_effect() const;
+    const MemoryState& get_memory_state_condition() const;
+    const MemoryState& get_memory_state_effect() const;
     const ConditionSet& get_feature_conditions() const;
     const EffectSet& get_feature_effects() const;
 };
 
-class LoadRule : public ExtendedRule {
+class LoadRuleImpl : public ExtendedRuleImpl {
 public:
-    Handle<Register> m_register;
+    Register m_register;
     Concept m_concept;
 
-    using ExtendedRule::compute_signature;
+    using ExtendedRuleImpl::compute_signature;
 
-    LoadRule(
-        const SymbolTable& symbol_table,
-        const Handle<MemoryState>& condition_memory_state,
-        const Handle<MemoryState>& effect_memory_state,
+    LoadRuleImpl(
+        const MemoryState& condition_memory_state,
+        const MemoryState& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const Handle<Register>& reg,
+        const Register& reg,
         const Concept& concept);
-    ~LoadRule() override;
+    ~LoadRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
 };
 
-class CallRule : public ExtendedRule {
+extern LoadRule make_load_rule(
+    const MemoryState& condition_memory_state,
+    const MemoryState& effect_memory_state,
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
+    const Register& reg,
+    const Concept& concept);
+
+
+class CallRuleImpl : public ExtendedRuleImpl {
 public:
     Call m_call;
+    Handle<ExtendedSketch> callee;
 
-    using ExtendedRule::compute_signature;
+    using ExtendedRuleImpl::compute_signature;
 
-    CallRule(
-        const SymbolTable& symbol_table,
-        const Handle<MemoryState>& condition_memory_state,
-        const Handle<MemoryState>& effect_memory_state,
+    CallRuleImpl(
+        const MemoryState& condition_memory_state,
+        const MemoryState& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
         const Call& call);
-    ~CallRule() override;
+    ~CallRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
 };
 
-class ActionRule : public ExtendedRule {
+extern CallRule make_call_rule(
+    const MemoryState& condition_memory_state,
+    const MemoryState& effect_memory_state,
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
+    const Call& call);
+
+
+class ActionRuleImpl : public ExtendedRuleImpl {
 public:
     mimir::formalism::ActionSchema m_action_schema;
-    std::vector<Handle<Register>> m_arguments;
+    std::vector<Register> m_arguments;
 
-    using ExtendedRule::compute_signature;
+    using ExtendedRuleImpl::compute_signature;
 
-    ActionRule(
-        const SymbolTable& symbol_table,
-        const Handle<MemoryState>& memory_state_condition,
-        const Handle<MemoryState>& memory_state_effect,
+    ActionRuleImpl(
+        const MemoryState& memory_state_condition,
+        const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
         const mimir::formalism::ActionSchema& action_schema,
-        const std::vector<Handle<Register>>& arguments);
-    ~ActionRule() override;
+        const std::vector<Register>& arguments);
+    ~ActionRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
 };
 
-class SearchRule : public ExtendedRule {
-public:
-    using ExtendedRule::compute_signature;
+extern ActionRule make_action_rule(
+    const MemoryState& condition_memory_state,
+    const MemoryState& effect_memory_state,
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects,
+    const mimir::formalism::ActionSchema& action_schema,
+    const std::vector<Register>& arguments);
 
-    SearchRule(
-        const SymbolTable& symbol_table,
-        const Handle<MemoryState>& memory_state_condition,
-        const Handle<MemoryState>& memory_state_effect,
+
+class SearchRuleImpl : public ExtendedRuleImpl {
+public:
+    using ExtendedRuleImpl::compute_signature;
+
+    SearchRuleImpl(
+        const MemoryState& memory_state_condition,
+        const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects);
-    ~SearchRule() override;
+    ~SearchRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
 };
+
+extern SearchRule make_search_rule(
+    const MemoryState& condition_memory_state,
+    const MemoryState& effect_memory_state,
+    const ConditionSet& feature_conditions,
+    const EffectSet& feature_effects);
 
 }
 
