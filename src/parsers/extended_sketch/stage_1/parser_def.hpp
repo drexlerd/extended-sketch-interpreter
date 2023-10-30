@@ -29,42 +29,6 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     // Rule IDs
     ///////////////////////////////////////////////////////////////////////////
 
-    struct NameClass;
-
-    struct ArgumentRegisterClass;
-    struct ArgumentConceptClass;
-    struct ArgumentClass;
-
-    struct MemoryStateClass;
-    struct MemoryStateReferenceClass;
-    struct MemoryStatesClass;
-    struct InitialMemoryStateClass;
-
-    struct RegisterClass;
-    struct RegisterReferenceClass;
-    struct RegistersClass;
-
-    struct MemoryConditionClass;
-    struct MemoryEffectClass;
-
-    struct LoadRuleClass;
-
-    struct ArgumentRegisterClass;
-    struct ArgumentConceptClass;
-    struct ArgumentClass;
-    struct CallClass;
-    struct CallRuleClass;
-
-    struct ActionReferenceClass;
-    struct ActionRuleClass;
-
-    struct SearchRuleClass;
-
-    struct RuleClass;
-    struct RulesClass;
-
-    struct ExtendedSketchClass;
-
 
     ///////////////////////////////////////////////////////////////////////////
     // Rules
@@ -113,6 +77,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     rules_type const rules = "rules";
 
     extended_sketch_type const extended_sketch = "extended_sketch";
+
+    extended_sketch_root_type const extended_sketch_root = "extended_sketch";
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -203,6 +169,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         >> dlplan::policy::parsers::policy::stage_1::concepts()
         >> rules
         > lit(')');
+    const auto extended_sketch_root_def = extended_sketch;
 
     BOOST_SPIRIT_DEFINE(name,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
@@ -213,7 +180,7 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         action_reference, action_rule,
         search_rule,
         rule, rules,
-        extended_sketch)
+        extended_sketch, extended_sketch_root)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
@@ -242,7 +209,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct SearchRuleClass : x3::annotate_on_success {};
     struct RuleClass : x3::annotate_on_success {};
     struct ExtendedSketchReferenceClass : x3::annotate_on_success {};
-    struct ExtendedSketchClass : x3::annotate_on_success, error_handler_extended_sketch {};
+    struct ExtendedSketchClass : x3::annotate_on_success {};
+    struct ExtendedSketchRootClass : x3::annotate_on_success, error_handler_extended_sketch {};
 }}
 
 namespace sketches::parsers::extended_sketch::stage_1
@@ -342,6 +310,11 @@ namespace sketches::parsers::extended_sketch::stage_1
     parser::extended_sketch_type const& extended_sketch()
     {
         return parser::extended_sketch;
+    }
+
+    parser::extended_sketch_root_type const& extended_sketch_root()
+    {
+        return parser::extended_sketch_root;
     }
 }
 

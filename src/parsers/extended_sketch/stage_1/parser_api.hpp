@@ -45,6 +45,7 @@ namespace sketches::parsers::extended_sketch::stage_1
         struct RulesClass;
 
         struct ExtendedSketchClass;
+        struct ExtendedSketchRootClass;
 
 
         typedef x3::rule<NameClass, ast::Name> name_type;
@@ -78,6 +79,7 @@ namespace sketches::parsers::extended_sketch::stage_1
         typedef x3::rule<RulesClass, ast::Rules> rules_type;
 
         typedef x3::rule<ExtendedSketchClass, ast::ExtendedSketch> extended_sketch_type;
+        typedef x3::rule<ExtendedSketchRootClass, ast::ExtendedSketch> extended_sketch_root_type;
 
 
         BOOST_SPIRIT_DECLARE(
@@ -90,7 +92,7 @@ namespace sketches::parsers::extended_sketch::stage_1
             action_reference_type, action_rule_type,
             search_rule_type,
             rule_type, rules_type,
-            extended_sketch_type
+            extended_sketch_type, extended_sketch_root_type
         )
     }
 
@@ -125,6 +127,7 @@ namespace sketches::parsers::extended_sketch::stage_1
     parser::rules_type const& rules();
 
     parser::extended_sketch_type const& extended_sketch();
+    parser::extended_sketch_root_type const& extended_sketch_root();
 }
 
 #endif

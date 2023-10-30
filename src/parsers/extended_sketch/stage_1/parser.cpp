@@ -31,7 +31,7 @@ ast::ExtendedSketch parse(
         // it later on in our on_error and on_sucess handlers
         with<error_handler_tag>(std::ref(error_handler))
         [
-            sketches::parsers::extended_sketch::stage_1::extended_sketch()
+            sketches::parsers::extended_sketch::stage_1::extended_sketch_root()
         ];
 
     // Go forth and parse!
