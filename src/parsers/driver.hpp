@@ -1,16 +1,16 @@
-#ifndef SRC_PARSERS_MODULE_DRIVER_HPP_
-#define SRC_PARSERS_MODULE_DRIVER_HPP_
+#ifndef SRC_PARSERS_DRIVER_HPP_
+#define SRC_PARSERS_DRIVER_HPP_
 
 #include <memory>
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
-#include "src/module/declarations.hpp"
+#include "src/extended_sketch/declarations.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/config.hpp"
 
 
-namespace sketches::parsers::module {
+namespace sketches::extended_sketch {
 
 class Driver {
 private:
@@ -23,15 +23,27 @@ public:
         const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory);
 
     /// @brief Root call.
-    sketches::module::Module parse(
-         const std::string& source,
-         const std::string& filename="");
+    ExtendedSketch parse_sketch(
+        const std::string& source,
+        const std::string& filename="");
 
     /// @brief Nested call.
-    sketches::module::Module parse(
-         dlplan::iterator_type& iter,
-         dlplan::iterator_type end,
-         const std::string& filename="");
+    ExtendedSketch parse_sketch(
+        dlplan::iterator_type& iter,
+        dlplan::iterator_type end,
+        const std::string& filename="");
+
+
+    /// @brief Root call.
+    Module parse_module(
+        const std::string& source,
+        const std::string& filename="");
+
+    /// @brief Nested call.
+    Module parse_module(
+        dlplan::iterator_type& iter,
+        dlplan::iterator_type end,
+        const std::string& filename="");
 };
 
 }

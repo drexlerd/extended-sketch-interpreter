@@ -10,14 +10,14 @@
 
 namespace sketches::extended_sketch {
 
-class Module {
+class ModuleImpl {
 private:
     Signature signature;
 
     std::shared_ptr<ExtendedSketch> extended_sketch;
 
 public:
-    Module();
+    ModuleImpl();
 };
 
 }

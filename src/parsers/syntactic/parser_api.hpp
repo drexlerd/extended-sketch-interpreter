@@ -1,12 +1,12 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_API_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_API_HPP_
+#ifndef SRC_PARSERS_SYNTACTIC_PARSER_API_HPP_
+#define SRC_PARSERS_SYNTACTIC_PARSER_API_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 
 #include "ast.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_1
+namespace sketches::extended_sketch
 {
     namespace x3 = boost::spirit::x3;
 
@@ -47,6 +47,9 @@ namespace sketches::parsers::extended_sketch::stage_1
         struct ExtendedSketchClass;
         struct ExtendedSketchRootClass;
 
+        struct ModuleClass;
+        struct ModuleRootClass;
+
 
         typedef x3::rule<NameClass, ast::Name> name_type;
 
@@ -81,6 +84,9 @@ namespace sketches::parsers::extended_sketch::stage_1
         typedef x3::rule<ExtendedSketchClass, ast::ExtendedSketch> extended_sketch_type;
         typedef x3::rule<ExtendedSketchRootClass, ast::ExtendedSketch> extended_sketch_root_type;
 
+        typedef x3::rule<ModuleClass, ast::Module> module_type;
+        typedef x3::rule<ModuleRootClass, ast::Module> module_root_type;
+
 
         BOOST_SPIRIT_DECLARE(
             name_type,
@@ -92,7 +98,8 @@ namespace sketches::parsers::extended_sketch::stage_1
             action_reference_type, action_rule_type,
             search_rule_type,
             rule_type, rules_type,
-            extended_sketch_type, extended_sketch_root_type
+            extended_sketch_type, extended_sketch_root_type,
+            module_type, module_root_type
         )
     }
 
@@ -128,6 +135,9 @@ namespace sketches::parsers::extended_sketch::stage_1
 
     parser::extended_sketch_type const& extended_sketch();
     parser::extended_sketch_root_type const& extended_sketch_root();
+
+    parser::module_type const& module_();
+    parser::module_root_type const& module_root();
 }
 
 #endif

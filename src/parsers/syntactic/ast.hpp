@@ -1,5 +1,5 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_AST_HPP_
+#ifndef SRC_PARSERS_SYNTACTIC_AST_HPP_
+#define SRC_PARSERS_SYNTACTIC_AST_HPP_
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/syntactic/ast.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_1::ast
+namespace sketches::extended_sketch::ast
 {
     ///////////////////////////////////////////////////////////////////////////
     //  The AST
@@ -175,6 +175,18 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         dlplan::policy::ast::Numericals numericals;
         dlplan::policy::ast::Concepts concepts;
         Rules rules;
+    };
+
+
+    /* Signature entry */
+    struct Signature : x3::position_tagged {
+        Name name;
+        std::vector<Argument> arguments;
+    };
+
+    struct Module : x3::position_tagged {
+        Signature signature;
+        ExtendedSketch extended_sketch;
     };
 }
 

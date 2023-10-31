@@ -5,7 +5,7 @@
 using namespace dlplan;
 
 
-namespace sketches::parsers::extended_sketch::stage_1::parser
+namespace sketches::extended_sketch::parser
 {
     BOOST_SPIRIT_INSTANTIATE(
         name_type, iterator_type, context_type)
@@ -62,4 +62,9 @@ namespace sketches::parsers::extended_sketch::stage_1::parser
         extended_sketch_type, iterator_type, context_type)
     BOOST_SPIRIT_INSTANTIATE(
         extended_sketch_root_type, iterator_type, context_type)
+
+    BOOST_SPIRIT_INSTANTIATE(
+        module_type, iterator_type, context_type)
+    BOOST_SPIRIT_INSTANTIATE(
+        module_root_type, iterator_type, context_type)
 }

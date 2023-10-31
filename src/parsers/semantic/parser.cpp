@@ -14,9 +14,9 @@ using namespace dlplan;
 using namespace sketches::extended_sketch;
 
 
-namespace sketches::parsers::extended_sketch::stage_2::parser {
+namespace sketches::extended_sketch {
 
-static std::string parse(const stage_1::ast::Name& node, const error_handler_type&, Context&) {
+static std::string parse(const ast::Name& node, const error_handler_type&, Context&) {
     std::stringstream ss;
     ss << node.alphabetical;
     ss << node.suffix;;
@@ -25,7 +25,7 @@ static std::string parse(const stage_1::ast::Name& node, const error_handler_typ
 
 
 
-static MemoryState parse(const stage_1::ast::MemoryState& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const ast::MemoryState& node, const error_handler_type& error_handler, Context& context) {
     const auto key = parse(node.key, error_handler, context);
     const auto it = context.memory_states.find(key);
     if (it != context.memory_states.end()) {
@@ -35,7 +35,7 @@ static MemoryState parse(const stage_1::ast::MemoryState& node, const error_hand
     return context.memory_states.emplace(key, make_memory_state(key)).first->second;
 }
 
-static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
     auto key = parse(node.key, error_handler, context);
     const auto it = context.memory_states.find(key);
     if (it == context.memory_states.end()) {
@@ -45,7 +45,7 @@ static MemoryState parse(const stage_1::ast::MemoryStateReference& node, const e
     return it->second;
 }
 
-static std::vector<MemoryState> parse(const stage_1::ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
+static std::vector<MemoryState> parse(const ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
     std::vector<MemoryState> memory_states;
     for (const auto& child : node.definitions) {
         auto memory_state = parse(child, error_handler, context);
@@ -54,11 +54,11 @@ static std::vector<MemoryState> parse(const stage_1::ast::MemoryStates& node, co
     return memory_states;
 }
 
-static MemoryState parse(const stage_1::ast::InitialMemoryState& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const ast::InitialMemoryState& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
-static Register parse(const stage_1::ast::Register& node, const error_handler_type& error_handler, Context& context) {
+static Register parse(const ast::Register& node, const error_handler_type& error_handler, Context& context) {
     const auto key = parse(node.key, error_handler, context);
     const auto it = context.registers.find(key);
     if (it != context.registers.end()) {
@@ -68,7 +68,7 @@ static Register parse(const stage_1::ast::Register& node, const error_handler_ty
     return context.registers.emplace(key, make_register(key)).first->second;
 }
 
-static Register parse(const stage_1::ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
+static Register parse(const ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
     auto key = parse(node.key, error_handler, context);
     const auto it = context.registers.find(key);
     if (it == context.registers.end()) {
@@ -78,7 +78,7 @@ static Register parse(const stage_1::ast::RegisterReference& node, const error_h
     return it->second;
 }
 
-static std::vector<Register> parse(const stage_1::ast::Registers& node, const error_handler_type& error_handler, Context& context) {
+static std::vector<Register> parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
     std::vector<Register> registers;
     for (const auto& child : node.definitions) {
         registers.push_back(parse(child, error_handler, context));
@@ -86,16 +86,16 @@ static std::vector<Register> parse(const stage_1::ast::Registers& node, const er
     return registers;
 }
 
-static MemoryState parse(const stage_1::ast::MemoryCondition& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const ast::MemoryCondition& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
-static MemoryState parse(const stage_1::ast::MemoryEffect& node, const error_handler_type& error_handler, Context& context) {
+static MemoryState parse(const ast::MemoryEffect& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
 }
 
 
-static LoadRule parse(const stage_1::ast::LoadRule& node, const error_handler_type& error_handler, Context& context) {
+static LoadRule parse(const ast::LoadRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -111,13 +111,13 @@ static LoadRule parse(const stage_1::ast::LoadRule& node, const error_handler_ty
     return make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
-static ArgumentRegister parse(const stage_1::ast::ArgumentRegister& node, const error_handler_type& error_handler, Context& context) {
+static ArgumentRegister parse(const ast::ArgumentRegister& node, const error_handler_type& error_handler, Context& context) {
     return ArgumentRegister(
         node.type_name,
         parse(node.value_name, error_handler, context));
 }
 
-static ArgumentConcept parse(const stage_1::ast::ArgumentConcept& node, const error_handler_type& error_handler, Context& context) {
+static ArgumentConcept parse(const ast::ArgumentConcept& node, const error_handler_type& error_handler, Context& context) {
     return ArgumentConcept(
         node.type_name,
         parse(node.value_name, error_handler, context));
@@ -140,13 +140,13 @@ public:
     }
 };
 
-static Argument parse(const stage_1::ast::Argument& node, const error_handler_type& error_handler, Context& context) {
+static Argument parse(const ast::Argument& node, const error_handler_type& error_handler, Context& context) {
     ArgumentVisitor visitor(error_handler, context);
     boost::apply_visitor(visitor, node);
     return visitor.result;
 }
 
-static Call parse(const stage_1::ast::Call& node, const error_handler_type& error_handler, Context& context) {
+static Call parse(const ast::Call& node, const error_handler_type& error_handler, Context& context) {
     const auto name = parse(node.name, error_handler, context);
     ArgumentList arguments;
     for (const auto& child_node : node.arguments) {
@@ -155,7 +155,7 @@ static Call parse(const stage_1::ast::Call& node, const error_handler_type& erro
     return Call(name, arguments);
 }
 
-static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_type& error_handler, Context& context) {
+static CallRule parse(const ast::CallRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -170,7 +170,7 @@ static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_ty
     return make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, call);
 }
 
-static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference& node, const error_handler_type& error_handler, Context& context) {
+static mimir::formalism::ActionSchema parse(const ast::ActionReference& node, const error_handler_type& error_handler, Context& context) {
     auto action_name = parse(node.reference, error_handler, context);
     auto it = context.action_schema_map.find(action_name);
     if (it == context.action_schema_map.end()) {
@@ -179,7 +179,7 @@ static mimir::formalism::ActionSchema parse(const stage_1::ast::ActionReference&
     return it->second;
 }
 
-static ActionRule parse(const stage_1::ast::ActionRule& node, const error_handler_type& error_handler, Context& context) {
+static ActionRule parse(const ast::ActionRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -198,7 +198,7 @@ static ActionRule parse(const stage_1::ast::ActionRule& node, const error_handle
     return make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
 }
 
-static SearchRule parse(const stage_1::ast::SearchRule& node, const error_handler_type& error_handler, Context& context) {
+static SearchRule parse(const ast::SearchRule& node, const error_handler_type& error_handler, Context& context) {
     auto memory_condition = parse(node.memory_condition, error_handler, context);
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
@@ -231,7 +231,7 @@ public:
 };
 
 static boost::variant<LoadRule, CallRule, ActionRule, SearchRule>
-parse(const stage_1::ast::Rule& node, const error_handler_type& error_handler, Context& context) {
+parse(const ast::Rule& node, const error_handler_type& error_handler, Context& context) {
     RuleEntryVisitor visitor(error_handler, context);
     boost::apply_visitor(visitor, node);
     return visitor.result;
@@ -273,7 +273,7 @@ public:
 };
 
 static std::tuple<LoadRuleList, CallRuleList, ActionRuleList, SearchRuleList>
-parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, Context& context) {
+parse(const ast::Rules& node, const error_handler_type& error_handler, Context& context) {
     auto load_rules = LoadRuleList();
     auto call_rules = CallRuleList();
     auto action_rules = ActionRuleList();
@@ -286,7 +286,7 @@ parse(const stage_1::ast::Rules& node, const error_handler_type& error_handler, 
     return {load_rules, call_rules, action_rules, search_rules};
 }
 
-ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
+ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& error_handler, Context& context) {
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);

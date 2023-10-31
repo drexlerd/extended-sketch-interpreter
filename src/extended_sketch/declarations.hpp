@@ -58,6 +58,9 @@ namespace sketches::extended_sketch {
     class ExtendedSketchImpl;
     using ExtendedSketch = std::shared_ptr<ExtendedSketchImpl>;
 
+    class ModuleImpl;
+    using Module = std::shared_ptr<ModuleImpl>;
+
     class ExtendedStateImpl;
     using ExtendedState = std::shared_ptr<ExtendedStateImpl>;
     using ExtendedStateList = std::vector<ExtendedState>;

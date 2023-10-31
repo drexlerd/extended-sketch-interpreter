@@ -1,5 +1,5 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_ERROR_HANDLER_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_ERROR_HANDLER_HPP_
+#ifndef SRC_PARSERS_SYNTACTIC_ERROR_HANDLER_HPP_
+#define SRC_PARSERS_SYNTACTIC_ERROR_HANDLER_HPP_
 
 #include <map>
 #include <iostream>
@@ -7,12 +7,18 @@
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/syntactic/error_handler.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_1
+namespace sketches::extended_sketch
 {
     namespace x3 = boost::spirit::x3;
 
     struct error_handler_extended_sketch : dlplan::policy::error_handler_policy {
         error_handler_extended_sketch() : dlplan::policy::error_handler_policy() {
+            id_map[""] = "";
+        }
+    };
+
+    struct error_handler_extended_module : error_handler_extended_sketch {
+        error_handler_extended_module() : error_handler_extended_sketch() {
             id_map[""] = "";
         }
     };

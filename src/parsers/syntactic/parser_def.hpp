@@ -1,5 +1,5 @@
-#ifndef SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_DEF_HPP_
-#define SRC_PARSERS_EXTENDED_SKETCH_STAGE_1_PARSER_DEF_HPP_
+#ifndef SRC_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
+#define SRC_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
@@ -12,7 +12,7 @@
 #include "parser_api.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
+namespace sketches::extended_sketch { namespace parser
 {
     namespace x3 = boost::spirit::x3;
     namespace ascii = boost::spirit::x3::ascii;
@@ -28,6 +28,8 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     ///////////////////////////////////////////////////////////////////////////
     // Rule IDs
     ///////////////////////////////////////////////////////////////////////////
+
+    struct SignatureClass;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -79,6 +81,13 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     extended_sketch_type const extended_sketch = "extended_sketch";
 
     extended_sketch_root_type const extended_sketch_root = "extended_sketch";
+
+    x3::rule<SignatureClass, ast::Signature> const
+        signature = "signature";
+
+    module_type const module_ = "module";
+
+    module_root_type const module_root = "module";
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -170,6 +179,20 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;
 
+    const auto signature_def = lit('(') >> lit(":signature")
+        > sketches::extended_sketch::name()
+            > lit('(')
+                >> sketches::extended_sketch::argument() % lit(',')
+            > lit(')')
+        > lit(')');
+
+    const auto module__def = lit('(') >> lit(":module")
+        > signature
+        > sketches::extended_sketch::extended_sketch()
+        > lit(')');
+    const auto module_root_def = module_;
+
+
     BOOST_SPIRIT_DEFINE(name,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
         register_, register_reference, registers,
@@ -179,14 +202,14 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         action_reference, action_rule,
         search_rule,
         rule, rules,
-        extended_sketch, extended_sketch_root)
+        extended_sketch, extended_sketch_root,
+        signature, module_, module_root)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
     ///////////////////////////////////////////////////////////////////////////
 
     struct NameClass : x3::annotate_on_success {};
-    struct QuotedStringClass : x3::annotate_on_success {};
     struct MemoryStateClass : x3::annotate_on_success {};
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesClass : x3::annotate_on_success {};
@@ -210,9 +233,14 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
     struct ExtendedSketchReferenceClass : x3::annotate_on_success {};
     struct ExtendedSketchClass : x3::annotate_on_success {};
     struct ExtendedSketchRootClass : x3::annotate_on_success, error_handler_extended_sketch {};
+
+    struct SignatureClass : x3::annotate_on_success {};
+
+    struct ModuleClass : x3::annotate_on_success {};
+    struct ModuleRootClass : x3::annotate_on_success, error_handler_extended_module {};
 }}
 
-namespace sketches::parsers::extended_sketch::stage_1
+namespace sketches::extended_sketch
 {
     parser::name_type const& name() {
         return parser::name;
@@ -314,6 +342,15 @@ namespace sketches::parsers::extended_sketch::stage_1
     parser::extended_sketch_root_type const& extended_sketch_root()
     {
         return parser::extended_sketch_root;
+    }
+
+
+    parser::module_type const& module_() {
+        return parser::module_;
+    }
+
+    parser::module_root_type const& module_root() {
+        return parser::module_root;
     }
 }
 

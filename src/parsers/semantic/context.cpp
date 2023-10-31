@@ -1,7 +1,7 @@
 #include "context.hpp"
 
 
-namespace sketches::parsers::extended_sketch::stage_2 {
+namespace sketches::extended_sketch {
 
 Context::Context(
     const mimir::formalism::DomainDescription& domain_description,
