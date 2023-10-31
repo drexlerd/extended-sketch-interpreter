@@ -68,7 +68,8 @@ int main(int argc, char** argv) {
     auto policy_factory = std::make_shared<PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
     Driver driver(domain_description, policy_factory);
-    driver.parse_sketch(read_file(sketch_file), sketch_file);
+    auto sketch = driver.parse_sketch(read_file(sketch_file), sketch_file);
+    std::cout << sketch->compute_signature() << std::endl;
     // 4. Run SIW_M
     return 0;
 }
