@@ -7,7 +7,7 @@
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
-#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_1/ast.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/syntactic/ast.hpp"
 
 
 namespace sketches::parsers::extended_sketch::stage_1::ast
@@ -90,11 +90,11 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
     /* Rules */
     struct LoadRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
+        std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
+        std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
         RegisterReference register_reference;
-        dlplan::policy::parsers::policy::stage_1::ast::ConceptReference concept_reference;
+        dlplan::policy::ast::ConceptReference concept_reference;
     };
 
     struct ExtendedSketchReference : x3::position_tagged {
@@ -126,9 +126,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct CallRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
+        std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
+        std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
         Call call;
     };
 
@@ -138,18 +138,18 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
 
     struct ActionRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
+        std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
+        std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
         ActionReference action_reference;
         std::vector<RegisterReference> register_references;
     };
 
     struct SearchRule : x3::position_tagged {
         MemoryCondition memory_condition;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureCondition> feature_conditions;
+        std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
-        std::vector<dlplan::policy::parsers::policy::stage_1::ast::FeatureEffect> feature_effects;
+        std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
     };
 
     struct Rule : x3::position_tagged,
@@ -171,9 +171,9 @@ namespace sketches::parsers::extended_sketch::stage_1::ast
         MemoryStates memory_states;
         InitialMemoryState initial_memory_state;
         Registers registers;
-        dlplan::policy::parsers::policy::stage_1::ast::Booleans booleans;
-        dlplan::policy::parsers::policy::stage_1::ast::Numericals numericals;
-        dlplan::policy::parsers::policy::stage_1::ast::Concepts concepts;
+        dlplan::policy::ast::Booleans booleans;
+        dlplan::policy::ast::Numericals numericals;
+        dlplan::policy::ast::Concepts concepts;
         Rules rules;
     };
 }

@@ -3,14 +3,14 @@
 #include <sstream>
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
-#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/parser.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/semantic/parser.hpp"
 #include "src/extended_sketch/memory_state.hpp"
 #include "src/extended_sketch/register.hpp"
 #include "src/extended_sketch/rules.hpp"
 #include "src/extended_sketch/extended_sketch.hpp"
 #include "src/extended_sketch/call.hpp"
 
-using namespace dlplan::common::parsers;
+using namespace dlplan;
 using namespace sketches::extended_sketch;
 
 
@@ -100,14 +100,14 @@ static LoadRule parse(const stage_1::ast::LoadRule& node, const error_handler_ty
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
+        feature_conditions.insert(dlplan::policy::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
+        feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto register_ = parse(node.register_reference, error_handler, context);
-    auto concept_ = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concept_reference, error_handler, context.dlplan_context);
+    auto concept_ = dlplan::policy::parse(node.concept_reference, error_handler, context.dlplan_context);
     return make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
 
@@ -160,11 +160,11 @@ static CallRule parse(const stage_1::ast::CallRule& node, const error_handler_ty
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
+        feature_conditions.insert(dlplan::policy::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
+        feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto call = parse(node.call, error_handler, context);
     return make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, call);
@@ -184,11 +184,11 @@ static ActionRule parse(const stage_1::ast::ActionRule& node, const error_handle
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
+        feature_conditions.insert(dlplan::policy::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
+        feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
     auto action_schema = parse(node.action_reference, error_handler, context);
     std::vector<Register> registers;
@@ -203,11 +203,11 @@ static SearchRule parse(const stage_1::ast::SearchRule& node, const error_handle
     auto memory_effect = parse(node.memory_effect, error_handler, context);
     ConditionSet feature_conditions;
     for (const auto& condition_node : node.feature_conditions) {
-        feature_conditions.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(condition_node, error_handler, context.dlplan_context));
+        feature_conditions.insert(dlplan::policy::parse(condition_node, error_handler, context.dlplan_context));
     }
     EffectSet feature_effects;
     for (const auto& effect_node : node.feature_effects) {
-        feature_effects.insert(dlplan::policy::parsers::policy::stage_2::parser::parse(effect_node, error_handler, context.dlplan_context));
+        feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
     return make_search_rule(memory_condition, memory_effect, feature_conditions, feature_effects);
 }
@@ -290,9 +290,9 @@ ExtendedSketch parse(const stage_1::ast::ExtendedSketch& node, const error_handl
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);
-    auto booleans = dlplan::policy::parsers::policy::stage_2::parser::parse(node.booleans, error_handler, context.dlplan_context);
-    auto numericals = dlplan::policy::parsers::policy::stage_2::parser::parse(node.numericals, error_handler, context.dlplan_context);
-    auto concepts = dlplan::policy::parsers::policy::stage_2::parser::parse(node.concepts, error_handler, context.dlplan_context);
+    auto booleans = dlplan::policy::parse(node.booleans, error_handler, context.dlplan_context);
+    auto numericals = dlplan::policy::parse(node.numericals, error_handler, context.dlplan_context);
+    auto concepts = dlplan::policy::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
     return make_extended_sketch(
         memory_states, initial_memory_state,

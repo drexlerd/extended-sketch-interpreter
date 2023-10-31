@@ -29,8 +29,8 @@ public:
 
     /// @brief Nested call.
     sketches::module::Module parse(
-         dlplan::common::parsers::iterator_type& iter,
-         dlplan::common::parsers::iterator_type end,
+         dlplan::iterator_type& iter,
+         dlplan::iterator_type end,
          const std::string& filename="");
 };
 

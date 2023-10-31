@@ -8,7 +8,7 @@
 #include "stage_2/parser.hpp"
 
 
-using namespace dlplan::common::parsers;
+using namespace dlplan;
 using namespace sketches::extended_sketch;
 
 

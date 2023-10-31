@@ -9,7 +9,7 @@
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
-#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_2/context.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/semantic/context.hpp"
 
 #include "src/extended_sketch/declarations.hpp"
 #include "src/parsers/extended_sketch/stage_1/ast.hpp"
@@ -23,7 +23,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         std::map<std::string, mimir::formalism::ActionSchema> action_schema_map;
 
         // Dlplan context
-        dlplan::policy::parsers::policy::stage_2::parser::Context dlplan_context;
+        dlplan::policy::Context dlplan_context;
 
         // Our context
         std::unordered_map<std::string, sketches::extended_sketch::Register> registers;
@@ -38,7 +38,7 @@ namespace sketches::parsers::extended_sketch::stage_2 {
         Context(
             const mimir::formalism::DomainDescription& domain_description,
             const std::shared_ptr<dlplan::policy::PolicyFactory>& policy_factory,
-            dlplan::policy::parsers::policy::stage_2::parser::Context& dlplan_context,
+            dlplan::policy::Context& dlplan_context,
             std::unordered_map<std::string, sketches::extended_sketch::Register>& registers,
             std::unordered_map<std::string, sketches::extended_sketch::MemoryState>& memory_states);
     };

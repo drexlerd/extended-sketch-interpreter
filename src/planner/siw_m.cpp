@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     auto policy_factory = std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
     sketches::parsers::module::Driver driver(domain_description, policy_factory);
-    driver.parse(dlplan::common::parsers::read_file(sketch_file), sketch_file);
+    driver.parse(dlplan::read_file(sketch_file), sketch_file);
     // 4. Run SIW_M
     return 0;
 }

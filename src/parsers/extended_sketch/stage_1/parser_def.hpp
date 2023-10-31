@@ -4,7 +4,7 @@
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
 
-#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/policy/stage_1/parser.hpp"
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy/parsers/syntactic/parser.hpp"
 
 #include "error_handler.hpp"
 #include "ast.hpp"
@@ -103,12 +103,12 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         lit('(') >> lit(":load_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition
-                >> *dlplan::policy::parsers::policy::stage_1::feature_condition()
+                >> *dlplan::policy::feature_condition()
             > lit(')')
             > lit('(') > lit(":effects")
                 > memory_effect
-                >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
-                > lit('(') > lit(":load") > lit('(') > register_reference > dlplan::policy::parsers::policy::stage_1::concept_reference() > lit(')') > lit(')')
+                >> *dlplan::policy::feature_effect()
+                > lit('(') > lit(":load") > lit('(') > register_reference > dlplan::policy::concept_reference() > lit(')') > lit(')')
             > lit(')')
         > lit(')');
 
@@ -120,11 +120,11 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition
-                >> *dlplan::policy::parsers::policy::stage_1::feature_condition()
+                >> *dlplan::policy::feature_condition()
             > lit(')')
             > lit('(') > lit(":effects")
                 > memory_effect
-                >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
+                >> *dlplan::policy::feature_effect()
                 > call
             > lit(')')
         > lit(')');
@@ -134,11 +134,11 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition
-                >> *dlplan::policy::parsers::policy::stage_1::feature_condition()
+                >> *dlplan::policy::feature_condition()
             > lit(')')
             > lit('(') > lit(":effects")
                 > memory_effect
-                >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
+                >> *dlplan::policy::feature_effect()
                 > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
             > lit(')')
         > lit(')');
@@ -147,10 +147,10 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         lit('(') >> lit(":search_rule")
             > lit('(') > lit(":conditions")
                 > memory_condition
-                >> *dlplan::policy::parsers::policy::stage_1::feature_condition() > lit(')')
+                >> *dlplan::policy::feature_condition() > lit(')')
             > lit('(') > lit(":effects")
                 > memory_effect
-                >> *dlplan::policy::parsers::policy::stage_1::feature_effect()
+                >> *dlplan::policy::feature_effect()
             > lit(')')
         > lit(')');
 
@@ -163,9 +163,9 @@ namespace sketches::parsers::extended_sketch::stage_1 { namespace parser
         > memory_states
         > initial_memory_state
         >> registers
-        >> dlplan::policy::parsers::policy::stage_1::booleans()
-        >> dlplan::policy::parsers::policy::stage_1::numericals()
-        >> dlplan::policy::parsers::policy::stage_1::concepts()
+        >> dlplan::policy::booleans()
+        >> dlplan::policy::numericals()
+        >> dlplan::policy::concepts()
         >> rules
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;

@@ -11,7 +11,7 @@
 #include "ast.hpp"
 #include "parser_api.hpp"
 
-using namespace dlplan::common::parsers;
+using namespace dlplan;
 
 
 namespace sketches::parsers::module::stage_1::parser {

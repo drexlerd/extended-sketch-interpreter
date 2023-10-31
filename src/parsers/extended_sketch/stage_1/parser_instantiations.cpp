@@ -2,7 +2,7 @@
 
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/config.hpp"
 
-using namespace dlplan::common::parsers;
+using namespace dlplan;
 
 
 namespace sketches::parsers::extended_sketch::stage_1::parser
