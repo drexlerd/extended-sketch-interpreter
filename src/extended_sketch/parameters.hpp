@@ -17,11 +17,11 @@ using ParameterList = std::vector<Parameter>;
 
 class ParameterRegister {
 private:
-    std::string m_name;
+    Register m_register;
 
 public:
     ParameterRegister();
-    ParameterRegister(const std::string& name_);
+    ParameterRegister(const Register& register_);
 
     std::string compute_signature() const;
 };
@@ -29,11 +29,14 @@ public:
 
 class ParameterConcept {
 private:
-    std::string m_name;
+    // Hack: We modify the named concept by removing its const.
+    // This is not an issue from the perspective of caching concepts in the factory
+    // because they are cached with by the key and not by the representation of the feature.
+    Concept m_concept;
 
 public:
     ParameterConcept();
-    ParameterConcept(const std::string& name_);
+    ParameterConcept(const Concept& concept_);
 
     std::string compute_signature() const;
 };

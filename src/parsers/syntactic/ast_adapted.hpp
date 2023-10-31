@@ -35,8 +35,8 @@ BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::SearchRule, memory_con
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Rules, rules)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ExtendedSketch, memory_states, initial_memory_state, registers, booleans, numericals, concepts, rules)
 
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ParameterRegister, name)
-BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ParameterConcept, name)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ParameterRegister, definition)
+BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::ParameterConcept, definition)
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Signature, name, parameters)
 
 BOOST_FUSION_ADAPT_STRUCT(sketches::extended_sketch::ast::Module, signature, extended_sketch)

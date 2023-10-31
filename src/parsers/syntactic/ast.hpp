@@ -178,11 +178,11 @@ namespace sketches::extended_sketch::ast
 
     /* Signature entry */
     struct ParameterRegister : x3::position_tagged {
-        Name name;
+        Register definition;
     };
 
     struct ParameterConcept : x3::position_tagged {
-        Name name;
+        dlplan::policy::ast::ConceptDefinition definition;
     };
 
     struct Parameter : x3::position_tagged,

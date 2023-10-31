@@ -65,16 +65,17 @@ int main(int argc, char** argv) {
     auto vocabulary_info = construct_vocabulary_info(domain_description);
     auto instance_info = construct_instance_info(vocabulary_info, problem_description);
     auto element_factory = make_shared<SyntacticElementFactory>(vocabulary_info);
-    auto policy_factory = make_shared<PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
-    Driver driver(domain_description, policy_factory);
     const auto source = read_file(sketch_file);
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
+    error_handler_type error_handler(iter, end, std::cerr, sketch_file);
     ModuleList modules;
     while (iter != end) {
+        auto policy_factory = make_shared<PolicyFactory>(element_factory);
+        Driver driver(domain_description, policy_factory);
         sketches::extended_sketch::Context context(domain_description, policy_factory);
-        auto module_ = driver.parse_module(iter, end, context, sketch_file);
+        auto module_ = driver.parse_module(iter, end, error_handler, context, sketch_file);
         modules.push_back(module_);
         cout << module_->compute_signature() << endl;
     }

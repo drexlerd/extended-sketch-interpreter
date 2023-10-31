@@ -306,18 +306,14 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
 
 
 static ParameterRegister parse(const ast::ParameterRegister& node, const error_handler_type& error_handler, Context& context) {
-    const auto name = parse(node.name, error_handler, context);
-    return ParameterRegister(parse(node.name, error_handler, context));
+    return ParameterRegister(parse(node.definition, error_handler, context));
 }
 
 static ParameterConcept parse(const ast::ParameterConcept& node, const error_handler_type& error_handler, Context& context) {
-    const auto name = parse(node.name, error_handler, context);
-    dlplan::policy::ast::Concept empty_node;
-    empty_node.id_first = node.id_first;
-    empty_node.id_last = node.id_last;
-    auto empty_concept = Concept(nullptr);
-    context.dlplan_context.concepts.emplace(name, dlplan::policy::NamedConceptData{ empty_node, empty_concept });
-    return ParameterConcept(parse(node.name, error_handler, context));
+    const auto definition = parse(node.definition, error_handler, context.dlplan_context);
+    const auto named_concept = context.dlplan_context.concepts.emplace(definition, dlplan::policy::NamedConceptData{ node.definition,
+        context.dlplan_context.policy_factory.make_concept(definition, nullptr) }).first->second.result;
+    return ParameterConcept(named_concept);
 }
 
 class ParameterVisitor {

@@ -31,6 +31,7 @@ public:
     ExtendedSketch parse_sketch(
         dlplan::iterator_type& iter,
         dlplan::iterator_type end,
+        dlplan::error_handler_type& error_handler,
         Context& context,
         const std::string& filename="");
 
@@ -44,6 +45,7 @@ public:
     Module parse_module(
         dlplan::iterator_type& iter,
         dlplan::iterator_type end,
+        dlplan::error_handler_type& error_handler,
         Context& context,
         const std::string& filename="");
 };

@@ -188,8 +188,8 @@ namespace sketches::extended_sketch { namespace parser
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;
 
-    const auto parameter_register_def = lit(":register") > name;
-    const auto parameter_concept_def = lit(":concept") > name;
+    const auto parameter_register_def = lit(":register") > register_;
+    const auto parameter_concept_def = lit(":concept") > dlplan::policy::concept_definition();
     const auto parameter_def = parameter_register | parameter_concept;
     const auto signature_def = lit('(') >> lit(":signature")
         > name
