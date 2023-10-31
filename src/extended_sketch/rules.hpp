@@ -5,7 +5,6 @@
 
 #include "src/external/mimir-iw/src/private/formalism/action_schema.hpp"
 
-#include "symbol_factory.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
 #include "call.hpp"
