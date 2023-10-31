@@ -8,7 +8,7 @@
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/extended_sketch/declarations.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/common/parsers/config.hpp"
-
+#include "semantic/context.hpp"
 
 namespace sketches::extended_sketch {
 
@@ -31,6 +31,7 @@ public:
     ExtendedSketch parse_sketch(
         dlplan::iterator_type& iter,
         dlplan::iterator_type end,
+        Context& context,
         const std::string& filename="");
 
 
@@ -43,6 +44,7 @@ public:
     Module parse_module(
         dlplan::iterator_type& iter,
         dlplan::iterator_type end,
+        Context& context,
         const std::string& filename="");
 };
 

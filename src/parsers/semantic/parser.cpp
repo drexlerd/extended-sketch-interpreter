@@ -9,6 +9,8 @@
 #include "src/extended_sketch/rules.hpp"
 #include "src/extended_sketch/extended_sketch.hpp"
 #include "src/extended_sketch/call.hpp"
+#include "src/extended_sketch/signature.hpp"
+#include "src/extended_sketch/module.hpp"
 
 using namespace dlplan;
 using namespace sketches::extended_sketch;
@@ -45,11 +47,11 @@ static MemoryState parse(const ast::MemoryStateReference& node, const error_hand
     return it->second;
 }
 
-static std::vector<MemoryState> parse(const ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
-    std::vector<MemoryState> memory_states;
+static MemoryStateMap parse(const ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
+    MemoryStateMap memory_states;
     for (const auto& child : node.definitions) {
         auto memory_state = parse(child, error_handler, context);
-        memory_states.push_back(memory_state);
+        memory_states.emplace(memory_state->compute_signature(), memory_state);
     }
     return memory_states;
 }
@@ -78,10 +80,11 @@ static Register parse(const ast::RegisterReference& node, const error_handler_ty
     return it->second;
 }
 
-static std::vector<Register> parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
-    std::vector<Register> registers;
+static RegisterMap parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
+    RegisterMap registers;
     for (const auto& child : node.definitions) {
-        registers.push_back(parse(child, error_handler, context));
+        auto register_ = parse(child, error_handler, context);
+        registers.emplace(register_->compute_signature(), register_);
     }
     return registers;
 }
@@ -300,6 +303,22 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules
     );
+}
+
+
+static Signature parse(const ast::Signature& node, const error_handler_type& error_handler, Context& context) {
+    const auto name = parse(node.name, error_handler, context);
+    ArgumentList arguments;
+    for (const auto& child_node : node.arguments) {
+        arguments.push_back(parse(child_node, error_handler, context));
+    }
+    return Signature(name, arguments);
+}
+
+Module parse(const ast::Module& node, const dlplan::error_handler_type& error_handler, Context& context) {
+    auto signature = parse(node.signature, error_handler, context);
+    auto extended_sketch = parse(node.extended_sketch, error_handler, context);
+    return make_module(signature, extended_sketch);
 }
 
 }

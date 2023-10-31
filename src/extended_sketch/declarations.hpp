@@ -34,10 +34,12 @@ namespace sketches::extended_sketch {
     class RegisterImpl;
     using Register = std::shared_ptr<RegisterImpl>;
     using RegisterList = std::vector<Register>;
+    using RegisterMap = std::unordered_map<std::string, Register>;
 
     class MemoryStateImpl;
     using MemoryState = std::shared_ptr<MemoryStateImpl>;
     using MemoryStateList = std::vector<MemoryState>;
+    using MemoryStateMap = std::unordered_map<std::string, MemoryState>;
 
     class LoadRuleImpl;
     using LoadRule = std::shared_ptr<LoadRuleImpl>;

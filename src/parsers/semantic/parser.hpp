@@ -18,6 +18,11 @@ extern ExtendedSketch parse(
     const dlplan::error_handler_type& error_handler,
     Context& context);
 
+extern Module parse(
+    const ast::Module& node,
+    const dlplan::error_handler_type& error_handler,
+    Context& context);
+
 }
 
 #endif

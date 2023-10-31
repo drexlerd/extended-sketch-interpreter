@@ -1,12 +1,17 @@
 #include "extended_sketch.hpp"
 
+#include "declarations.hpp"
+#include "memory_state.hpp"
+#include "register.hpp"
+#include "rules.hpp"
+
 
 namespace sketches::extended_sketch {
 
 ExtendedSketchImpl::ExtendedSketchImpl(
-    const MemoryStateList& memory_states,
+    const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterList& registers,
+    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
@@ -27,13 +32,54 @@ ExtendedSketchImpl::ExtendedSketchImpl(
 }
 
 std::string ExtendedSketchImpl::compute_signature() const {
-    return "";
+    std::stringstream ss;
+    ss << "(:extended_sketch\n"
+       << "(:memory_states ";
+    for (const auto& pair : m_memory_states) {
+        ss << pair.second->compute_signature() << " ";
+    }
+    ss << ")\n";  // memory_states
+    ss << "(:initial_memory-state " << m_initial_memory_state->compute_signature() << ")\n";
+    ss << "(:registers ";
+    for (const auto& pair : m_registers) {
+        ss << pair.second->compute_signature() << " ";
+    }
+    ss << ")\n";  // register
+    ss << "(:booleans ";
+    for (const auto& pair : m_booleans) {
+        ss << "(" << pair.first << " \"" << pair.second->get_boolean()->compute_repr() << "\") ";
+    }
+    ss << ")\n";  // booleans
+    ss << "(:numericals ";
+    for (const auto& pair : m_numericals) {
+        ss << "(" << pair.first << " \"" << pair.second->get_numerical()->compute_repr() << "\") ";
+    }
+    ss << ")\n";  // numericals
+    ss << "(:concepts ";
+    for (const auto& pair : m_concepts) {
+        ss << "(" << pair.first << " \"" << pair.second->get_concept()->compute_repr() << "\") ";
+    }
+    ss << ")\n";  // concepts
+    for (const auto& load_rule : m_load_rules) {
+        ss << load_rule->compute_signature() << "\n";
+    }
+    for (const auto& call_rule : m_call_rules) {
+        ss << call_rule->compute_signature() << "\n";
+    }
+    for (const auto& action_rule : m_action_rules) {
+        ss << action_rule->compute_signature() << "\n";
+    }
+    for (const auto& search_rule : m_search_rules) {
+        ss << search_rule->compute_signature() << "\n";
+    }
+    ss << ")";  // extended_sketch
+    return ss.str();
 }
 
 ExtendedSketch make_extended_sketch(
-    const MemoryStateList& memory_states,
+    const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterList& registers,
+    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,

@@ -27,12 +27,15 @@ ExtendedSketch Driver::parse_sketch(
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
 
-    return parse_sketch(iter, end, filename);
+    Context context(domain_description, policy_factory);
+
+    return parse_sketch(iter, end, context, filename);
 }
 
 ExtendedSketch Driver::parse_sketch(
     iterator_type& iter,
     iterator_type end,
+    Context& context,
     const std::string& filename) {
 
     // Our error handler
@@ -42,7 +45,6 @@ ExtendedSketch Driver::parse_sketch(
     auto root_node = parse_sketch_ast(iter, end, error_handler);
 
     // Stage 2 parse
-    Context context(domain_description, policy_factory);
     auto sketch = parse(root_node, error_handler, context);
 
     return sketch;
@@ -56,12 +58,15 @@ Module Driver::parse_module(
     iterator_type iter(source.begin());
     iterator_type const end(source.end());
 
-    return parse_module(iter, end, filename);
+    Context context(domain_description, policy_factory);
+
+    return parse_module(iter, end, context, filename);
 }
 
 Module Driver::parse_module(
     iterator_type& iter,
     iterator_type end,
+    Context& context,
     const std::string& filename) {
 
     // Our error handler
@@ -71,10 +76,9 @@ Module Driver::parse_module(
     auto root_node = parse_module_ast(iter, end, error_handler);
 
     // Stage 2 parse
-    //stage_2::Context context(domain_description, policy_factory);
-    //auto sketch = stage_2::parser::parse(root_node, error_handler, context);
+    auto module_ = parse(root_node, error_handler, context);
 
-    return nullptr;
+    return module_;
 }
 
 }

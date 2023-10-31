@@ -58,19 +58,19 @@ LoadRuleImpl::LoadRuleImpl(
 LoadRuleImpl::~LoadRuleImpl() = default;
 
 void LoadRuleImpl::compute_signature(std::stringstream& out) const {
-    out << "(:rule "
+    out << "(:load_rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->name << ")";
+    out << "(:memory " << m_memory_state_condition->name << ") ";
     for (const auto& condition : m_feature_conditions) {
-        out << condition->compute_repr();
+        out << condition->str();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->name << ")";
+    out << "(:memory " << m_memory_state_effect->name << ") ";
     for (const auto& effect : m_feature_effects) {
-        out << effect->compute_repr();
+        out << effect->str();
     }
-    out << "(:load " << m_register->name << " " << m_concept->get_key() << ")";
+    out << "(:load " << m_register->name << " " << m_concept->get_key() << ") ";
     out << ")";  // effects
     out << ")";  // rule
 }
@@ -102,16 +102,16 @@ CallRuleImpl::CallRuleImpl(
 CallRuleImpl::~CallRuleImpl() = default;
 
 void CallRuleImpl::compute_signature(std::stringstream& out) const {
-    out << "(:rule "
+    out << "(:call_rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->name << ")";
+    out << "(:memory " << m_memory_state_condition->name << ") ";
     for (const auto& condition : m_feature_conditions) {
-        out << condition->compute_repr();
+        out << condition->str();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->name << ")";
-    out << "(:call " << m_call.compute_signature() << ")";
+    out << "(:memory " << m_memory_state_effect->name << ") ";
+    out << "(:call " << m_call.compute_signature() << ") ";
     out << ")";  // effects
     out << ")";  // rule
 }
@@ -143,16 +143,16 @@ ActionRuleImpl::ActionRuleImpl(
 ActionRuleImpl::~ActionRuleImpl() = default;
 
 void ActionRuleImpl::compute_signature(std::stringstream& out) const {
-    out << "(:rule "
+    out << "(:action_rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->name << ")";
+    out << "(:memory " << m_memory_state_condition->name << ") ";
     for (const auto& condition : m_feature_conditions) {
-        out << condition->compute_repr();
+        out << condition->str();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->name << ")";
-    out << "(:action_name " << m_action_schema->name << ")";
+    out << "(:memory " << m_memory_state_effect->name << ") ";
+    out << "(:action_name " << m_action_schema->name << ") ";
     out << "(:registers ";
     for (const auto& argument : m_arguments) {
         out << argument->name << " ";
@@ -186,17 +186,17 @@ SearchRuleImpl::SearchRuleImpl(
 SearchRuleImpl::~SearchRuleImpl() = default;
 
 void SearchRuleImpl::compute_signature(std::stringstream& out) const {
-    out << "(:rule "
+    out << "(:search_rule "
         << "(:conditions ";
-    out << "(:memory " << m_memory_state_condition->name << ")";
+    out << "(:memory " << m_memory_state_condition->name << ") ";
     for (const auto& condition : m_feature_conditions) {
-        out << condition->compute_repr();
+        out << condition->str();
     }
     out << ")";  // conditions
     out << "(:effects ";
-    out << "(:memory " << m_memory_state_effect->name << ")";
+    out << "(:memory " << m_memory_state_effect->name << ") ";
     for (const auto& effect : m_feature_effects) {
-        out << effect->compute_repr();
+        out << effect->str();
     }
     out << ")";  // effects
     out << ")";  // rule

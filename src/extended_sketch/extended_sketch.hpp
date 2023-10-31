@@ -11,10 +11,10 @@ namespace sketches::extended_sketch {
 
 class ExtendedSketchImpl {
 private:
-    MemoryStateList m_memory_states;
+    MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
 
-    RegisterList m_registers;
+    RegisterMap m_registers;
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
@@ -27,9 +27,9 @@ private:
 
 public:
     ExtendedSketchImpl(
-        const MemoryStateList& memory_states,
+        const MemoryStateMap& memory_states,
         const MemoryState& initial_memory_state,
-        const RegisterList& registers,
+        const RegisterMap& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
@@ -42,9 +42,9 @@ public:
 };
 
 extern ExtendedSketch make_extended_sketch(
-    const MemoryStateList& memory_states,
+    const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterList& registers,
+    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,

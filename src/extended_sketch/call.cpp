@@ -24,7 +24,7 @@ std::string Call::compute_signature() const {
         if (i != 0) {
             ss << ",";
         }
-        std::visit([&](auto&& arg){ ss << arg.get_type_name(); }, arguments[i]);
+        std::visit([&](auto&& arg){ ss << arg.get_type_name() << " " << arg.get_value_name(); }, arguments[i]);
     }
     ss << ")";
     return ss.str();

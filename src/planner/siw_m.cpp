@@ -7,7 +7,7 @@
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/external/mimir-iw/src/private/pddl/pddl_parser.hpp"
 
-#include "src/module/module.hpp"
+#include "src/extended_sketch/module.hpp"
 #include "src/parsers/driver.hpp"
 
 
@@ -61,7 +61,8 @@ int main(int argc, char** argv) {
     auto policy_factory = std::make_shared<dlplan::policy::PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
     sketches::extended_sketch::Driver driver(domain_description, policy_factory);
-    driver.parse_module(dlplan::read_file(sketch_file), sketch_file);
+    auto module_ = driver.parse_module(dlplan::read_file(sketch_file), sketch_file);
+    std::cout << module_->compute_signature() << std::endl;
     // 4. Run SIW_M
     return 0;
 }

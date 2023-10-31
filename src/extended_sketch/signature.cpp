@@ -21,10 +21,8 @@ std::string Signature::compute_signature() const {
     ss << name
        << "(";
     for (size_t i = 0; i < arguments.size(); ++i) {
-        if (i != 0) {
-            ss << ",";
-        }
-        std::visit([&](auto&& arg){ ss << arg.get_type_name(); }, arguments[i]);
+        if (i != 0) ss << ",";
+        std::visit([&](auto&& arg){ ss << arg.get_type_name() << " " << arg.get_value_name(); }, arguments[i]);
     }
     ss << ")";
     return ss.str();
