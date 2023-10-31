@@ -11,6 +11,7 @@
 #include "src/extended_sketch/call.hpp"
 #include "src/extended_sketch/signature.hpp"
 #include "src/extended_sketch/module.hpp"
+#include "src/extended_sketch/parameters.hpp"
 
 using namespace dlplan;
 using namespace sketches::extended_sketch;
@@ -32,9 +33,10 @@ static MemoryState parse(const ast::MemoryState& node, const error_handler_type&
     const auto it = context.memory_states.find(key);
     if (it != context.memory_states.end()) {
         error_handler(node, "Multiple definitions of memory state " + key);
+        error_handler(it->second.node, "Previous definition: ");
         throw std::runtime_error("Failed parse.");
     }
-    return context.memory_states.emplace(key, make_memory_state(key)).first->second;
+    return context.memory_states.emplace(key, Data<ast::MemoryState, MemoryState>{ node, make_memory_state(key) }).first->second.result;
 }
 
 static MemoryState parse(const ast::MemoryStateReference& node, const error_handler_type& error_handler, Context& context) {
@@ -44,7 +46,7 @@ static MemoryState parse(const ast::MemoryStateReference& node, const error_hand
         error_handler(node, "Undefined memory state " + key);
         throw std::runtime_error("Failed parse.");
     }
-    return it->second;
+    return it->second.result;
 }
 
 static MemoryStateMap parse(const ast::MemoryStates& node, const error_handler_type& error_handler, Context& context) {
@@ -65,9 +67,10 @@ static Register parse(const ast::Register& node, const error_handler_type& error
     const auto it = context.registers.find(key);
     if (it != context.registers.end()) {
         error_handler(node, "Multiple definitions of register " + key);
+        error_handler(it->second.node, "Previous definition: ");
         throw std::runtime_error("Failed parse.");
     }
-    return context.registers.emplace(key, make_register(key)).first->second;
+    return context.registers.emplace(key, Data<ast::Register, Register>{ node, make_register(key)} ).first->second.result;
 }
 
 static Register parse(const ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
@@ -77,7 +80,7 @@ static Register parse(const ast::RegisterReference& node, const error_handler_ty
         error_handler(node, "Undefined register " + key);
         throw std::runtime_error("Failed parse.");
     }
-    return it->second;
+    return it->second.result;
 }
 
 static RegisterMap parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
@@ -115,15 +118,11 @@ static LoadRule parse(const ast::LoadRule& node, const error_handler_type& error
 }
 
 static ArgumentRegister parse(const ast::ArgumentRegister& node, const error_handler_type& error_handler, Context& context) {
-    return ArgumentRegister(
-        node.type_name,
-        parse(node.value_name, error_handler, context));
+    return ArgumentRegister(parse(node.reference, error_handler, context));
 }
 
 static ArgumentConcept parse(const ast::ArgumentConcept& node, const error_handler_type& error_handler, Context& context) {
-    return ArgumentConcept(
-        node.type_name,
-        parse(node.value_name, error_handler, context));
+    return ArgumentConcept(dlplan::policy::parse(node.reference, error_handler, context.dlplan_context));
 }
 
 class ArgumentVisitor {
@@ -306,13 +305,52 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
 }
 
 
+static ParameterRegister parse(const ast::ParameterRegister& node, const error_handler_type& error_handler, Context& context) {
+    const auto name = parse(node.name, error_handler, context);
+    return ParameterRegister(parse(node.name, error_handler, context));
+}
+
+static ParameterConcept parse(const ast::ParameterConcept& node, const error_handler_type& error_handler, Context& context) {
+    const auto name = parse(node.name, error_handler, context);
+    dlplan::policy::ast::Concept empty_node;
+    empty_node.id_first = node.id_first;
+    empty_node.id_last = node.id_last;
+    auto empty_concept = Concept(nullptr);
+    context.dlplan_context.concepts.emplace(name, dlplan::policy::NamedConceptData{ empty_node, empty_concept });
+    return ParameterConcept(parse(node.name, error_handler, context));
+}
+
+class ParameterVisitor {
+private:
+    const error_handler_type& error_handler;
+    Context& context;
+
+public:
+    Parameter result;
+
+    ParameterVisitor(const error_handler_type& error_handler, Context& context)
+        : error_handler(error_handler), context(context) { }
+
+    template<typename Node>
+    void operator()(const Node& node) {
+        result = parse(node, error_handler, context);
+    }
+};
+
+static Parameter parse(const ast::Parameter& node, const error_handler_type& error_handler, Context& context) {
+    ParameterVisitor visitor(error_handler, context);
+    boost::apply_visitor(visitor, node);
+    return visitor.result;
+}
+
+
 static Signature parse(const ast::Signature& node, const error_handler_type& error_handler, Context& context) {
     const auto name = parse(node.name, error_handler, context);
-    ArgumentList arguments;
-    for (const auto& child_node : node.arguments) {
-        arguments.push_back(parse(child_node, error_handler, context));
+    ParameterList parameters;
+    for (const auto& child_node : node.parameters) {
+        parameters.push_back(parse(child_node, error_handler, context));
     }
-    return Signature(name, arguments);
+    return Signature(name, parameters);
 }
 
 Module parse(const ast::Module& node, const dlplan::error_handler_type& error_handler, Context& context) {

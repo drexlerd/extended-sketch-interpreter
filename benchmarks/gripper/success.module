@@ -12,7 +12,7 @@
     )
 )
 (:module
-    (:signature gripper(:register r0, :concept c0))
+    (:signature gripper(:register r0, :concept c1))
     (:extended_sketch
         (:memory_states (m0 m1 m2))
         (:initial_memory_state m0)

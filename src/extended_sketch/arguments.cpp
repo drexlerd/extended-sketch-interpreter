@@ -1,28 +1,29 @@
 #include "arguments.hpp"
 
+#include "register.hpp"
+
 
 namespace sketches::extended_sketch {
 
-BaseArgument::BaseArgument() : m_type_name(""), m_value_name("") { }
 
-BaseArgument::BaseArgument(const std::string& type_name, const std::string& value_name)
-    : m_type_name(type_name), m_value_name(value_name) { }
+ArgumentRegister::ArgumentRegister()
+    : m_register(nullptr) { }
 
-BaseArgument::~BaseArgument() = default;
+ArgumentRegister::ArgumentRegister(const Register& register_)
+    : m_register(register_) { }
 
-const std::string& BaseArgument::get_type_name() const {
-    return m_type_name;
+std::string ArgumentRegister::compute_signature() const {
+    return ":register " + m_register->compute_signature();
 }
 
-const std::string& BaseArgument::get_value_name() const {
-    return m_value_name;
+ArgumentConcept::ArgumentConcept()
+    : m_concept(nullptr) { }
+
+ArgumentConcept::ArgumentConcept(const Concept& concept_)
+    : m_concept(concept_) { }
+
+std::string ArgumentConcept::compute_signature() const {
+    return ":register " + m_concept->get_key();
 }
-
-
-ArgumentRegister::ArgumentRegister(const std::string& type_name, const std::string& value_name)
-    : BaseArgument(type_name, value_name) { }
-
-ArgumentConcept::ArgumentConcept(const std::string& type_name, const std::string& value_name)
-    : BaseArgument(type_name, value_name) { }
 
 }

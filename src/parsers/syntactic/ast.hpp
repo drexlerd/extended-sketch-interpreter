@@ -102,13 +102,11 @@ namespace sketches::extended_sketch::ast
     };
 
     struct ArgumentRegister : x3::position_tagged {
-        std::string type_name;
-        Name value_name;
+        RegisterReference reference;
     };
 
     struct ArgumentConcept : x3::position_tagged {
-        std::string type_name;
-        Name value_name;
+        dlplan::policy::ast::ConceptReference reference;
     };
 
     struct Argument : x3::position_tagged,
@@ -179,9 +177,25 @@ namespace sketches::extended_sketch::ast
 
 
     /* Signature entry */
+    struct ParameterRegister : x3::position_tagged {
+        Name name;
+    };
+
+    struct ParameterConcept : x3::position_tagged {
+        Name name;
+    };
+
+    struct Parameter : x3::position_tagged,
+        x3::variant<
+            x3::forward_ast<ParameterRegister>,
+            x3::forward_ast<ParameterConcept>> {
+        using base_type::base_type;
+        using base_type::operator=;
+    };
+
     struct Signature : x3::position_tagged {
         Name name;
-        std::vector<Argument> arguments;
+        std::vector<Parameter> parameters;
     };
 
     struct Module : x3::position_tagged {

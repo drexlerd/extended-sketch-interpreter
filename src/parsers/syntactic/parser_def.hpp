@@ -29,6 +29,9 @@ namespace sketches::extended_sketch { namespace parser
     // Rule IDs
     ///////////////////////////////////////////////////////////////////////////
 
+    struct ParameterRegisterClass;
+    struct ParameterConceptClass;
+    struct ParameterClass;
     struct SignatureClass;
 
 
@@ -82,6 +85,12 @@ namespace sketches::extended_sketch { namespace parser
 
     extended_sketch_root_type const extended_sketch_root = "extended_sketch";
 
+    x3::rule<ParameterRegisterClass, ast::ParameterRegister> const parameter_register = "parameter_register";
+
+    x3::rule<ParameterConceptClass, ast::ParameterConcept> const parameter_concept = "parameter_concept";
+
+    x3::rule<ParameterClass, ast::Parameter> const parameter = "parameter";
+
     x3::rule<SignatureClass, ast::Signature> const
         signature = "signature";
 
@@ -121,8 +130,8 @@ namespace sketches::extended_sketch { namespace parser
             > lit(')')
         > lit(')');
 
-    const auto argument_register_def = x3::string(":register") > name;
-    const auto argument_concept_def = x3::string(":concept") > name;
+    const auto argument_register_def = lit(":register") > register_reference;
+    const auto argument_concept_def = lit(":concept") > dlplan::policy::concept_reference();
     const auto argument_def = argument_register | argument_concept;
     const auto call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
@@ -179,16 +188,19 @@ namespace sketches::extended_sketch { namespace parser
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;
 
+    const auto parameter_register_def = lit(":register") > name;
+    const auto parameter_concept_def = lit(":concept") > name;
+    const auto parameter_def = parameter_register | parameter_concept;
     const auto signature_def = lit('(') >> lit(":signature")
-        > sketches::extended_sketch::name()
+        > name
             > lit('(')
-                >> sketches::extended_sketch::argument() % lit(',')
+                >> parameter % lit(',')
             > lit(')')
         > lit(')');
 
     const auto module__def = lit('(') >> lit(":module")
         > signature
-        > sketches::extended_sketch::extended_sketch()
+        > extended_sketch
         > lit(')');
     const auto module_root_def = module_;
 
@@ -203,6 +215,7 @@ namespace sketches::extended_sketch { namespace parser
         search_rule,
         rule, rules,
         extended_sketch, extended_sketch_root,
+        parameter_register, parameter_concept, parameter,
         signature, module_, module_root)
 
     ///////////////////////////////////////////////////////////////////////////
@@ -234,6 +247,9 @@ namespace sketches::extended_sketch { namespace parser
     struct ExtendedSketchClass : x3::annotate_on_success {};
     struct ExtendedSketchRootClass : x3::annotate_on_success, error_handler_extended_sketch {};
 
+    struct ParameterRegisterClass : x3::annotate_on_success {};
+    struct ParameterConceptClass : x3::annotate_on_success {};
+    struct ParameterClass : x3::annotate_on_success {};
     struct SignatureClass : x3::annotate_on_success {};
 
     struct ModuleClass : x3::annotate_on_success {};

@@ -16,6 +16,13 @@
 
 
 namespace sketches::extended_sketch {
+    template<typename Node, typename Result>
+    struct Data {
+        Node node;
+        Result result;
+    };
+
+
     /// @brief Provides additional context during parsing.
     struct Context {
         // Mimir context
@@ -26,8 +33,8 @@ namespace sketches::extended_sketch {
         dlplan::policy::Context dlplan_context;
 
         // Our context
-        std::unordered_map<std::string, Register> registers;
-        std::unordered_map<std::string, MemoryState> memory_states;
+        std::unordered_map<std::string, Data<ast::Register, Register>> registers;
+        std::unordered_map<std::string, Data<ast::MemoryState, MemoryState>> memory_states;
 
         /// @brief Constructor for parsing an extended sketch
         Context(

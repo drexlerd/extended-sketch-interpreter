@@ -3,20 +3,20 @@
 
 #include <string>
 
-#include "src/extended_sketch/arguments.hpp"
+#include "src/extended_sketch/parameters.hpp"
 
 namespace sketches::extended_sketch {
 
 class Signature {
 private:
-    std::string name;
-    ArgumentList arguments;
+    std::string m_name;
+    ParameterList m_parameters;
 
 public:
-    Signature(const std::string& name, const ArgumentList& arguments);
+    Signature(const std::string& name, const ParameterList& arguments);
 
     const std::string& get_name() const;
-    const ArgumentList& get_arguments() const;
+    const ParameterList& get_parameters() const;
 
     std::string compute_signature() const;
 };

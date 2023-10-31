@@ -5,45 +5,38 @@
 #include <variant>
 #include <vector>
 
+#include "declarations.hpp"
+
 
 namespace sketches::extended_sketch {
-class BaseArgument;
 class ArgumentRegister;
 class ArgumentConcept;
-using Argument = std::variant<BaseArgument, ArgumentRegister, ArgumentConcept>;
+using Argument = std::variant<ArgumentRegister, ArgumentConcept>;
 using ArgumentList = std::vector<Argument>;
 
-// Arguments are just types with a name to select objects from the current stack frame.
-class BaseArgument {
+
+
+class ArgumentRegister {
 private:
-    std::string m_type_name;
-    std::string m_value_name;
+    Register m_register;
 
 public:
-    BaseArgument();
-    explicit BaseArgument(const std::string& type_name, const std::string& value_name);
-    virtual ~BaseArgument();
+    ArgumentRegister();
+    ArgumentRegister(const Register& register_);
 
-    const std::string& get_type_name() const;
-    const std::string& get_value_name() const;
+    std::string compute_signature() const;
 };
 
 
-class ArgumentRegister : public BaseArgument {
+class ArgumentConcept {
+private:
+    Concept m_concept;
+
 public:
-    using BaseArgument::get_type_name;
-    using BaseArgument::get_value_name;
+    ArgumentConcept();
+    ArgumentConcept(const Concept& concept_);
 
-    ArgumentRegister(const std::string& type, const std::string& name);
-};
-
-
-class ArgumentConcept : public BaseArgument {
-public:
-    using BaseArgument::get_type_name;
-    using BaseArgument::get_value_name;
-
-    ArgumentConcept(const std::string& type, const std::string& name);
+    std::string compute_signature() const;
 };
 
 
