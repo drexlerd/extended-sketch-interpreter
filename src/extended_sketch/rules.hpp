@@ -41,6 +41,10 @@ public:
     Concept m_concept;
 
     using ExtendedRuleImpl::compute_signature;
+    using ExtendedRuleImpl::get_memory_state_condition;
+    using ExtendedRuleImpl::get_memory_state_effect;
+    using ExtendedRuleImpl::get_feature_conditions;
+    using ExtendedRuleImpl::get_feature_effects;
 
     LoadRuleImpl(
         const MemoryState& condition_memory_state,
@@ -71,6 +75,10 @@ public:
     std::weak_ptr<ExtendedSketchImpl> callee;
 
     using ExtendedRuleImpl::compute_signature;
+    using ExtendedRuleImpl::get_memory_state_condition;
+    using ExtendedRuleImpl::get_memory_state_effect;
+    using ExtendedRuleImpl::get_feature_conditions;
+    using ExtendedRuleImpl::get_feature_effects;
 
     CallRuleImpl(
         const MemoryState& condition_memory_state,
@@ -97,6 +105,10 @@ public:
     std::vector<Register> m_arguments;
 
     using ExtendedRuleImpl::compute_signature;
+    using ExtendedRuleImpl::get_memory_state_condition;
+    using ExtendedRuleImpl::get_memory_state_effect;
+    using ExtendedRuleImpl::get_feature_conditions;
+    using ExtendedRuleImpl::get_feature_effects;
 
     ActionRuleImpl(
         const MemoryState& memory_state_condition,
@@ -122,6 +134,10 @@ extern ActionRule make_action_rule(
 class SearchRuleImpl : public ExtendedRuleImpl {
 public:
     using ExtendedRuleImpl::compute_signature;
+    using ExtendedRuleImpl::get_memory_state_condition;
+    using ExtendedRuleImpl::get_memory_state_effect;
+    using ExtendedRuleImpl::get_feature_conditions;
+    using ExtendedRuleImpl::get_feature_effects;
 
     SearchRuleImpl(
         const MemoryState& memory_state_condition,

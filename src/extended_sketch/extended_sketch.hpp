@@ -38,6 +38,14 @@ public:
         const ActionRuleList& action_rules,
         const SearchRuleList& search_rules);
 
+    const MemoryState& get_initial_memory_state() const;
+    const RegisterMap& get_registers() const;
+
+    const LoadRuleList& get_load_rules() const;
+    const CallRuleList& get_call_rules() const;
+    const ActionRuleList& get_action_rules() const;
+    const SearchRuleList& get_search_rules() const;
+
     std::string compute_signature() const;
 };
 

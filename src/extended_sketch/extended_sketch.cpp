@@ -31,6 +31,31 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_search_rules(search_rules) {
 }
 
+const MemoryState& ExtendedSketchImpl::get_initial_memory_state() const {
+    return m_initial_memory_state;
+}
+
+const RegisterMap& ExtendedSketchImpl::get_registers() const {
+    return m_registers;
+}
+
+const LoadRuleList& ExtendedSketchImpl::get_load_rules() const {
+    return m_load_rules;
+}
+
+const CallRuleList& ExtendedSketchImpl::get_call_rules() const {
+    return m_call_rules;
+}
+
+const ActionRuleList& ExtendedSketchImpl::get_action_rules() const {
+    return m_action_rules;
+}
+
+const SearchRuleList& ExtendedSketchImpl::get_search_rules() const {
+    return m_search_rules;
+}
+
+
 std::string ExtendedSketchImpl::compute_signature() const {
     std::stringstream ss;
     ss << "(:extended_sketch\n"
