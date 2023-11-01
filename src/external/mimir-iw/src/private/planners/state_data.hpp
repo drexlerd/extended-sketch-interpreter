@@ -11,6 +11,7 @@ namespace mimir::planners {
         formalism::State state;
         std::vector<int> state_atom_indices;
         uint32_t state_index;
+        std::vector<int> register_contents;
     };
 }
 

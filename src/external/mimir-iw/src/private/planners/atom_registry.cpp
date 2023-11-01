@@ -9,7 +9,7 @@ namespace mimir::planners {
         reached_rank_to_atom_index_(problem->num_ranks(), -1),
         num_reached_ranks_(0) { }
 
-    StateData AtomRegistry::convert_state(formalism::State state, uint32_t state_index) {
+    StateData AtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>&) {
         const auto ranks = state->get_dynamic_ranks();
         std::vector<int> atom_indices;
         atom_indices.reserve(ranks.size());
@@ -27,7 +27,7 @@ namespace mimir::planners {
             atom_indices.push_back(atom_index);
         }
         std::sort(atom_indices.begin(), atom_indices.end());
-        return StateData{state, atom_indices, state_index};
+        return StateData{state, atom_indices, state_index, std::vector<int>{}};
     }
 
     int AtomRegistry::get_num_reached_ranks() const {
@@ -42,7 +42,7 @@ namespace mimir::planners {
             instance_->clear_atoms();
         }
 
-    StateData DLPlanAtomRegistry::convert_state(formalism::State state, uint32_t state_index) {
+    StateData DLPlanAtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents) {
         const auto ranks = state->get_dynamic_ranks();
         std::vector<int> atom_indices;
         atom_indices.reserve(ranks.size());
@@ -54,7 +54,7 @@ namespace mimir::planners {
                 reached_rank_to_atom_index_[rank] = num_reached_ranks_;
                 const auto atom = problem_->get_atom(rank);
                 std::vector<std::string> object_names;
-                for (const auto object : atom->arguments) {
+                for (const auto& object : atom->arguments) {
                     object_names.push_back(object->name);
                 }
                 const auto& dlplan_atom = instance_->add_atom(atom->predicate->name, object_names);
@@ -65,6 +65,6 @@ namespace mimir::planners {
             atom_indices.push_back(atom_index);
         }
         std::sort(atom_indices.begin(), atom_indices.end());
-        return StateData{state, atom_indices, state_index};
+        return StateData{state, atom_indices, state_index, register_contents};
     }
 }

@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     Driver driver(domain_description, policy_factory);
     auto sketch = driver.parse_sketch(read_file(sketch_file), sketch_file);
     std::cout << sketch->compute_signature() << std::endl;
-    // 4. Run SIW_M
+    // 4. Run SIW_R
     return 0;
 }
 

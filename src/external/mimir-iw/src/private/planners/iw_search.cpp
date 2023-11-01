@@ -98,6 +98,7 @@ namespace mimir::planners
 
     bool IWSearch::width_zero_search(
         const formalism::State& initial_state,
+        const std::vector<int>& register_contents,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
@@ -107,7 +108,7 @@ namespace mimir::planners
         if (initial_state_index == StateRegistry::no_state) {
             initial_state_index = state_registry.register_state(initial_state);
         }
-        StateData state_data = atom_registry.convert_state(initial_state, initial_state_index);
+        StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents);
 
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
         goal_test_->set_initial_state(state_data);
@@ -140,7 +141,7 @@ namespace mimir::planners
             {
                 ++generated;
                 successor_state_index = state_registry.register_state(successor_state);
-                StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index);
+                StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents);
 
                 const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
                 bool is_goal = goal_test_->test_goal(successor_state_data);
@@ -160,6 +161,7 @@ namespace mimir::planners
 
     bool IWSearch::width_arity_search(
         const formalism::State& initial_state,
+        const std::vector<int>& register_contents,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -191,7 +193,7 @@ namespace mimir::planners
                 }
                 g_values_[initial_state_index] = 0;
                 std::cout << "[" << 0 << "]" << std::flush;
-                StateData state_data = atom_registry.convert_state(initial_state, initial_state_index);
+                StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents);
                 if (test_prune({}, state_data.state_atom_indices, novelty_table))
                 {
                     ++pruned;
@@ -245,7 +247,7 @@ namespace mimir::planners
             ++expanded;
             const auto grounding_time_start = std::chrono::high_resolution_clock::now();
             const auto state = state_registry.lookup_state(context.state_index);
-            StateData state_data = atom_registry.convert_state(state, state_index);
+            StateData state_data = atom_registry.convert_state(state, state_index, register_contents);
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
             std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
             const auto grounding_time_end = std::chrono::high_resolution_clock::now();
@@ -275,7 +277,7 @@ namespace mimir::planners
                         g_value_ = g_value;
                         std::cout << "[" << g_value_ << "]" << std::flush;
                     }
-                    StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index);
+                    StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents);
                     if (test_prune(state_data.state_atom_indices, successor_state_data.state_atom_indices, novelty_table))
                     {
                         ++pruned;
@@ -313,13 +315,13 @@ namespace mimir::planners
         return false;
     }
 
-    bool IWSearch::find_plan(std::vector<formalism::Action> &plan)
+    bool IWSearch::find_plan(const std::vector<int>& register_contents, std::vector<formalism::Action> &plan)
     {
         formalism::State final_state;
-        return find_plan(formalism::create_state(problem_->initial, problem_), plan, final_state);
+        return find_plan(formalism::create_state(problem_->initial, problem_), register_contents, plan, final_state);
     }
 
-    bool IWSearch::find_plan(const formalism::State& initial_state, std::vector<formalism::Action> &plan, formalism::State& final_state) {
+    bool IWSearch::find_plan(const formalism::State& initial_state, const std::vector<int>& register_contents, std::vector<formalism::Action> &plan, formalism::State& final_state) {
         pruned = 0;
         generated = 0;
         expanded = 0;
@@ -338,7 +340,7 @@ namespace mimir::planners
             effective_arity = arity;
             if (arity == 0)
             {
-                if (width_zero_search(initial_state, state_registry, *atom_registry, plan, final_state))
+                if (width_zero_search(initial_state, register_contents, state_registry, *atom_registry, plan, final_state))
                 {
                     found_solution = true;
                     break;
@@ -347,7 +349,7 @@ namespace mimir::planners
             else
             {
                 std::cout << std::endl;
-                if (width_arity_search(initial_state, arity, state_registry, *atom_registry, plan, final_state))
+                if (width_arity_search(initial_state, register_contents, arity, state_registry, *atom_registry, plan, final_state))
                 {
                     found_solution = true;
                     break;

@@ -27,8 +27,8 @@ namespace mimir::planners
   protected:
     formalism::ProblemDescription problem_;
     planners::SuccessorGenerator successor_generator_;
-    int max_arity_;
     std::shared_ptr<GoalTest> goal_test_;  // make unique_ptr out of this
+    int max_arity_;
     bool print_;
     std::shared_ptr<RandomGenerator> random_generator_;
     int g_value_;
@@ -39,6 +39,7 @@ namespace mimir::planners
     /// @return
     bool width_zero_search(
         const formalism::State& initial_state,
+        const std::vector<int>& register_contents,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
@@ -46,6 +47,7 @@ namespace mimir::planners
 
     bool width_arity_search(
         const formalism::State& initial_state,
+        const std::vector<int>& register_contents,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -75,9 +77,9 @@ namespace mimir::planners
 
     /// @brief Finds a plan from the initial state.
     /// @return true iff a plan was found.
-    virtual bool find_plan(std::vector<formalism::Action> &plan);
+    virtual bool find_plan(const std::vector<int>& register_contents, std::vector<formalism::Action> &plan);
 
-    virtual bool find_plan(const formalism::State& initial_state, std::vector<formalism::Action> &plan, formalism::State& final_state);
+    virtual bool find_plan(const formalism::State& initial_state, const std::vector<int>& register_contents, std::vector<formalism::Action> &plan, formalism::State& final_state);
 
     void print_statistics(int num_indent=0) const;
 

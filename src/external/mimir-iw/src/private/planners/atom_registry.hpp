@@ -23,7 +23,7 @@ namespace mimir::planners {
             AtomRegistry(formalism::ProblemDescription problem);
             virtual ~AtomRegistry() = default;
 
-            virtual StateData convert_state(formalism::State state, uint32_t state_index);
+            virtual StateData convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents);
 
             int get_num_reached_ranks() const;
     };
@@ -37,7 +37,7 @@ namespace mimir::planners {
             DLPlanAtomRegistry(formalism::ProblemDescription problem, std::shared_ptr<dlplan::core::InstanceInfo> instance);
             virtual ~DLPlanAtomRegistry() = default;
 
-            virtual StateData convert_state(formalism::State state, uint32_t state_index) override;
+            virtual StateData convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents) override;
     };
 }
 

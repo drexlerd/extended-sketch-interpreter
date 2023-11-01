@@ -23,9 +23,9 @@ namespace mimir::planners {
             GoalTest(formalism::ProblemDescription problem) : problem_(problem), count_goal_test_(0) { }
             virtual ~GoalTest() = default;
 
-            virtual bool test_goal(const StateData& state_data) = 0;
+            virtual bool test_goal(const StateData& /*state_data*/) = 0;
 
-            virtual void set_initial_state(const StateData& state_data) { };
+            virtual void set_initial_state(const StateData& /*state_data*/) { };
 
             virtual std::unique_ptr<AtomRegistry> get_atom_registry() const {
                 return std::make_unique<AtomRegistry>(problem_);
@@ -126,7 +126,7 @@ namespace mimir::planners {
                     return true;
                 }
                 const auto start_sketch_goal = std::chrono::high_resolution_clock::now();
-                dlplan::core::State dlplan_target_state(instance_, state_data.state_atom_indices, state_data.state_index);
+                dlplan::core::State dlplan_target_state(instance_, state_data.state_atom_indices, state_data.register_contents, state_data.state_index);
                 is_goal = (sketch_->evaluate_effects(*dlplan_initial_state_, dlplan_target_state, applicable_rules_, caches_) != nullptr);
                 const auto end_sketch_goal = std::chrono::high_resolution_clock::now();
                 time_sketch_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end_sketch_goal - start_sketch_goal).count();
