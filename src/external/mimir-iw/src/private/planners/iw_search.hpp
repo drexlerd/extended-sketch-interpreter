@@ -77,9 +77,17 @@ namespace mimir::planners
 
     /// @brief Finds a plan from the initial state.
     /// @return true iff a plan was found.
-    virtual bool find_plan(const std::vector<int>& register_contents, std::vector<formalism::Action> &plan);
+    virtual bool find_plan(
+      const std::vector<int>& register_contents,
+      const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+      std::vector<formalism::Action> &plan);
 
-    virtual bool find_plan(const formalism::State& initial_state, const std::vector<int>& register_contents, std::vector<formalism::Action> &plan, formalism::State& final_state);
+    virtual bool find_plan(
+      const formalism::State& initial_state,
+      const std::vector<int>& register_contents,
+      const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+      std::vector<formalism::Action> &plan,
+      formalism::State& final_state);
 
     void print_statistics(int num_indent=0) const;
 

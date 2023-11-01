@@ -14,6 +14,7 @@ class SIWRSearch {
 private:
     mimir::formalism::DomainDescription m_domain;
     mimir::formalism::ProblemDescription m_problem;
+    std::shared_ptr<InstanceInfo> m_instance_info;
     std::shared_ptr<dlplan::policy::PolicyFactory> m_policy_factory;
     extended_sketch::ExtendedSketch m_extended_sketch;
 
@@ -36,6 +37,7 @@ public:
     SIWRSearch(
         const mimir::formalism::DomainDescription& domain,
         const mimir::formalism::ProblemDescription& problem,
+        const std::shared_ptr<InstanceInfo> instance_info,
         const std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory,
         const extended_sketch::ExtendedSketch& extended_sketch);
 

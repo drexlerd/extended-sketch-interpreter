@@ -315,13 +315,21 @@ namespace mimir::planners
         return false;
     }
 
-    bool IWSearch::find_plan(const std::vector<int>& register_contents, std::vector<formalism::Action> &plan)
+    bool IWSearch::find_plan(
+        const std::vector<int>& register_contents,
+        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+        std::vector<formalism::Action> &plan)
     {
         formalism::State final_state;
-        return find_plan(formalism::create_state(problem_->initial, problem_), register_contents, plan, final_state);
+        return find_plan(formalism::create_state(problem_->initial, problem_), register_contents, sketch, plan, final_state);
     }
 
-    bool IWSearch::find_plan(const formalism::State& initial_state, const std::vector<int>& register_contents, std::vector<formalism::Action> &plan, formalism::State& final_state) {
+    bool IWSearch::find_plan(
+        const formalism::State& initial_state,
+        const std::vector<int>& register_contents,
+        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+        std::vector<formalism::Action> &plan,
+        formalism::State& final_state) {
         pruned = 0;
         generated = 0;
         expanded = 0;
@@ -334,6 +342,9 @@ namespace mimir::planners
 
         auto found_solution = false;
         StateRegistry state_registry;
+        // Note: the following is a bit hacky and must be improved in the future.
+        // We allow modifying the sketch goal test since the sketch depends on the current memory state.
+        if (sketch != nullptr) goal_test_->set_sketch(sketch);  // must be done before goal_test->set_initial_state()
         std::unique_ptr<AtomRegistry> atom_registry = goal_test_->get_atom_registry();
         for (int arity = 0; arity <= max_arity_; ++arity)
         {

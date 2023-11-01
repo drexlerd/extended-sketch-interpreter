@@ -1,8 +1,12 @@
 #include "siw_r.hpp"
 
+#include <iostream>
+
 #include "src/extended_sketch/extended_sketch.hpp"
 #include "src/extended_sketch/rules.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
+#include "src/external/mimir-iw/src/private/planners/iw_search.hpp"
+#include "src/external/mimir-iw/src/private/planners/goal_test.hpp"
 
 using namespace std;
 using namespace mimir::formalism;
@@ -15,12 +19,18 @@ namespace sketches {
 SIWRSearch::SIWRSearch(
     const DomainDescription& domain,
     const ProblemDescription& problem,
+    const std::shared_ptr<InstanceInfo> instance_info,
     const std::shared_ptr<PolicyFactory> policy_factory,
     const ExtendedSketch& extended_sketch)
-    : m_domain(domain), m_problem(problem), m_policy_factory(policy_factory), m_extended_sketch(extended_sketch) { }
+    : m_domain(domain),
+      m_problem(problem),
+      m_instance_info(instance_info),
+      m_policy_factory(policy_factory),
+      m_extended_sketch(extended_sketch) { }
 
 bool SIWRSearch::find_plan(vector<Action>& plan) {
     // Initialization
+    mimir::formalism::State current_state = formalism::create_state(m_problem->initial, m_problem);
     MemoryState current_memory_state = m_extended_sketch->get_initial_memory_state();
     unordered_map<Register, int> register_mapping;
     vector<int> register_contents;
@@ -43,19 +53,51 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         auto sketch = m_policy_factory->make_policy(sketch_rules);
         sketches_by_memory_state[pair.first] = sketch;
     }
-    // group loadrules by internal memory
+    // Group loadrules by internal memory
     unordered_map<MemoryState, vector<LoadRule>> load_rules_by_memory_state;
     for (const auto& load_rule : m_extended_sketch->get_load_rules()) {
         load_rules_by_memory_state[load_rule->get_memory_state_condition()].push_back(load_rule);
     }
-    // TODO: find rules for current memory state
+    // Initialize IWRSearch
+    int max_arity = 2;
+    mimir::planners::IWSearch iwsearch(
+        m_problem,
+        mimir::planners::SuccessorGeneratorType::LIFTED,
+        std::make_unique<planners::SketchGoalTest>(m_problem, m_instance_info, nullptr);
+        max_arity);
 
+    while(true) {
+        // Find rules for current memory state
+        auto it = load_rules_by_memory_state.find(current_memory_state);
+        if (it != load_rules_by_memory_state.end()) {
+            // TODO: apply load
+            continue;
+        }
 
-    // 1. If internal memory:
-    // TODO: implement semantics of load rule
-    // 2. Else IWRSearch
-    // TODO: we must build sketches for all rules from the same memorystate.
-    //       Then simply apply the respective sketch to find subgoal state.
+        auto it = sketches_by_memory_state.find(current_memory_state);
+        if (it != sketches_by_memory_state.end()) {
+            // apply sketch
+            std::vector<Action> partial_plan;
+            mimir::formalism::State final_state;
+            bool partial_solution_found = iwsearch.find_plan(current_state, register_contents, it->second, partial_plan, final_state);
+            if (!partial_solution_found) {
+                cout << "Failed to find partial solution" << endl;
+                return false;
+            }
+            bool solution_found = literals_hold(problem_->goal, final_state) {
+                cout << "Solution found!" << endl;
+                return true;
+            }
+            // TODO: must find the memory state of the rule that satisfied the goal
+            continue;
+        }
+
+        cout << "No applicable rule in extended sketch" << endl;
+        return false;  // unsolved
+    }
+
+    cout << "Unexpected break from loop" << endl;
+    return false;  // unsolved
 }
 
 void SIWRSearch::print_statistics(int num_indent) const {

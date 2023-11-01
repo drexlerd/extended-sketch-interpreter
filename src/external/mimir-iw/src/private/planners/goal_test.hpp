@@ -25,6 +25,8 @@ namespace mimir::planners {
 
             virtual bool test_goal(const StateData& /*state_data*/) = 0;
 
+            virtual void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) = 0;
+
             virtual void set_initial_state(const StateData& /*state_data*/) { };
 
             virtual std::unique_ptr<AtomRegistry> get_atom_registry() const {
@@ -56,6 +58,9 @@ namespace mimir::planners {
                 return is_goal;
             }
 
+            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) override {
+            }
+
             virtual void print_statistics(int num_indent=0) const override {
                 auto spaces = std::vector<char>(num_indent, ' ');
                 std::string indent(spaces.begin(), spaces.end());
@@ -82,6 +87,9 @@ namespace mimir::planners {
                 const auto end = std::chrono::high_resolution_clock::now();
                 time_count_top_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
                 return is_goal;
+            }
+
+            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) override {
             }
 
             virtual void set_initial_state(const StateData& state_data) override {
@@ -134,6 +142,10 @@ namespace mimir::planners {
                     return true;
                 }
                 return false;
+            }
+
+            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& sketch) override {
+                sketch_ = sketch;
             }
 
             virtual void set_initial_state(const StateData& state_data) override {
