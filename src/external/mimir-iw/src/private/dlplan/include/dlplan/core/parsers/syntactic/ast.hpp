@@ -31,6 +31,7 @@ namespace dlplan::core::ast
     struct OrConcept;
     struct PrimitiveConcept;
     struct ProjectionConcept;
+    struct RegisterConcept;
     struct SomeConcept;
     struct SubsetConcept;
     struct TopConcept;
@@ -93,6 +94,7 @@ namespace dlplan::core::ast
         x3::forward_ast<OneOfConcept>,
         x3::forward_ast<OrConcept>,
         x3::forward_ast<ProjectionConcept>,
+        x3::forward_ast<RegisterConcept>,
         x3::forward_ast<SomeConcept>,
         x3::forward_ast<SubsetConcept>,
         x3::forward_ast<TopConcept>> {
@@ -201,6 +203,10 @@ namespace dlplan::core::ast
 
     struct ProjectionConcept : x3::position_tagged {
         Role role;
+        Position pos;
+    };
+
+    struct RegisterConcept : x3::position_tagged {
         Position pos;
     };
 

@@ -58,6 +58,18 @@ State::State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_ind
     }
 }
 
+State::State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, const ObjectIndices& register_contents, StateIndex index)
+    : m_instance_info(instance_info),
+      m_atom_indices(std::is_sorted(atom_indices.begin(), atom_indices.end()) ? atom_indices : sort_atom_idxs(AtomIndices(atom_indices))),
+      m_index(index),
+      m_register_contents(register_contents) { }
+
+State::State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, ObjectIndices&& register_contents, StateIndex index)
+    : m_instance_info(instance_info),
+      m_atom_indices(std::is_sorted(atom_indices.begin(), atom_indices.end()) ? atom_indices : sort_atom_idxs(std::move(atom_indices))),
+      m_index(index),
+      m_register_contents(std::move(register_contents)) { }
+
 
 State::State(const State&) = default;
 
@@ -83,6 +95,10 @@ std::shared_ptr<InstanceInfo> State::get_instance_info() const {
 
 const AtomIndices& State::get_atom_indices() const {
     return m_atom_indices;
+}
+
+const ObjectIndices& State::get_register_contents() const {
+    return m_register_contents;
 }
 
 StateIndex State::get_index() const {

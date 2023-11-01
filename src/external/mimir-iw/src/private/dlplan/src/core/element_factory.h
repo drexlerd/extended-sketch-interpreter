@@ -73,6 +73,7 @@ public:
     std::shared_ptr<const Concept> make_one_of_concept(const Constant& constant);
     std::shared_ptr<const Concept> make_or_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right);
     std::shared_ptr<const Concept> make_projection_concept(const std::shared_ptr<const Role>& role, int pos);
+    std::shared_ptr<const Concept> make_register_concept(int pos);
     std::shared_ptr<const Concept> make_primitive_concept(const Predicate& predicate, int pos);
     std::shared_ptr<const Concept> make_some_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept);
     std::shared_ptr<const Concept> make_subset_concept(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);

@@ -270,6 +270,12 @@ parse(const ast::ProjectionConcept& node, const error_handler_type& error_handle
 }
 
 std::shared_ptr<const core::Concept>
+parse(const ast::RegisterConcept& node, const error_handler_type& error_handler, SyntacticElementFactory& context) {
+    return context.make_register_concept(
+        parse(node.pos, error_handler, context));
+}
+
+std::shared_ptr<const core::Concept>
 parse(const ast::SomeConcept& node, const error_handler_type& error_handler, SyntacticElementFactory& context) {
     return context.make_some_concept(
         parse(node.role, error_handler, context),

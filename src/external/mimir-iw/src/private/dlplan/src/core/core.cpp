@@ -176,6 +176,10 @@ std::shared_ptr<const Concept>SyntacticElementFactory::make_projection_concept(c
     return m_pImpl->make_projection_concept(role, pos);
 }
 
+std::shared_ptr<const Concept>SyntacticElementFactory::make_register_concept(int pos) {
+    return m_pImpl->make_register_concept(pos);
+}
+
 std::shared_ptr<const Concept>SyntacticElementFactory::make_primitive_concept(const Predicate& predicate, int pos) {
     return m_pImpl->make_primitive_concept(predicate, pos);
 }
