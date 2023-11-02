@@ -69,8 +69,9 @@ void LoadRuleImpl::apply(
     int object_index = denotation->to_sorted_vector().front();
     register_contents[register_mapping.at(m_register)] = object_index;
     current_memory_state = get_memory_state_effect();
-    std::cout << "Content of register " << m_register->compute_signature() << " is " << object_index << std::endl;
-    std::cout << "Next memory state is " << get_memory_state_effect()->compute_signature() << std::endl;
+    const std::string& object_name = current_state.get_instance_info()->get_objects()[object_index].get_name();
+    std::cout << "  Set content of register " << m_register->compute_signature() << " to object " << object_name << std::endl;
+    std::cout << "  Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
 }
 
 void LoadRuleImpl::compute_signature(std::stringstream& out) const {
@@ -80,14 +81,14 @@ void LoadRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& condition : m_feature_conditions) {
         out << condition->str();
     }
-    out << ")";  // conditions
+    out << ") ";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_memory_state_effect->name << ") ";
     for (const auto& effect : m_feature_effects) {
         out << effect->str();
     }
     out << "(:load " << m_register->name << " " << m_concept->get_key() << ") ";
-    out << ")";  // effects
+    out << ") ";  // effects
     out << ")";  // rule
 }
 
@@ -124,11 +125,11 @@ void CallRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& condition : m_feature_conditions) {
         out << condition->str();
     }
-    out << ")";  // conditions
+    out << ") ";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_memory_state_effect->name << ") ";
     out << "(:call " << m_call.compute_signature() << ") ";
-    out << ")";  // effects
+    out << ") ";  // effects
     out << ")";  // rule
 }
 
@@ -165,7 +166,7 @@ void ActionRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& condition : m_feature_conditions) {
         out << condition->str();
     }
-    out << ")";  // conditions
+    out << ") ";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_memory_state_effect->name << ") ";
     out << "(:action_name " << m_action_schema->name << ") ";
@@ -174,7 +175,7 @@ void ActionRuleImpl::compute_signature(std::stringstream& out) const {
         out << argument->name << " ";
     }
     out << ")";  // registers
-    out << ")";  // effects
+    out << ") ";  // effects
     out << ")";  // rule
 }
 
@@ -208,13 +209,13 @@ void SearchRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& condition : m_feature_conditions) {
         out << condition->str();
     }
-    out << ")";  // conditions
+    out << ") ";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_memory_state_effect->name << ") ";
     for (const auto& effect : m_feature_effects) {
         out << effect->str();
     }
-    out << ")";  // effects
+    out << ") ";  // effects
     out << ")";  // rule
 }
 

@@ -43,25 +43,16 @@ public:
         std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state)
         : problem_(problem), instance_(instance),
           sketches_by_memory_state_(sketches_by_memory_state), sketch_(nullptr),
-          dlplan_initial_state_(nullptr), caches_(dlplan::core::DenotationsCaches()), applicable_rules_({}) {
-        std::cout << "ExtendedSketchGoalTest" << std::endl;
-        for (const auto& pair : sketches_by_memory_state_) {
-            std::cout << pair.second->str() << std::endl << std::endl;
-        }
+          dlplan_initial_state_(nullptr), caches_(dlplan::core::DenotationsCaches()), applicable_rules_({}),
+          count_goal_test_(0), time_top_goal_ns_(0), time_sketch_goal_ns_(0) {
     }
 
     GoalTestResult test_goal(const StateData& state_data) {
         if (sketch_ == nullptr) {
             throw std::runtime_error("SketchGoalTest::test_goal - no sketch, call set_initial_state first.");
         }
+        bool is_goal = false;
         ++count_goal_test_;
-        const auto start_top_goal = std::chrono::high_resolution_clock::now();
-        bool is_goal = literals_hold(problem_->goal, state_data.state);
-        const auto end_top_goal = std::chrono::high_resolution_clock::now();
-        time_top_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end_top_goal - start_top_goal).count();
-        if (is_goal) {
-            return GoalTestResult{true, state_data.state, state_data.dlplan_state, nullptr};
-        }
         const auto start_sketch_goal = std::chrono::high_resolution_clock::now();
         std::shared_ptr<const dlplan::policy::Rule> reason = nullptr;
         for (const auto& rule : applicable_rules_) {
@@ -76,6 +67,16 @@ public:
         if (is_goal) {
             return GoalTestResult{true, state_data.state, state_data.dlplan_state, reason};
         }
+
+        /*
+        const auto start_top_goal = std::chrono::high_resolution_clock::now();
+        is_goal = literals_hold(problem_->goal, state_data.state);
+        const auto end_top_goal = std::chrono::high_resolution_clock::now();
+        time_top_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end_top_goal - start_top_goal).count();
+        if (is_goal) {
+            return GoalTestResult{true, state_data.state, state_data.dlplan_state, nullptr};
+        }
+        */
         return GoalTestResult{false, nullptr, nullptr, nullptr};
     }
 

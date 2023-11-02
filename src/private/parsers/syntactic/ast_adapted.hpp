@@ -1,5 +1,5 @@
-#ifndef SRC_PARSERS_SYNTACTIC_AST_ADAPTED_HPP_
-#define SRC_PARSERS_SYNTACTIC_AST_ADAPTED_HPP_
+#ifndef SRC_PRIVATE_PARSERS_SYNTACTIC_AST_ADAPTED_HPP_
+#define SRC_PRIVATE_PARSERS_SYNTACTIC_AST_ADAPTED_HPP_
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>

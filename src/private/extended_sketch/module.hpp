@@ -1,5 +1,5 @@
-#ifndef SRC_MODULE_MODULE_HPP_
-#define SRC_MODULE_MODULE_HPP_
+#ifndef SRC_PRIVATE_MODULE_MODULE_HPP_
+#define SRC_PRIVATE_MODULE_MODULE_HPP_
 
 #include <string>
 #include <unordered_map>

@@ -43,7 +43,6 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
     maximum_effective_arity = 0;
 
     // Initialization
-    std::cout << "Initialize initial extended state" << std::endl;
     auto current_state = create_state(m_problem->initial, m_problem);
     std::shared_ptr<const dlplan::core::State> current_dlplan_state = nullptr;
     {
@@ -82,7 +81,6 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         load_rules_by_memory_state[load_rule->get_memory_state_condition()].push_back(load_rule);
     }
     // Initialize IWRSearch
-    std::cout << "Initialize IWR search " << std::endl;
     int max_arity = 2;
     m_iw_search = make_unique<mimir::planners::IWSearch>(
         m_problem,
@@ -91,22 +89,25 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         sketches_by_memory_state,
         max_arity);
 
-    std::cout << "Run SIWR" << std::endl;
+
+    std::cout << std::endl << "Start search" << std::endl;
     dlplan::core::DenotationsCaches denotation_caches;
-    while(true) {
+    const auto time_start = std::chrono::high_resolution_clock::now();
+    int step = 0;
+    while (!literals_hold(m_problem->goal, current_state)) {
         // Find rules for current memory state
         auto it1 = load_rules_by_memory_state.find(current_memory_state);
         if (it1 != load_rules_by_memory_state.end()) {
             assert(it1->second.size() > 0);
             const auto& load_rule = it1->second.front();
-            std::cout << "Apply load rule " << load_rule->compute_signature() << std::endl;
+            std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
             load_rule->apply(*current_dlplan_state, register_mapping, denotation_caches, register_contents, current_memory_state);
             continue;
         }
 
         auto it2 = sketches_by_memory_state.find(current_memory_state);
         if (it2 != sketches_by_memory_state.end()) {
-            std::cout << "Apply search rule" << std::endl;
+            std::cout << ++step << ". Apply search rule" << std::endl;
             std::vector<Action> partial_plan;
             mimir::formalism::State final_state;
             std::shared_ptr<const dlplan::core::State> final_dlplan_state;
@@ -122,10 +123,11 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
             if (partial_solution_found) {
                 average_effective_arity += m_iw_search->effective_arity;
                 maximum_effective_arity = std::max(maximum_effective_arity, m_iw_search->effective_arity);
-                std::cout << "Final state: " << final_state->get_dynamic_atoms() << std::endl;
+                std::cout << "  Compatible rule: " << reason->str() << std::endl;
+                std::cout << "  Partial plan: " << std::endl;
                 for (const auto& action : partial_plan)
                 {
-                    std::cout << action << std::endl;
+                    std::cout << "    " << action << std::endl;
                 }
             } else {
                 average_effective_arity = std::numeric_limits<float>::max();
@@ -133,27 +135,23 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
                 cout << "Failed to find partial solution" << endl;
                 return false;
             }
-            bool solution_found = literals_hold(m_problem->goal, final_state);
-            if (solution_found) {
-                cout << "Solution found!" << endl;
-                return true;
-            }
             current_state = final_state;
             current_dlplan_state = final_dlplan_state;
-            std::cout << final_dlplan_state << std::endl;
             if (!reason) {
                 throw std::runtime_error("There should be a reason to reach a goal");
             }
             current_memory_state = rule_to_memory_effect.at(reason);
+            std::cout << "  Set current memory state to " << current_memory_state->compute_signature() << std::endl;
             continue;
         }
 
         cout << "No applicable rule in extended sketch" << endl;
         return false;  // unsolved
     }
-
-    cout << "Unexpected break from loop" << endl;
-    return false;  // unsolved
+    const auto time_end = std::chrono::high_resolution_clock::now();
+    time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
+    time_total_ns = m_iw_search->time_grounding_ns + time_search_ns;
+    return true;  // solved
 }
 
 void SIWRSearch::print_statistics(int num_indent) const {
@@ -172,7 +170,7 @@ void SIWRSearch::print_statistics(int num_indent) const {
             << " (" << fixed << setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << endl;
     cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
             << " (" << fixed << setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << endl;
-    m_iw_search->get_goal_test().print_statistics();
+    m_iw_search->get_goal_test().print_statistics(num_indent);
     cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << endl;
     cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << endl;
 }

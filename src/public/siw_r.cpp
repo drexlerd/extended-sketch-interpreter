@@ -82,9 +82,11 @@ int main(int argc, char** argv) {
     SIWRSearch siwr(domain_description, problem_description, instance_info, policy_factory, extended_sketch);
     std::vector<mimir::formalism::Action> plan;
     bool solution_found = siwr.find_plan(plan);
-    siwr.print_statistics(4);
     if (solution_found) {
-        std::cout << "Solution found!" << std::endl;
+        std::cout << std::endl << "Solution found!" << std::endl;
+        siwr.print_statistics();
+    } else {
+        std::cout << std::endl << "No solution found!" << std::endl;
     }
     return 0;
 }

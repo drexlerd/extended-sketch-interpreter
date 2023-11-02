@@ -1,5 +1,5 @@
-#ifndef SRC_SEARCH_SIW_R_HPP_
-#define SRC_SEARCH_SIW_R_HPP_
+#ifndef SRC_PRIVATE_PLANNERS_SIW_R_HPP_
+#define SRC_PRIVATE_PLANNERS_SIW_R_HPP_
 
 #include "src/private/dlplan/include/dlplan/core.h"
 #include "src/private/dlplan/include/dlplan/policy.h"

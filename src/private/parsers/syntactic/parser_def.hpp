@@ -1,5 +1,5 @@
-#ifndef SRC_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
-#define SRC_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
+#ifndef SRC_PRIVATE_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
+#define SRC_PRIVATE_PARSERS_SYNTACTIC_PARSER_DEF_HPP_
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
