@@ -56,6 +56,23 @@ LoadRuleImpl::LoadRuleImpl(
 
 LoadRuleImpl::~LoadRuleImpl() = default;
 
+void LoadRuleImpl::apply(
+    const dlplan::core::State& current_state,
+    const std::unordered_map<Register, int>& register_mapping,
+    dlplan::core::DenotationsCaches& denotation_caches,
+    std::vector<int>& register_contents,
+    MemoryState& current_memory_state) {
+    const auto denotation = m_concept->get_concept()->evaluate(current_state, denotation_caches);
+    if (denotation->size() == 0) {
+        throw std::runtime_error("Tried to load object from empty concept into register");
+    }
+    int object_index = denotation->to_sorted_vector().front();
+    register_contents[register_mapping.at(m_register)] = object_index;
+    current_memory_state = get_memory_state_effect();
+    std::cout << "Content of register " << m_register->compute_signature() << " is " << object_index << std::endl;
+    std::cout << "Next memory state is " << get_memory_state_effect()->compute_signature() << std::endl;
+}
+
 void LoadRuleImpl::compute_signature(std::stringstream& out) const {
     out << "(:load_rule "
         << "(:conditions ";

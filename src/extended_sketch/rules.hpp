@@ -56,7 +56,9 @@ public:
     ~LoadRuleImpl() override;
 
     void apply(
+        const dlplan::core::State& current_state,
         const std::unordered_map<Register, int>& register_mapping,
+        dlplan::core::DenotationsCaches& denotation_caches,
         std::vector<int>& register_contents,
         MemoryState& current_memory_state);
 

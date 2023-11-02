@@ -7,7 +7,7 @@
 #include "src/extended_sketch/declarations.hpp"
 
 #include "src/external/mimir-iw/src/private/planners/iw_search.hpp"
-#include "src/external/mimir-iw/src/private/planners/serialized_search.hpp"
+
 
 namespace sketches::extended_sketch {
 

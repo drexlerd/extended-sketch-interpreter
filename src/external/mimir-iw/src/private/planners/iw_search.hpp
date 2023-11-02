@@ -26,8 +26,9 @@ namespace mimir::planners
   {
   protected:
     formalism::ProblemDescription problem_;
+    std::shared_ptr<dlplan::core::InstanceInfo> instance_info_;
     planners::SuccessorGenerator successor_generator_;
-    std::shared_ptr<GoalTest> goal_test_;  // make unique_ptr out of this
+    ExtendedSketchGoalTest goal_test_;
     int max_arity_;
     bool print_;
     std::shared_ptr<RandomGenerator> random_generator_;
@@ -44,7 +45,9 @@ namespace mimir::planners
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state);
+        formalism::State &final_state,
+        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
+        std::shared_ptr<const dlplan::policy::Rule>& reason);
 
     bool width_arity_search(
         const formalism::State& initial_state,
@@ -54,7 +57,9 @@ namespace mimir::planners
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state);
+        formalism::State &final_state,
+        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
+        std::shared_ptr<const dlplan::policy::Rule>& reason);
 
   public:
     uint32_t pruned;
@@ -72,28 +77,24 @@ namespace mimir::planners
 
     IWSearch(
         const formalism::ProblemDescription &problem,
+        const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
         planners::SuccessorGeneratorType successor_generator_type,
-        std::shared_ptr<GoalTest>&& goal_test,
+        const std::unordered_map<sketches::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
         int max_arity);
     virtual ~IWSearch();
-
-    /// @brief Finds a plan from the initial state.
-    /// @return true iff a plan was found.
-    virtual bool find_plan(
-      const std::vector<int>& register_contents,
-      const sketches::extended_sketch::MemoryState& memory_state,
-      std::vector<formalism::Action> &plan);
 
     virtual bool find_plan(
       const formalism::State& initial_state,
       const std::vector<int>& register_contents,
       const sketches::extended_sketch::MemoryState& memory_state,
       std::vector<formalism::Action> &plan,
-      formalism::State& final_state);
+      formalism::State& final_state,
+      std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
+      std::shared_ptr<const dlplan::policy::Rule>& reason);
 
     void print_statistics(int num_indent=0) const;
 
-    std::shared_ptr<GoalTest> get_goal_test() const;
+    const ExtendedSketchGoalTest& get_goal_test() const;
   };
 } // namespace planners
 

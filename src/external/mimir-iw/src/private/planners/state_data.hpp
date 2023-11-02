@@ -9,10 +9,9 @@
 
 namespace mimir::planners {
     struct StateData {
-        formalism::State state;
-        std::vector<int> state_atom_indices;
         uint32_t state_index;
-        std::vector<int> register_contents;
+        formalism::State state;
+        std::shared_ptr<dlplan::core::State> dlplan_state;
         sketches::extended_sketch::MemoryState memory_state;
     };
 }

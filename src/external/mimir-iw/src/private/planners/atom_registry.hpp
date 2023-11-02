@@ -11,6 +11,7 @@
 #include <memory>
 
 namespace mimir::planners {
+
     /// @brief Registers atoms reached by a state and computes a sparse indexing scheme.
     class AtomRegistry {
         protected:
@@ -23,7 +24,7 @@ namespace mimir::planners {
             AtomRegistry(formalism::ProblemDescription problem);
             virtual ~AtomRegistry() = default;
 
-            virtual StateData convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents, const sketches::extended_sketch::MemoryState& memory_state);
+            virtual std::vector<int> convert_state(formalism::State state);
 
             int get_num_reached_ranks() const;
     };
@@ -37,7 +38,7 @@ namespace mimir::planners {
             DLPlanAtomRegistry(formalism::ProblemDescription problem, std::shared_ptr<dlplan::core::InstanceInfo> instance);
             virtual ~DLPlanAtomRegistry() = default;
 
-            virtual StateData convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents, const sketches::extended_sketch::MemoryState& memory_state) override;
+            virtual std::vector<int> convert_state(formalism::State state) override;
     };
 }
 
