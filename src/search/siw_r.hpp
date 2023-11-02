@@ -1,6 +1,7 @@
 #ifndef SRC_SEARCH_SIW_R_HPP_
 #define SRC_SEARCH_SIW_R_HPP_
 
+#include "src/external/mimir-iw/src/private/dlplan/include/dlplan/core.h"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 #include "src/external/mimir-iw/src/private/formalism/domain.hpp"
 #include "src/extended_sketch/declarations.hpp"
@@ -8,15 +9,16 @@
 #include "src/external/mimir-iw/src/private/planners/iw_search.hpp"
 #include "src/external/mimir-iw/src/private/planners/serialized_search.hpp"
 
-namespace sketches {
+namespace sketches::extended_sketch {
 
 class SIWRSearch {
 private:
     mimir::formalism::DomainDescription m_domain;
     mimir::formalism::ProblemDescription m_problem;
-    std::shared_ptr<InstanceInfo> m_instance_info;
+    std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
     std::shared_ptr<dlplan::policy::PolicyFactory> m_policy_factory;
     extended_sketch::ExtendedSketch m_extended_sketch;
+    std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
 
 public:
     uint32_t pruned;
@@ -37,13 +39,15 @@ public:
     SIWRSearch(
         const mimir::formalism::DomainDescription& domain,
         const mimir::formalism::ProblemDescription& problem,
-        const std::shared_ptr<InstanceInfo> instance_info,
+        const std::shared_ptr<dlplan::core::InstanceInfo> instance_info,
         const std::shared_ptr<dlplan::policy::PolicyFactory> policy_factory,
         const extended_sketch::ExtendedSketch& extended_sketch);
 
-    bool find_plan(std::vector<formalism::Action>& plan);
+    bool find_plan(std::vector<mimir::formalism::Action>& plan);
 
     void print_statistics(int num_indent=0) const;
 };
 
 }
+
+#endif

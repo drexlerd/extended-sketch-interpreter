@@ -60,7 +60,7 @@ namespace mimir::planners {
                 do {
                     ++count_partial_solutions;
                     formalism::State final_state;
-                    bool found_partial_solution = inner_search_.find_plan(current_state, {}, partial_plan, final_state);
+                    bool found_partial_solution = inner_search_.find_plan(current_state, {}, nullptr, partial_plan, final_state);
                     pruned += inner_search_.pruned;
                     generated += inner_search_.generated;
                     expanded += inner_search_.expanded;

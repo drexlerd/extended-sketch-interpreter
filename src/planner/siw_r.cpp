@@ -9,6 +9,7 @@
 
 #include "src/extended_sketch/extended_sketch.hpp"
 #include "src/parsers/driver.hpp"
+#include "src/search/siw_r.hpp"
 
 
 using namespace std;
@@ -68,11 +69,18 @@ int main(int argc, char** argv) {
     auto policy_factory = std::make_shared<PolicyFactory>(element_factory);
     // 4. Parse the extended sketch
     Driver driver(domain_description, policy_factory);
-    auto sketch = driver.parse_sketch(read_file(sketch_file), sketch_file);
-    std::cout << sketch->compute_signature() << std::endl;
+    auto extended_sketch = driver.parse_sketch(read_file(sketch_file), sketch_file);
+    std::cout << extended_sketch->compute_signature() << std::endl;
     // 4. Run SIW_R
+    SIWRSearch siwr(domain_description, problem_description, instance_info, policy_factory, extended_sketch);
+    std::vector<mimir::formalism::Action> plan;
+    bool solution_found = siwr.find_plan(plan);
+    siwr.print_statistics(4);
+    if (solution_found) {
+        std::cout << "Solution found!" << std::endl;
+    }
     return 0;
 }
 
 
-// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/success.sketch
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/blocks-4-clear/domain.pddl benchmarks/blocks-4-clear/p-2-0.pddl benchmarks/blocks-4-clear/sketch.pddl

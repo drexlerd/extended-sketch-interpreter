@@ -55,6 +55,11 @@ public:
         const Concept& concept);
     ~LoadRuleImpl() override;
 
+    void apply(
+        const std::unordered_map<Register, int>& register_mapping,
+        std::vector<int>& register_contents,
+        MemoryState& current_memory_state);
+
     void compute_signature(std::stringstream& out) const override;
 };
 

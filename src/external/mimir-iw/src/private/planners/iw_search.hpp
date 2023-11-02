@@ -40,6 +40,7 @@ namespace mimir::planners
     bool width_zero_search(
         const formalism::State& initial_state,
         const std::vector<int>& register_contents,
+        const sketches::extended_sketch::MemoryState& memory_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
@@ -48,6 +49,7 @@ namespace mimir::planners
     bool width_arity_search(
         const formalism::State& initial_state,
         const std::vector<int>& register_contents,
+        const sketches::extended_sketch::MemoryState& memory_state,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -73,19 +75,19 @@ namespace mimir::planners
         planners::SuccessorGeneratorType successor_generator_type,
         std::shared_ptr<GoalTest>&& goal_test,
         int max_arity);
-    virtual ~IWSearch() = default;
+    virtual ~IWSearch();
 
     /// @brief Finds a plan from the initial state.
     /// @return true iff a plan was found.
     virtual bool find_plan(
       const std::vector<int>& register_contents,
-      const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+      const sketches::extended_sketch::MemoryState& memory_state,
       std::vector<formalism::Action> &plan);
 
     virtual bool find_plan(
       const formalism::State& initial_state,
       const std::vector<int>& register_contents,
-      const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+      const sketches::extended_sketch::MemoryState& memory_state,
       std::vector<formalism::Action> &plan,
       formalism::State& final_state);
 

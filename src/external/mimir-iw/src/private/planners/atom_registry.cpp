@@ -9,7 +9,7 @@ namespace mimir::planners {
         reached_rank_to_atom_index_(problem->num_ranks(), -1),
         num_reached_ranks_(0) { }
 
-    StateData AtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>&) {
+    StateData AtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& /*register_contents*/, const sketches::extended_sketch::MemoryState& /*memory_state*/) {
         const auto ranks = state->get_dynamic_ranks();
         std::vector<int> atom_indices;
         atom_indices.reserve(ranks.size());
@@ -42,7 +42,7 @@ namespace mimir::planners {
             instance_->clear_atoms();
         }
 
-    StateData DLPlanAtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents) {
+    StateData DLPlanAtomRegistry::convert_state(formalism::State state, uint32_t state_index, const std::vector<int>& register_contents, const sketches::extended_sketch::MemoryState& memory_state) {
         const auto ranks = state->get_dynamic_ranks();
         std::vector<int> atom_indices;
         atom_indices.reserve(ranks.size());
@@ -65,6 +65,6 @@ namespace mimir::planners {
             atom_indices.push_back(atom_index);
         }
         std::sort(atom_indices.begin(), atom_indices.end());
-        return StateData{state, atom_indices, state_index, register_contents};
+        return StateData{state, atom_indices, state_index, register_contents, memory_state};
     }
 }

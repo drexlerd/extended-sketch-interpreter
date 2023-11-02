@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     planners::IWSearch planner(problem, successor_generator_type, std::move(goal_test), arity);
 
     formalism::ActionList plan;
-    bool found_plan = planner.find_plan({}, plan);
+    bool found_plan = planner.find_plan({}, nullptr, plan);
     std::cout << std::endl;
     std::cout << "Overall search statistics:" << std::endl;
     planner.print_statistics();

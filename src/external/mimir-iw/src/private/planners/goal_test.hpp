@@ -25,8 +25,6 @@ namespace mimir::planners {
 
             virtual bool test_goal(const StateData& /*state_data*/) = 0;
 
-            virtual void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) = 0;
-
             virtual void set_initial_state(const StateData& /*state_data*/) { };
 
             virtual std::unique_ptr<AtomRegistry> get_atom_registry() const {
@@ -58,9 +56,6 @@ namespace mimir::planners {
                 return is_goal;
             }
 
-            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) override {
-            }
-
             virtual void print_statistics(int num_indent=0) const override {
                 auto spaces = std::vector<char>(num_indent, ' ');
                 std::string indent(spaces.begin(), spaces.end());
@@ -89,9 +84,6 @@ namespace mimir::planners {
                 return is_goal;
             }
 
-            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& /*sketch*/) override {
-            }
-
             virtual void set_initial_state(const StateData& state_data) override {
                 num_unsatisfied_goal_literals_ = compute_num_unsatisfied_literals(problem_->goal, state_data.state);
             }
@@ -105,7 +97,7 @@ namespace mimir::planners {
 
 
     class SketchGoalTest : public GoalTest {
-        private:
+        protected:
             std::shared_ptr<dlplan::core::InstanceInfo> instance_;
             std::shared_ptr<const dlplan::policy::Policy> sketch_;
 
@@ -121,10 +113,12 @@ namespace mimir::planners {
                 formalism::ProblemDescription problem,
                 std::shared_ptr<dlplan::core::InstanceInfo> instance,
                 const std::shared_ptr<const dlplan::policy::Policy>& sketch) : GoalTest(problem), instance_(instance), sketch_(sketch), time_top_goal_ns_(0), time_sketch_goal_ns_(0) {
-                    std::cout << sketch->str() << std::endl;
                 }
 
             virtual bool test_goal(const StateData& state_data) override {
+                if (sketch_ == nullptr) {
+                    throw std::runtime_error("SketchGoalTest::test_goal - no sketch, call set_initial_state first.");
+                }
                 ++count_goal_test_;
                 const auto start_top_goal = std::chrono::high_resolution_clock::now();
                 bool is_goal = literals_hold(problem_->goal, state_data.state);
@@ -144,10 +138,6 @@ namespace mimir::planners {
                 return false;
             }
 
-            void set_sketch(const std::shared_ptr<const dlplan::policy::Policy>& sketch) override {
-                sketch_ = sketch;
-            }
-
             virtual void set_initial_state(const StateData& state_data) override {
                 dlplan_initial_state_ = std::make_unique<dlplan::core::State>(instance_, state_data.state_atom_indices, state_data.state_index);
                 caches_ = dlplan::core::DenotationsCaches();
@@ -164,7 +154,7 @@ namespace mimir::planners {
                 */
             };
 
-            virtual std::unique_ptr<AtomRegistry> get_atom_registry() const {
+            virtual std::unique_ptr<AtomRegistry> get_atom_registry() const override{
                 return std::make_unique<DLPlanAtomRegistry>(problem_, instance_);
             }
 

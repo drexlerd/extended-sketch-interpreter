@@ -82,13 +82,13 @@ namespace mimir::planners
                          generated(0),
                          expanded(0),
                          max_expanded(std::numeric_limits<uint32_t>::max()),
-                         time_search_ns(0),
-                         time_total_ns(0),
+                         effective_arity(0),
                          time_successors_ns(0),
                          time_apply_ns(0),
                          time_goal_test_ns(0),
                          time_grounding_ns(0),
-                         effective_arity(0)
+                         time_search_ns(0),
+                         time_total_ns(0)
     {
         const auto grounding_time_start = std::chrono::high_resolution_clock::now();
         successor_generator_ = planners::create_sucessor_generator(problem_, successor_generator_type);
@@ -96,9 +96,12 @@ namespace mimir::planners
         time_grounding_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
     }
 
+    IWSearch::~IWSearch() { }
+
     bool IWSearch::width_zero_search(
         const formalism::State& initial_state,
         const std::vector<int>& register_contents,
+        const sketches::extended_sketch::MemoryState& memory_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
@@ -108,7 +111,7 @@ namespace mimir::planners
         if (initial_state_index == StateRegistry::no_state) {
             initial_state_index = state_registry.register_state(initial_state);
         }
-        StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents);
+        StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents, memory_state);
 
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
         goal_test_->set_initial_state(state_data);
@@ -141,7 +144,7 @@ namespace mimir::planners
             {
                 ++generated;
                 successor_state_index = state_registry.register_state(successor_state);
-                StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents);
+                StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents, memory_state);
 
                 const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
                 bool is_goal = goal_test_->test_goal(successor_state_data);
@@ -162,6 +165,7 @@ namespace mimir::planners
     bool IWSearch::width_arity_search(
         const formalism::State& initial_state,
         const std::vector<int>& register_contents,
+        const sketches::extended_sketch::MemoryState& memory_state,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -193,7 +197,7 @@ namespace mimir::planners
                 }
                 g_values_[initial_state_index] = 0;
                 std::cout << "[" << 0 << "]" << std::flush;
-                StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents);
+                StateData state_data = atom_registry.convert_state(initial_state, initial_state_index, register_contents, memory_state);
                 if (test_prune({}, state_data.state_atom_indices, novelty_table))
                 {
                     ++pruned;
@@ -247,7 +251,7 @@ namespace mimir::planners
             ++expanded;
             const auto grounding_time_start = std::chrono::high_resolution_clock::now();
             const auto state = state_registry.lookup_state(context.state_index);
-            StateData state_data = atom_registry.convert_state(state, state_index, register_contents);
+            StateData state_data = atom_registry.convert_state(state, state_index, register_contents, memory_state);
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
             std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
             const auto grounding_time_end = std::chrono::high_resolution_clock::now();
@@ -277,7 +281,7 @@ namespace mimir::planners
                         g_value_ = g_value;
                         std::cout << "[" << g_value_ << "]" << std::flush;
                     }
-                    StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents);
+                    StateData successor_state_data = atom_registry.convert_state(successor_state, successor_state_index, register_contents, memory_state);
                     if (test_prune(state_data.state_atom_indices, successor_state_data.state_atom_indices, novelty_table))
                     {
                         ++pruned;
@@ -317,17 +321,17 @@ namespace mimir::planners
 
     bool IWSearch::find_plan(
         const std::vector<int>& register_contents,
-        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+        const sketches::extended_sketch::MemoryState& memory_state,
         std::vector<formalism::Action> &plan)
     {
         formalism::State final_state;
-        return find_plan(formalism::create_state(problem_->initial, problem_), register_contents, sketch, plan, final_state);
+        return find_plan(formalism::create_state(problem_->initial, problem_), register_contents, memory_state, plan, final_state);
     }
 
     bool IWSearch::find_plan(
         const formalism::State& initial_state,
         const std::vector<int>& register_contents,
-        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+        const sketches::extended_sketch::MemoryState& memory_state,
         std::vector<formalism::Action> &plan,
         formalism::State& final_state) {
         pruned = 0;
@@ -342,16 +346,13 @@ namespace mimir::planners
 
         auto found_solution = false;
         StateRegistry state_registry;
-        // Note: the following is a bit hacky and must be improved in the future.
-        // We allow modifying the sketch goal test since the sketch depends on the current memory state.
-        if (sketch != nullptr) goal_test_->set_sketch(sketch);  // must be done before goal_test->set_initial_state()
         std::unique_ptr<AtomRegistry> atom_registry = goal_test_->get_atom_registry();
         for (int arity = 0; arity <= max_arity_; ++arity)
         {
             effective_arity = arity;
             if (arity == 0)
             {
-                if (width_zero_search(initial_state, register_contents, state_registry, *atom_registry, plan, final_state))
+                if (width_zero_search(initial_state, register_contents, memory_state, state_registry, *atom_registry, plan, final_state))
                 {
                     found_solution = true;
                     break;
@@ -360,7 +361,7 @@ namespace mimir::planners
             else
             {
                 std::cout << std::endl;
-                if (width_arity_search(initial_state, register_contents, arity, state_registry, *atom_registry, plan, final_state))
+                if (width_arity_search(initial_state, register_contents, memory_state, arity, state_registry, *atom_registry, plan, final_state))
                 {
                     found_solution = true;
                     break;

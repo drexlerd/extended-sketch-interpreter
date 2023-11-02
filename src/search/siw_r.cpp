@@ -6,7 +6,7 @@
 #include "src/extended_sketch/rules.hpp"
 #include "src/external/mimir-iw/src/private/dlplan/include/dlplan/policy.h"
 #include "src/external/mimir-iw/src/private/planners/iw_search.hpp"
-#include "src/external/mimir-iw/src/private/planners/goal_test.hpp"
+#include "goal_test.hpp"
 
 using namespace std;
 using namespace mimir::formalism;
@@ -14,7 +14,7 @@ using namespace sketches::extended_sketch;
 using namespace dlplan::policy;
 using namespace dlplan::core;
 
-namespace sketches {
+namespace sketches::extended_sketch {
 
 SIWRSearch::SIWRSearch(
     const DomainDescription& domain,
@@ -30,7 +30,8 @@ SIWRSearch::SIWRSearch(
 
 bool SIWRSearch::find_plan(vector<Action>& plan) {
     // Initialization
-    mimir::formalism::State current_state = formalism::create_state(m_problem->initial, m_problem);
+    std::cout << "Initialize initial extended state" << std::endl;
+    auto current_state = create_state(m_problem->initial, m_problem);
     MemoryState current_memory_state = m_extended_sketch->get_initial_memory_state();
     unordered_map<Register, int> register_mapping;
     vector<int> register_contents;
@@ -39,6 +40,7 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         register_contents.push_back(0);  // random initialization
     }
     // Build sketches for external rules, one for each memory state
+    std::cout << "Group search rules by memory state" << std::endl;
     unordered_map<MemoryState, vector<SearchRule>> search_rules_by_memory_state;
     for (const auto& search_rule : m_extended_sketch->get_search_rules()) {
         search_rules_by_memory_state[search_rule->get_memory_state_condition()].push_back(search_rule);
@@ -54,37 +56,43 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         sketches_by_memory_state[pair.first] = sketch;
     }
     // Group loadrules by internal memory
+    std::cout << "Group load rules by memory state" << std::endl;
     unordered_map<MemoryState, vector<LoadRule>> load_rules_by_memory_state;
     for (const auto& load_rule : m_extended_sketch->get_load_rules()) {
         load_rules_by_memory_state[load_rule->get_memory_state_condition()].push_back(load_rule);
     }
     // Initialize IWRSearch
+    std::cout << "Initialize IWR search " << std::endl;
     int max_arity = 2;
-    mimir::planners::IWSearch iwsearch(
+    m_iw_search = make_unique<mimir::planners::IWSearch>(
         m_problem,
         mimir::planners::SuccessorGeneratorType::LIFTED,
-        std::make_unique<planners::SketchGoalTest>(m_problem, m_instance_info, nullptr);
+        std::make_unique<ExtendedSketchGoalTest>(m_problem, m_instance_info, sketches_by_memory_state),
         max_arity);
 
+    std::cout << "Run SIWR" << std::endl;
     while(true) {
         // Find rules for current memory state
-        auto it = load_rules_by_memory_state.find(current_memory_state);
-        if (it != load_rules_by_memory_state.end()) {
-            // TODO: apply load
+        auto it1 = load_rules_by_memory_state.find(current_memory_state);
+        if (it1 != load_rules_by_memory_state.end()) {
+            assert(it1->second.size() > 0);
+            const auto& load_rule = it1->second.front();
+            std::cout << "Apply load rule " << load_rule->compute_signature() << std::endl;
             continue;
         }
 
-        auto it = sketches_by_memory_state.find(current_memory_state);
-        if (it != sketches_by_memory_state.end()) {
-            // apply sketch
+        auto it2 = sketches_by_memory_state.find(current_memory_state);
+        if (it2 != sketches_by_memory_state.end()) {
+            std::cout << "Apply search rule" << std::endl;
             std::vector<Action> partial_plan;
             mimir::formalism::State final_state;
-            bool partial_solution_found = iwsearch.find_plan(current_state, register_contents, it->second, partial_plan, final_state);
+            bool partial_solution_found = m_iw_search->find_plan(current_state, register_contents, current_memory_state, partial_plan, final_state);
             if (!partial_solution_found) {
                 cout << "Failed to find partial solution" << endl;
                 return false;
             }
-            bool solution_found = literals_hold(problem_->goal, final_state) {
+            bool solution_found = literals_hold(m_problem->goal, final_state);
+            if (solution_found) {
                 cout << "Solution found!" << endl;
                 return true;
             }
@@ -116,7 +124,7 @@ void SIWRSearch::print_statistics(int num_indent) const {
             << " (" << fixed << setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << endl;
     cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
             << " (" << fixed << setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << endl;
-    inner_search_.get_goal_test()->print_statistics();
+    m_iw_search->get_goal_test()->print_statistics();
     cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << endl;
     cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << endl;
 }
