@@ -1,8 +1,0 @@
-add_subdirectory(algorithms)
-add_subdirectory(dlplan)
-add_subdirectory(formalism)
-add_subdirectory(generators)
-add_subdirectory(libraries)
-add_subdirectory(pddl)
-add_subdirectory(planners)
-add_subdirectory(schemas)
