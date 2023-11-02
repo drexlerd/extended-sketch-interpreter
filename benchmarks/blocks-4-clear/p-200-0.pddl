@@ -225,7 +225,17 @@
 )
 (:goal
 (and
-(clear b1))
+(clear b1)
+(clear b2)
+(clear b3)
+(clear b4)
+(clear b5)
+(clear b6)
+(clear b7)
+(clear b8)
+(clear b9)
+(clear b10)
+)
 )
 )
 
