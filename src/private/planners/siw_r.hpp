@@ -17,8 +17,28 @@ private:
     mimir::formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
     std::shared_ptr<dlplan::policy::PolicyFactory> m_policy_factory;
-    extended_sketch::ExtendedSketch m_extended_sketch;
+    ExtendedSketch m_extended_sketch;
     std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
+
+    std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> m_sketches_by_memory_state;
+    std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState> m_rule_to_memory_effect;
+    std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
+    std::unordered_map<Register, int> m_register_mapping;
+
+private:
+    bool try_apply_load_rule(
+        const dlplan::core::State& current_dlplan_state,
+        int& step,
+        dlplan::core::DenotationsCaches& denotation_caches,
+        MemoryState& current_memory_state,
+        std::vector<int>& register_contents);
+
+    bool try_apply_search_rule(
+        const std::vector<int>& register_contents,
+        mimir::formalism::State& current_state,
+        std::shared_ptr<const dlplan::core::State>& current_dlplan_state,
+        int& step,
+        MemoryState& current_memory_state);
 
 public:
     uint32_t pruned;

@@ -2,17 +2,17 @@
 #define SRC_PRIVATE_EXTENDED_SKETCH_EXTENDED_STATE_HPP_
 
 #include "src/private/formalism/declarations.hpp"
+#include "src/private/dlplan/include/dlplan/core.h"
 #include "declarations.hpp"
 
 
 namespace mimir::extended_sketch {
-struct ExtendedStateImpl {
+struct ExtendedState {
     MemoryState memory_state;
-
     mimir::formalism::State mimir_state;
+    std::shared_ptr<const dlplan::core::State> dlplan_state;
+    // register contents are stored within dlplan state since it used it for evaluation
 };
-
-// TODO: need extended state for evaluation in dlplan.
 
 }
 
