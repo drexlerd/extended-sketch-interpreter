@@ -98,11 +98,23 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         // Find rules for current memory state
         auto it1 = load_rules_by_memory_state.find(current_memory_state);
         if (it1 != load_rules_by_memory_state.end()) {
-            assert(it1->second.size() > 0);
-            const auto& load_rule = it1->second.front();
-            std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
-            load_rule->apply(*current_dlplan_state, register_mapping, denotation_caches, register_contents, current_memory_state);
-            continue;
+            bool applied_load = false;
+            for (const auto& load_rule : it1->second) {
+                bool all_conditions_satisfied = true;
+                for (const auto& condition : load_rule->get_feature_conditions()) {
+                    if (!condition->evaluate(*current_dlplan_state, denotation_caches)) {
+                        all_conditions_satisfied = false;
+                        break;
+                    }
+                }
+                if (all_conditions_satisfied) {
+                    std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
+                    load_rule->apply(*current_dlplan_state, register_mapping, denotation_caches, register_contents, current_memory_state);
+                    applied_load = true;
+                    break;
+                }
+            }
+            if (applied_load) continue;
         }
 
         auto it2 = sketches_by_memory_state.find(current_memory_state);
