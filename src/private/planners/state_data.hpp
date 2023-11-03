@@ -3,6 +3,8 @@
 
 #include "../formalism/problem.hpp"
 #include "src/private/extended_sketch/declarations.hpp"
+#include "src/private/extended_sketch/extended_state.hpp"
+
 
 #include <vector>
 
@@ -10,9 +12,7 @@
 namespace mimir::planners {
     struct StateData {
         uint32_t state_index;
-        formalism::State state;
-        std::shared_ptr<dlplan::core::State> dlplan_state;
-        mimir::extended_sketch::MemoryState memory_state;
+        mimir::extended_sketch::ExtendedState extended_state;
     };
 }
 

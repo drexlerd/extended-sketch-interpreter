@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-#include "extended_state.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
 
@@ -57,19 +56,26 @@ LoadRuleImpl::LoadRuleImpl(
 LoadRuleImpl::~LoadRuleImpl() = default;
 
 void LoadRuleImpl::apply(
-    const dlplan::core::State& current_state,
+    const ExtendedState& current_state,
     const std::unordered_map<Register, int>& register_mapping,
-    dlplan::core::DenotationsCaches& denotation_caches,
-    std::vector<int>& register_contents,
-    MemoryState& current_memory_state) {
-    const auto denotation = m_concept->get_concept()->evaluate(current_state, denotation_caches);
-    if (denotation->size() == 0) {
+    ExtendedState& successor_state) {
+    const auto denotation = m_concept->get_concept()->evaluate(*current_state.dlplan);
+    if (denotation.size() == 0) {
         throw std::runtime_error("Tried to load object from empty concept into register");
     }
-    int object_index = denotation->to_sorted_vector().front();
+    int object_index = denotation.to_sorted_vector().front();
+    std::vector<int> register_contents = current_state.dlplan->get_register_contents();
     register_contents[register_mapping.at(m_register)] = object_index;
-    current_memory_state = get_memory_state_effect();
-    const std::string& object_name = current_state.get_instance_info()->get_objects()[object_index].get_name();
+
+    successor_state.memory = get_memory_state_effect();
+    successor_state.mimir = current_state.mimir;
+    successor_state.dlplan = std::make_shared<dlplan::core::State>(
+        current_state.dlplan->get_instance_info(),
+        current_state.dlplan->get_atom_indices(),
+        register_contents,
+        current_state.dlplan->get_index());  // We keep the state the same, hence we cannot use caching
+
+    const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
     std::cout << "  Set content of register " << m_register->compute_signature() << " to object " << object_name << std::endl;
     std::cout << "  Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
 }

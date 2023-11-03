@@ -8,6 +8,8 @@
 #include "state_data.hpp"
 #include "random_generator.hpp"
 
+#include "src/private/extended_sketch/extended_state.hpp"
+
 #include "../dlplan/include/dlplan/novelty.h"
 
 #include "../formalism/action.hpp"
@@ -39,26 +41,20 @@ namespace mimir::planners
     /// @brief Spezialized implementation because there is no search at all.
     /// @return
     bool width_zero_search(
-        const formalism::State& initial_state,
-        const std::vector<int>& register_contents,
-        const mimir::extended_sketch::MemoryState& memory_state,
+        const mimir::extended_sketch::ExtendedState& initial_state,
+        mimir::extended_sketch::ExtendedState& final_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state,
-        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
         std::shared_ptr<const dlplan::policy::Rule>& reason);
 
     bool width_arity_search(
-        const formalism::State& initial_state,
-        const std::vector<int>& register_contents,
-        const mimir::extended_sketch::MemoryState& memory_state,
+        const mimir::extended_sketch::ExtendedState& initial_state,
+        mimir::extended_sketch::ExtendedState& final_state,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state,
-        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
         std::shared_ptr<const dlplan::policy::Rule>& reason);
 
   public:
@@ -84,12 +80,9 @@ namespace mimir::planners
     virtual ~IWSearch();
 
     virtual bool find_plan(
-      const formalism::State& initial_state,
-      const std::vector<int>& register_contents,
-      const mimir::extended_sketch::MemoryState& memory_state,
+      const mimir::extended_sketch::ExtendedState& initial_state,
+      mimir::extended_sketch::ExtendedState& final_state,
       std::vector<formalism::Action> &plan,
-      formalism::State& final_state,
-      std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
       std::shared_ptr<const dlplan::policy::Rule>& reason);
 
     void print_statistics(int num_indent=0) const;

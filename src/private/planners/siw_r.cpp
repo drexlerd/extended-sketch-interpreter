@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "src/private/extended_sketch/extended_sketch.hpp"
+#include "src/private/extended_sketch/extended_state.hpp"
 #include "src/private/extended_sketch/rules.hpp"
 #include "src/private/dlplan/include/dlplan/policy.h"
 #include "src/private/planners/iw_search.hpp"
@@ -67,24 +68,22 @@ SIWRSearch::SIWRSearch(
 }
 
 bool SIWRSearch::try_apply_load_rule(
-    const dlplan::core::State& current_dlplan_state,
+    const ExtendedState& current_state,
     int& step,
-    DenotationsCaches& denotation_caches,
-    MemoryState& current_memory_state,
-    std::vector<int>& register_contents) {
-    auto it1 = m_load_rules_by_memory_state.find(current_memory_state);
+    ExtendedState& successor_state) {
+    auto it1 = m_load_rules_by_memory_state.find(current_state.memory);
     if (it1 != m_load_rules_by_memory_state.end()) {
         for (const auto& load_rule : it1->second) {
             bool all_conditions_satisfied = true;
             for (const auto& condition : load_rule->get_feature_conditions()) {
-                if (!condition->evaluate(current_dlplan_state, denotation_caches)) {
+                if (!condition->evaluate(*current_state.dlplan)) {
                     all_conditions_satisfied = false;
                     break;
                 }
             }
             if (all_conditions_satisfied) {
                 std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
-                load_rule->apply(current_dlplan_state, m_register_mapping, denotation_caches, register_contents, current_memory_state);
+                load_rule->apply(current_state, m_register_mapping, successor_state);
                 return true;
             }
         }
@@ -93,19 +92,19 @@ bool SIWRSearch::try_apply_load_rule(
 }
 
 bool SIWRSearch::try_apply_search_rule(
-    const std::vector<int>& register_contents,
-    mimir::formalism::State& current_state,
-    std::shared_ptr<const dlplan::core::State>& current_dlplan_state,
+    const ExtendedState& current_state,
     int& step,
-    MemoryState& current_memory_state) {
-    auto it2 = m_sketches_by_memory_state.find(current_memory_state);
+    ExtendedState& successor_state) {
+    auto it2 = m_sketches_by_memory_state.find(current_state.memory);
     if (it2 != m_sketches_by_memory_state.end()) {
         std::cout << ++step << ". Apply search rule" << std::endl;
         std::vector<Action> partial_plan;
-        mimir::formalism::State final_state;
-        std::shared_ptr<const dlplan::core::State> final_dlplan_state;
         std::shared_ptr<const dlplan::policy::Rule> reason;
-        bool partial_solution_found = m_iw_search->find_plan(current_state, register_contents, current_memory_state, partial_plan, final_state, final_dlplan_state, reason);
+        bool partial_solution_found = m_iw_search->find_plan(
+            current_state,
+            successor_state,
+            partial_plan,
+            reason);
         pruned += m_iw_search->pruned;
         generated += m_iw_search->generated;
         expanded += m_iw_search->expanded;
@@ -128,13 +127,11 @@ bool SIWRSearch::try_apply_search_rule(
             cout << "Failed to find partial solution" << endl;
             return false;
         }
-        current_state = final_state;
-        current_dlplan_state = final_dlplan_state;
         if (!reason) {
             throw std::runtime_error("There should be a reason to reach a goal");
         }
-        current_memory_state = m_rule_to_memory_effect.at(reason);
-        std::cout << "  Set current memory state to " << current_memory_state->compute_signature() << std::endl;
+        successor_state.memory = m_rule_to_memory_effect.at(reason);
+        std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
         return true;
     }
 
@@ -144,15 +141,8 @@ bool SIWRSearch::try_apply_search_rule(
 
 bool SIWRSearch::find_plan(vector<Action>& plan) {
     std::cout << "Initialize extended state" << std::endl;
-
-    vector<int> register_contents(m_register_mapping.size(), 0);
-    auto current_state = create_state(m_problem->initial, m_problem);
-    std::shared_ptr<const dlplan::core::State> current_dlplan_state = nullptr;
-    {
-        mimir::planners::DLPlanAtomRegistry atom_registry(m_problem, m_instance_info);
-        current_dlplan_state = std::make_shared<dlplan::core::State>(m_instance_info, atom_registry.convert_state(current_state), 0);
-    }
-    MemoryState current_memory_state = m_extended_sketch->get_initial_memory_state();
+    ExtendedState current_state = mimir::extended_sketch::create_initial_state(
+        m_problem, m_instance_info, m_extended_sketch->get_initial_memory_state(), m_register_mapping.size());
 
     std::cout << "Initialize IW_R search" << std::endl;
     int max_arity = 2;
@@ -164,19 +154,28 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         max_arity);
 
     std::cout << std::endl << "Start SIW_R*" << std::endl;
-    dlplan::core::DenotationsCaches denotation_caches;
     const auto time_start = std::chrono::high_resolution_clock::now();
     int step = 0;
-    while (!literals_hold(m_problem->goal, current_state)) {
+    int num_iw_searches = 0;
+    while (!literals_hold(m_problem->goal, current_state.mimir)) {
         // Find rules for current memory state
-        bool applied = try_apply_load_rule(*current_dlplan_state, step, denotation_caches, current_memory_state, register_contents);
-        if (applied) continue;
-
-        applied = try_apply_search_rule(register_contents, current_state, current_dlplan_state, step, current_memory_state);
+        ExtendedState successor_state;
+        bool applied = try_apply_load_rule(current_state, step, successor_state);
+        if (applied) {
+            current_state = successor_state;
+            continue;
+        }
+        applied = try_apply_search_rule(current_state, step, successor_state);
+        if (applied) {
+            ++num_iw_searches;
+            current_state = successor_state;
+            continue;
+        }
     }
     const auto time_end = std::chrono::high_resolution_clock::now();
     time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
     time_total_ns = m_iw_search->time_grounding_ns + time_search_ns;
+    average_effective_arity /= static_cast<double>(num_iw_searches);
     return true;  // solved
 }
 

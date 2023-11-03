@@ -5,6 +5,7 @@
 
 #include "src/private/formalism/action_schema.hpp"
 
+#include "extended_state.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
 #include "call.hpp"
@@ -56,11 +57,9 @@ public:
     ~LoadRuleImpl() override;
 
     void apply(
-        const dlplan::core::State& current_state,
-        const std::unordered_map<Register, int>& register_mapping,
-        dlplan::core::DenotationsCaches& denotation_caches,
-        std::vector<int>& register_contents,
-        MemoryState& current_memory_state);
+        const ExtendedState& current_state,
+        const std::unordered_map<Register,int>& register_mapping,
+        ExtendedState& successor_state);
 
     void compute_signature(std::stringstream& out) const override;
 };

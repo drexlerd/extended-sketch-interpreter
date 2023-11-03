@@ -14,8 +14,6 @@ namespace mimir::planners {
 
 struct GoalTestResult {
     bool is_goal;
-    mimir::formalism::State state;
-    std::shared_ptr<const dlplan::core::State> dlplan_state;
     std::shared_ptr<const dlplan::policy::Rule> reason;
 };
 
@@ -28,7 +26,7 @@ private:
     std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state_;
     std::shared_ptr<const dlplan::policy::Policy> sketch_;
 
-    std::shared_ptr<dlplan::core::State> dlplan_initial_state_;
+    std::shared_ptr<const dlplan::core::State> dlplan_initial_state_;
     dlplan::core::DenotationsCaches caches_;
     std::vector<std::shared_ptr<const dlplan::policy::Rule>> applicable_rules_;
 
@@ -56,7 +54,7 @@ public:
         const auto start_sketch_goal = std::chrono::high_resolution_clock::now();
         std::shared_ptr<const dlplan::policy::Rule> reason = nullptr;
         for (const auto& rule : applicable_rules_) {
-            if (rule->evaluate_effects(*dlplan_initial_state_, *state_data.dlplan_state, caches_)) {
+            if (rule->evaluate_effects(*dlplan_initial_state_, *state_data.extended_state.dlplan, caches_)) {
                 is_goal = true;
                 reason = rule;
                 break;
@@ -65,7 +63,7 @@ public:
         const auto end_sketch_goal = std::chrono::high_resolution_clock::now();
         time_sketch_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end_sketch_goal - start_sketch_goal).count();
         if (is_goal) {
-            return GoalTestResult{true, state_data.state, state_data.dlplan_state, reason};
+            return GoalTestResult{true, reason};
         }
 
         /*
@@ -74,20 +72,20 @@ public:
         const auto end_top_goal = std::chrono::high_resolution_clock::now();
         time_top_goal_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(end_top_goal - start_top_goal).count();
         if (is_goal) {
-            return GoalTestResult{true, state_data.state, state_data.dlplan_state, nullptr};
+            return GoalTestResult{true, nullptr};
         }
         */
-        return GoalTestResult{false, nullptr, nullptr, nullptr};
+        return GoalTestResult{false, nullptr};
     }
 
     void set_initial_state(const mimir::planners::StateData& state_data) {
-        auto it = sketches_by_memory_state_.find(state_data.memory_state);
+        auto it = sketches_by_memory_state_.find(state_data.extended_state.memory);
         if (it == sketches_by_memory_state_.end()) {
             throw std::runtime_error("ExtendedSketchGoalTest::set_initial_state - no sketch exists for memory state");
         }
         sketch_ = it->second;
 
-        dlplan_initial_state_ = state_data.dlplan_state;
+        dlplan_initial_state_ = state_data.extended_state.dlplan;
         caches_ = dlplan::core::DenotationsCaches();
         applicable_rules_ = sketch_->evaluate_conditions(*dlplan_initial_state_, caches_);
         if (applicable_rules_.empty()) {

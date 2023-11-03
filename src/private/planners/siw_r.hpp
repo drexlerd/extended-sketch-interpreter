@@ -27,18 +27,14 @@ private:
 
 private:
     bool try_apply_load_rule(
-        const dlplan::core::State& current_dlplan_state,
+        const ExtendedState& current_state,
         int& step,
-        dlplan::core::DenotationsCaches& denotation_caches,
-        MemoryState& current_memory_state,
-        std::vector<int>& register_contents);
+        ExtendedState& successor_state);
 
     bool try_apply_search_rule(
-        const std::vector<int>& register_contents,
-        mimir::formalism::State& current_state,
-        std::shared_ptr<const dlplan::core::State>& current_dlplan_state,
+        const ExtendedState& current_state,
         int& step,
-        MemoryState& current_memory_state);
+        ExtendedState& successor_state);
 
 public:
     uint32_t pruned;

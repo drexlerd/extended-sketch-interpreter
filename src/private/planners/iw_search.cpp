@@ -101,28 +101,26 @@ namespace mimir::planners
     IWSearch::~IWSearch() { }
 
     bool IWSearch::width_zero_search(
-        const formalism::State& initial_state,
-        const std::vector<int>& register_contents,
-        const mimir::extended_sketch::MemoryState& memory_state,
+        const mimir::extended_sketch::ExtendedState& initial_state,
+        mimir::extended_sketch::ExtendedState& final_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state,
-        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
         std::shared_ptr<const dlplan::policy::Rule>& reason)
     {
-        uint32_t initial_state_index = state_registry.find_state(initial_state);
+        uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
         if (initial_state_index == StateRegistry::no_state) {
-            initial_state_index = state_registry.register_state(initial_state);
+            initial_state_index = state_registry.register_state(initial_state.mimir);
         }
         StateData state_data = StateData{
             initial_state_index,
-            initial_state,
-            std::make_shared<dlplan::core::State>(instance_info_,
-                atom_registry.convert_state(initial_state),
-                register_contents,
-                initial_state_index),
-            memory_state
+            mimir::extended_sketch::ExtendedState {
+                initial_state.memory,
+                initial_state.mimir,
+                std::make_shared<dlplan::core::State>(instance_info_,
+                    atom_registry.convert_state(initial_state.mimir),
+                    initial_state.dlplan->get_register_contents(),
+                    initial_state_index) }
         };
 
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
@@ -133,15 +131,14 @@ namespace mimir::planners
         if (goal_test_result.is_goal)
         {
             plan.clear();
-            final_state = goal_test_result.state;
-            final_dlplan_state = goal_test_result.dlplan_state;
+            final_state = state_data.extended_state;
             reason = goal_test_result.reason;
             return true;
         }
 
         ++expanded;
         const auto grounding_time_start = std::chrono::high_resolution_clock::now();
-        auto applicable_actions = successor_generator_->get_applicable_actions(initial_state);
+        auto applicable_actions = successor_generator_->get_applicable_actions(initial_state.mimir);
         std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
         const auto grounding_time_end = std::chrono::high_resolution_clock::now();
         time_successors_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
@@ -149,7 +146,7 @@ namespace mimir::planners
         for (const auto &action : applicable_actions)
         {
             const auto apply_time_start = std::chrono::high_resolution_clock::now();
-            const auto successor_state = formalism::apply(action, initial_state);
+            const auto successor_state = formalism::apply(action, initial_state.mimir);
             const auto apply_time_end = std::chrono::high_resolution_clock::now();
             time_apply_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(apply_time_end - apply_time_start).count();
 
@@ -160,12 +157,14 @@ namespace mimir::planners
                 successor_state_index = state_registry.register_state(successor_state);
                 StateData successor_state_data = StateData{
                     successor_state_index,
-                    successor_state,
-                    std::make_shared<dlplan::core::State>(instance_info_,
-                        atom_registry.convert_state(successor_state),
-                        register_contents,
-                        successor_state_index),
-                    memory_state
+                    mimir::extended_sketch::ExtendedState{
+                        initial_state.memory,
+                        successor_state,
+                        std::make_shared<dlplan::core::State>(instance_info_,
+                            atom_registry.convert_state(successor_state),
+                            initial_state.dlplan->get_register_contents(),
+                            successor_state_index)
+                    }
                 };
 
                 const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
@@ -176,8 +175,7 @@ namespace mimir::planners
                 {
                     plan.clear();
                     plan.push_back(action);
-                    final_state = goal_test_result.state;
-                    final_dlplan_state = goal_test_result.dlplan_state;
+                    final_state = successor_state_data.extended_state;
                     reason = goal_test_result.reason;
                     return true;
                 }
@@ -187,15 +185,12 @@ namespace mimir::planners
     }
 
     bool IWSearch::width_arity_search(
-        const formalism::State& initial_state,
-        const std::vector<int>& register_contents,
-        const mimir::extended_sketch::MemoryState& memory_state,
+        const mimir::extended_sketch::ExtendedState& initial_state,
+        mimir::extended_sketch::ExtendedState& final_state,
         int arity,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
         std::vector<formalism::Action> &plan,
-        formalism::State &final_state,
-        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
         std::shared_ptr<const dlplan::policy::Rule>& reason)
     {
         const auto time_start = std::chrono::high_resolution_clock::now();
@@ -209,10 +204,10 @@ namespace mimir::planners
             std::make_shared<dlplan::novelty::NoveltyBase>(atom_registry.get_num_reached_ranks(), arity));
 
         {
-            uint32_t initial_state_index = state_registry.find_state(initial_state);
+            uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
             if (initial_state_index == StateRegistry::no_state)
             {
-                initial_state_index = state_registry.register_state(initial_state);
+                initial_state_index = state_registry.register_state(initial_state.mimir);
             }
 
             uint32_t context_index = state_to_context_index.get_context_index(initial_state_index);
@@ -223,17 +218,9 @@ namespace mimir::planners
                 }
                 g_values_[initial_state_index] = 0;
                 std::cout << "[" << 0 << "]" << std::flush;
-                StateData state_data = StateData{
-                    initial_state_index,
-                    initial_state,
-                    std::make_shared<dlplan::core::State>(instance_info_,
-                        atom_registry.convert_state(initial_state),
-                        register_contents,
-                        initial_state_index),
-                    memory_state
-                };
+                StateData state_data = StateData{ initial_state_index, initial_state };
 
-                if (test_prune({}, state_data.dlplan_state->get_atom_indices(), novelty_table))
+                if (test_prune({}, state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
                 {
                     ++pruned;
                     assert(context_index == StateToContextIndex::not_exists);
@@ -288,12 +275,14 @@ namespace mimir::planners
             const auto state = state_registry.lookup_state(context.state_index);
             StateData state_data = StateData{
                 state_index,
-                state,
-                std::make_shared<dlplan::core::State>(instance_info_,
-                    atom_registry.convert_state(state),
-                    register_contents,
-                    state_index),
-                memory_state
+                mimir::extended_sketch::ExtendedState {
+                    initial_state.memory,
+                    state,
+                    std::make_shared<dlplan::core::State>(instance_info_,
+                        atom_registry.convert_state(state),
+                        initial_state.dlplan->get_register_contents(),
+                        state_index),
+                }
             };
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
             std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
@@ -326,14 +315,16 @@ namespace mimir::planners
                     }
                     StateData successor_state_data = StateData{
                         successor_state_index,
-                        successor_state,
-                        std::make_shared<dlplan::core::State>(instance_info_,
-                            atom_registry.convert_state(successor_state),
-                            register_contents,
-                            successor_state_index),
-                        memory_state
+                        mimir::extended_sketch::ExtendedState {
+                            initial_state.memory,
+                            successor_state,
+                            std::make_shared<dlplan::core::State>(instance_info_,
+                                atom_registry.convert_state(successor_state),
+                                initial_state.dlplan->get_register_contents(),
+                                successor_state_index)
+                        }
                     };
-                    if (test_prune(state_data.dlplan_state->get_atom_indices(), successor_state_data.dlplan_state->get_atom_indices(), novelty_table))
+                    if (test_prune(state_data.extended_state.dlplan->get_atom_indices(), successor_state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
                     {
                         ++pruned;
                         assert(successor_context_index == StateToContextIndex::not_exists);
@@ -360,8 +351,7 @@ namespace mimir::planners
                         if (goal_test_result.is_goal)
                         {
                             search_space.set_plan(successor_context_index, plan);
-                            final_state = goal_test_result.state;
-                            final_dlplan_state = goal_test_result.dlplan_state;
+                            final_state = state_data.extended_state;
                             reason = goal_test_result.reason;
                             return true;
                         }
@@ -373,12 +363,9 @@ namespace mimir::planners
     }
 
     bool IWSearch::find_plan(
-        const formalism::State& initial_state,
-        const std::vector<int>& register_contents,
-        const mimir::extended_sketch::MemoryState& memory_state,
+        const mimir::extended_sketch::ExtendedState& initial_state,
+        mimir::extended_sketch::ExtendedState& final_state,
         std::vector<formalism::Action> &plan,
-        formalism::State& final_state,
-        std::shared_ptr<const dlplan::core::State>& final_dlplan_state,
         std::shared_ptr<const dlplan::policy::Rule>& reason) {
         pruned = 0;
         generated = 0;
@@ -398,7 +385,7 @@ namespace mimir::planners
             effective_arity = arity;
             if (arity == 0)
             {
-                if (width_zero_search(initial_state, register_contents, memory_state, state_registry, atom_registry, plan, final_state, final_dlplan_state, reason))
+                if (width_zero_search(initial_state, final_state, state_registry, atom_registry, plan, reason))
                 {
                     found_solution = true;
                     break;
@@ -407,7 +394,7 @@ namespace mimir::planners
             else
             {
                 std::cout << std::endl;
-                if (width_arity_search(initial_state, register_contents, memory_state, arity, state_registry, atom_registry, plan, final_state, final_dlplan_state, reason))
+                if (width_arity_search(initial_state, final_state, arity, state_registry, atom_registry, plan, reason))
                 {
                     found_solution = true;
                     break;
