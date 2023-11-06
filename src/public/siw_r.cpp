@@ -92,4 +92,4 @@ int main(int argc, char** argv) {
 }
 
 
-// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/blocks-4-clear/domain.pddl benchmarks/blocks-4-clear/p-2-0.pddl benchmarks/blocks-4-clear/sketch.pddl
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/public/siw_r benchmarks/blocks-4-clear/domain.pddl benchmarks/blocks-4-clear/p-200-0.pddl benchmarks/blocks-4-clear/sketch.pddl
