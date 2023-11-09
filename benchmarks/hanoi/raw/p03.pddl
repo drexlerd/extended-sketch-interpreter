@@ -19,8 +19,6 @@
 (smaller d3 d1)
 (smaller d2 d2)
 (smaller d3 d2)
-(next d3 d2)
-(next d2 d1)
 (clear peg2)
             (clear peg3)
             (clear d1)

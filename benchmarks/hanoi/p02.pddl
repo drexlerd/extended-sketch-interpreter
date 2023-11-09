@@ -13,6 +13,7 @@
 (smaller peg3 d2)
 (smaller d1 d1)
 (smaller d2 d1)
+(next d2 d1)
 (clear peg2)
             (clear peg3)
             (clear d1)

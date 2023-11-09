@@ -194,7 +194,7 @@ namespace mimir::extended_sketch { namespace parser
     const auto signature_def = lit('(') >> lit(":signature")
         > name
             > lit('(')
-                >> parameter % lit(',')
+                >> -(parameter % lit(','))
             > lit(')')
         > lit(')');
 

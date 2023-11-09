@@ -22,6 +22,8 @@ public:
         const ExtendedSketch& extended_sketch);
 
     std::string compute_signature() const;
+
+    const ExtendedSketch& get_extended_sketch() const;
 };
 
 extern Module make_module(

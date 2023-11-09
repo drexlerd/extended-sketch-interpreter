@@ -3,8 +3,7 @@
 (:requirements :strips)
 (:predicates (clear ?x)
              (on ?x ?y)
-             (smaller ?x ?y)
-             (next ?x ?y))
+             (smaller ?x ?y))
 
 (:action move
 :parameters (?disc ?from ?to)

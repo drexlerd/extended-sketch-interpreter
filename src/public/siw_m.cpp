@@ -9,6 +9,7 @@
 
 #include "src/private/extended_sketch/module.hpp"
 #include "src/private/parsers/driver.hpp"
+#include "src/private/parsers/semantic/parser.hpp"
 #include "src/private/parsers/semantic/context.hpp"
 
 
@@ -79,9 +80,10 @@ int main(int argc, char** argv) {
         modules.push_back(module_);
         cout << module_->compute_signature() << endl;
     }
+    resolve_function_calls(modules);
     // 4. Run SIW_M
     return 0;
 }
 
 
-// cmake -S . -B build && cmake --build build -j16 && ./build/src/planner/siw_r benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/success.sketch
+// cmake -S . -B build && cmake --build build -j16 && ./build/src/public/siw_m benchmarks/blocks-tower/domain.pddl benchmarks/blocks-tower/p-4-0.pddl benchmarks/blocks-tower/module.pddl

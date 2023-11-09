@@ -67,13 +67,15 @@ void LoadRuleImpl::apply(
     std::vector<int> register_contents = current_state.dlplan->get_register_contents();
     register_contents[register_mapping.at(m_register)] = object_index;
 
-    successor_state.memory = get_memory_state_effect();
-    successor_state.mimir = current_state.mimir;
-    successor_state.dlplan = std::make_shared<dlplan::core::State>(
-        current_state.dlplan->get_instance_info(),
-        current_state.dlplan->get_atom_indices(),
-        register_contents,
-        current_state.dlplan->get_index());  // We keep the state the same, hence we cannot use caching
+    successor_state = ExtendedState {
+        get_memory_state_effect(),
+        current_state.mimir,
+        std::make_shared<dlplan::core::State>(
+            current_state.dlplan->get_instance_info(),
+            current_state.dlplan->get_atom_indices(),
+            register_contents,
+            current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
+    };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
     std::cout << "  Set content of register " << m_register->compute_signature() << " to object " << object_name << std::endl;

@@ -355,4 +355,15 @@ Module parse(const ast::Module& node, const dlplan::error_handler_type& error_ha
     return make_module(signature, extended_sketch);
 }
 
+
+void resolve_function_calls(
+    const ModuleList& modules) {
+    for (const auto& module : modules) {
+        for (const auto& call_rule : module->get_extended_sketch()->get_call_rules()) {
+            std::cout << call_rule->m_call.compute_signature() << std::endl;
+
+        }
+    }
+}
+
 }

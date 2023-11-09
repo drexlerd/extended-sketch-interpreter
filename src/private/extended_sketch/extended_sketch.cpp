@@ -64,7 +64,7 @@ std::string ExtendedSketchImpl::compute_signature() const {
         ss << pair.second->compute_signature() << " ";
     }
     ss << ")\n";  // memory_states
-    ss << "(:initial_memory-state " << m_initial_memory_state->compute_signature() << ")\n";
+    ss << "(:initial_memory_state " << m_initial_memory_state->compute_signature() << ")\n";
     ss << "(:registers ";
     for (const auto& pair : m_registers) {
         ss << pair.second->compute_signature() << " ";

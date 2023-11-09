@@ -23,6 +23,9 @@ extern Module parse(
     const dlplan::error_handler_type& error_handler,
     Context& context);
 
+extern void resolve_function_calls(
+    const ModuleList& modules);
+
 }
 
 #endif
