@@ -8,7 +8,8 @@
 #include "extended_state.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
-#include "call.hpp"
+#include "action_call.hpp"
+#include "module_call.hpp"
 
 
 namespace mimir::extended_sketch {
@@ -75,7 +76,7 @@ extern LoadRule make_load_rule(
 
 class CallRuleImpl : public ExtendedRuleImpl {
 public:
-    Call m_call;
+    ModuleCall m_call;
 
     class ExtendedSketchImpl;
     std::weak_ptr<ExtendedSketchImpl> callee;
@@ -91,7 +92,7 @@ public:
         const MemoryState& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const Call& call);
+        const ModuleCall& call);
     ~CallRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
@@ -102,13 +103,12 @@ extern CallRule make_call_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Call& call);
+    const ModuleCall& call);
 
 
 class ActionRuleImpl : public ExtendedRuleImpl {
 public:
-    mimir::formalism::ActionSchema m_action_schema;
-    std::vector<Register> m_arguments;
+    ActionCall m_call;
 
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
@@ -121,8 +121,7 @@ public:
         const MemoryState& memory_state_effect,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const mimir::formalism::ActionSchema& action_schema,
-        const std::vector<Register>& arguments);
+        const ActionCall& call);
     ~ActionRuleImpl() override;
 
     void compute_signature(std::stringstream& out) const override;
@@ -133,8 +132,7 @@ extern ActionRule make_action_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const mimir::formalism::ActionSchema& action_schema,
-    const std::vector<Register>& arguments);
+    const ActionCall& call);
 
 
 class SearchRuleImpl : public ExtendedRuleImpl {

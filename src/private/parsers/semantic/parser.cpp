@@ -8,7 +8,8 @@
 #include "../../extended_sketch/register.hpp"
 #include "../../extended_sketch/rules.hpp"
 #include "../../extended_sketch/extended_sketch.hpp"
-#include "../../extended_sketch/call.hpp"
+#include "../../extended_sketch/module_call.hpp"
+#include "../../extended_sketch/action_call.hpp"
 #include "../../extended_sketch/signature.hpp"
 #include "../../extended_sketch/module.hpp"
 #include "../../extended_sketch/parameters.hpp"
@@ -148,13 +149,13 @@ static Argument parse(const ast::Argument& node, const error_handler_type& error
     return visitor.result;
 }
 
-static Call parse(const ast::Call& node, const error_handler_type& error_handler, Context& context) {
+static ModuleCall parse(const ast::ModuleCall& node, const error_handler_type& error_handler, Context& context) {
     const auto name = parse(node.name, error_handler, context);
     ArgumentList arguments;
     for (const auto& child_node : node.arguments) {
         arguments.push_back(parse(child_node, error_handler, context));
     }
-    return Call(name, arguments);
+    return ModuleCall(name, arguments);
 }
 
 static CallRule parse(const ast::CallRule& node, const error_handler_type& error_handler, Context& context) {
@@ -168,8 +169,8 @@ static CallRule parse(const ast::CallRule& node, const error_handler_type& error
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto call = parse(node.call, error_handler, context);
-    return make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, call);
+    auto module_call = parse(node.call, error_handler, context);
+    return make_call_rule(memory_condition, memory_effect, feature_conditions, feature_effects, module_call);
 }
 
 static mimir::formalism::ActionSchema parse(const ast::ActionReference& node, const error_handler_type& error_handler, Context& context) {
@@ -179,6 +180,15 @@ static mimir::formalism::ActionSchema parse(const ast::ActionReference& node, co
         error_handler(node.reference, "undefined action schema " + action_name);
     }
     return it->second;
+}
+
+static ActionCall parse(const ast::ActionCall& node, const error_handler_type& error_handler, Context& context) {
+    auto action_schema = parse(node.reference, error_handler, context);
+    ArgumentList arguments;
+    for (const auto& child_node : node.arguments) {
+        arguments.push_back(parse(child_node, error_handler, context));
+    }
+    return ActionCall(action_schema, arguments);
 }
 
 static ActionRule parse(const ast::ActionRule& node, const error_handler_type& error_handler, Context& context) {
@@ -192,12 +202,8 @@ static ActionRule parse(const ast::ActionRule& node, const error_handler_type& e
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto action_schema = parse(node.action_reference, error_handler, context);
-    std::vector<Register> registers;
-    for (const auto& register_node : node.register_references) {
-        registers.push_back(parse(register_node, error_handler, context));
-    }
-    return make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_schema, registers);
+    auto action_call = parse(node.call, error_handler, context);
+    return make_action_rule(memory_condition, memory_effect, feature_conditions, feature_effects, action_call);
 }
 
 static SearchRule parse(const ast::SearchRule& node, const error_handler_type& error_handler, Context& context) {

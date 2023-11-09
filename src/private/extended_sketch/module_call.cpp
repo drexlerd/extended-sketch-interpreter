@@ -1,22 +1,22 @@
-#include "call.hpp"
+#include "module_call.hpp"
 
 #include <sstream>
 
 
 namespace mimir::extended_sketch {
 
-Call::Call(const std::string& name, const ArgumentList& arguments)
+ModuleCall::ModuleCall(const std::string& name, const ArgumentList& arguments)
     : name(name), arguments(arguments) { }
 
-const std::string& Call::get_name() const {
+const std::string& ModuleCall::get_name() const {
     return name;
 }
 
-const ArgumentList& Call::get_arguments() const {
+const ArgumentList& ModuleCall::get_arguments() const {
     return arguments;
 }
 
-std::string Call::compute_signature() const {
+std::string ModuleCall::compute_signature() const {
     std::stringstream ss;
     ss << name
        << "(";

@@ -119,7 +119,7 @@ CallRuleImpl::CallRuleImpl(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Call& call)
+    const ModuleCall& call)
     : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_call(call),
       callee() { }
@@ -146,7 +146,7 @@ CallRule make_call_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Call& call) {
+    const ModuleCall& call) {
     return std::make_shared<CallRuleImpl>(
         condition_memory_state, effect_memory_state,
         feature_conditions, feature_effects,
@@ -159,11 +159,9 @@ ActionRuleImpl::ActionRuleImpl(
     const MemoryState& memory_state_effect,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const mimir::formalism::ActionSchema& action_schema,
-    const std::vector<Register>& arguments)
+    const ActionCall& call)
     : ExtendedRuleImpl( memory_state_condition, memory_state_effect, feature_conditions, feature_effects),
-      m_action_schema(action_schema),
-      m_arguments(arguments) { }
+      m_call(call) { }
 
 ActionRuleImpl::~ActionRuleImpl() = default;
 
@@ -177,12 +175,7 @@ void ActionRuleImpl::compute_signature(std::stringstream& out) const {
     out << ") ";  // conditions
     out << "(:effects ";
     out << "(:memory " << m_memory_state_effect->name << ") ";
-    out << "(:action_name " << m_action_schema->name << ") ";
-    out << "(:registers ";
-    for (const auto& argument : m_arguments) {
-        out << argument->name << " ";
-    }
-    out << ")";  // registers
+    out << "(:action " << m_call.compute_signature() << ") ";
     out << ") ";  // effects
     out << ")";  // rule
 }
@@ -192,12 +185,11 @@ ActionRule make_action_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const mimir::formalism::ActionSchema& action_schema,
-    const std::vector<Register>& arguments) {
+    const ActionCall& call) {
     return std::make_shared<ActionRuleImpl>(
         condition_memory_state, effect_memory_state,
         feature_conditions, feature_effects,
-        action_schema, arguments);
+        call);
 }
 
 

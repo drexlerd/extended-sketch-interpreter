@@ -33,10 +33,11 @@ namespace mimir::extended_sketch
         struct ArgumentRegisterClass;
         struct ArgumentConceptClass;
         struct ArgumentClass;
-        struct CallClass;
+        struct ModuleCallClass;
         struct CallRuleClass;
 
         struct ActionReferenceClass;
+        struct ActionCallClass;
         struct ActionRuleClass;
 
         struct SearchRuleClass;
@@ -70,10 +71,11 @@ namespace mimir::extended_sketch
         typedef x3::rule<ArgumentRegisterClass, ast::ArgumentRegister> argument_register_type;
         typedef x3::rule<ArgumentConceptClass, ast::ArgumentConcept> argument_concept_type;
         typedef x3::rule<ArgumentClass, ast::Argument> argument_type;
-        typedef x3::rule<CallClass, ast::Call> call_type;
+        typedef x3::rule<ModuleCallClass, ast::ModuleCall> module_call_type;
         typedef x3::rule<CallRuleClass, ast::CallRule> call_rule_type;
 
         typedef x3::rule<ActionReferenceClass, ast::ActionReference> action_reference_type;
+        typedef x3::rule<ActionCallClass, ast::ActionCall> action_call_type;
         typedef x3::rule<ActionRuleClass, ast::ActionRule> action_rule_type;
 
         typedef x3::rule<SearchRuleClass, ast::SearchRule> search_rule_type;
@@ -94,8 +96,8 @@ namespace mimir::extended_sketch
             register_type, register_reference_type, registers_type,
             memory_condition_type, memory_effect_type,
             load_rule_type,
-            argument_register_type, argument_concept_type, argument_type, call_type, call_rule_type,
-            action_reference_type, action_rule_type,
+            argument_register_type, argument_concept_type, argument_type, module_call_type, call_rule_type,
+            action_reference_type, action_call_type, action_rule_type,
             search_rule_type,
             rule_type, rules_type,
             extended_sketch_type, extended_sketch_root_type,
@@ -122,10 +124,11 @@ namespace mimir::extended_sketch
     parser::argument_register_type const& argument_register();
     parser::argument_concept_type const& argument_concept();
     parser::argument_type const& argument();
-    parser::call_type const& call();
+    parser::module_call_type const& module_call();
     parser::call_rule_type const& call_rule();
 
     parser::action_reference_type const& action_reference();
+    parser::action_call_type const& action_call();
     parser::action_rule_type const& action_rule();
 
     parser::search_rule_type const& search_rule();

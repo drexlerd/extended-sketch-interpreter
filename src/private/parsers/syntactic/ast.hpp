@@ -117,7 +117,7 @@ namespace mimir::extended_sketch::ast
         using base_type::operator=;
     };
 
-    struct Call : x3::position_tagged {
+    struct ModuleCall : x3::position_tagged {
         Name name;
         std::vector<Argument> arguments;
     };
@@ -127,11 +127,16 @@ namespace mimir::extended_sketch::ast
         std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
         std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
-        Call call;
+        ModuleCall call;
     };
 
     struct ActionReference : x3::position_tagged {
         Name reference;
+    };
+
+    struct ActionCall : x3::position_tagged {
+        ActionReference reference;
+        std::vector<Argument> arguments;
     };
 
     struct ActionRule : x3::position_tagged {
@@ -139,8 +144,7 @@ namespace mimir::extended_sketch::ast
         std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
         std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
-        ActionReference action_reference;
-        std::vector<RegisterReference> register_references;
+        ActionCall call;
     };
 
     struct SearchRule : x3::position_tagged {

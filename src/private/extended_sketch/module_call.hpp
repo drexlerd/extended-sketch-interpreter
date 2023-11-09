@@ -1,5 +1,5 @@
-#ifndef SRC_PRIVATE_EXTENDED_SKETCH_CALL_HPP_
-#define SRC_PRIVATE_EXTENDED_SKETCH_CALL_HPP_
+#ifndef SRC_PRIVATE_EXTENDED_SKETCH_MODULE_CALL_HPP_
+#define SRC_PRIVATE_EXTENDED_SKETCH_MODULE_CALL_HPP_
 
 #include <string>
 
@@ -7,13 +7,13 @@
 
 namespace mimir::extended_sketch {
 
-class Call {
+class ModuleCall {
 private:
     std::string name;
     ArgumentList arguments;
 
 public:
-    Call(const std::string& name, const ArgumentList& arguments);
+    ModuleCall(const std::string& name, const ArgumentList& arguments);
 
     const std::string& get_name() const;
     const ArgumentList& get_arguments() const;

@@ -67,11 +67,13 @@ namespace mimir::extended_sketch { namespace parser
 
     argument_type const argument = "argument";
 
-    call_type const call = "call";
+    module_call_type const module_call = "module_call";
 
     call_rule_type const call_rule = "call_rule";
 
     action_reference_type const action_reference = "action_reference";
+
+    action_call_type const action_call = "action_call";
 
     action_rule_type const action_rule = "action_rule";
 
@@ -133,7 +135,7 @@ namespace mimir::extended_sketch { namespace parser
     const auto argument_register_def = lit(":register") > register_reference;
     const auto argument_concept_def = lit(":concept") > dlplan::policy::concept_reference();
     const auto argument_def = argument_register | argument_concept;
-    const auto call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
+    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
@@ -143,11 +145,12 @@ namespace mimir::extended_sketch { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::feature_effect()
-                > call
+                > module_call
             > lit(')')
         > lit(')');
 
     const auto action_reference_def = name;
+    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> argument % lit(',') > lit(')') > lit(')');
     const auto action_rule_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
@@ -157,7 +160,7 @@ namespace mimir::extended_sketch { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::feature_effect()
-                > lit('(') > lit(":action") > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
+                > action_call
             > lit(')')
         > lit(')');
 
@@ -210,8 +213,8 @@ namespace mimir::extended_sketch { namespace parser
         register_, register_reference, registers,
         memory_condition, memory_effect,
         load_rule,
-        argument_register, argument_concept, argument, call, call_rule,
-        action_reference, action_rule,
+        argument_register, argument_concept, argument, module_call, call_rule,
+        action_reference, action_call, action_rule,
         search_rule,
         rule, rules,
         extended_sketch, extended_sketch_root,
@@ -237,9 +240,10 @@ namespace mimir::extended_sketch { namespace parser
     struct ArgumentConceptClass : x3::annotate_on_success {};
     struct ArgumentClass : x3::annotate_on_success {};
     struct ArgumentsClass : x3::annotate_on_success {};
-    struct CallClass : x3::annotate_on_success {};
+    struct ModuleCallClass : x3::annotate_on_success {};
     struct CallRuleClass : x3::annotate_on_success {};
     struct ActionReferenceClass : x3::annotate_on_success {};
+    struct ActionCallClass : x3::annotate_on_success {};
     struct ActionRuleClass : x3::annotate_on_success {};
     struct SearchRuleClass : x3::annotate_on_success {};
     struct RuleClass : x3::annotate_on_success {};
@@ -318,8 +322,8 @@ namespace mimir::extended_sketch
         return parser::argument;
     }
 
-    parser::call_type const& call() {
-        return parser::call;
+    parser::module_call_type const& module_call() {
+        return parser::module_call;
     }
 
     parser::call_rule_type const& call_rule() {
@@ -329,6 +333,10 @@ namespace mimir::extended_sketch
 
     parser::action_reference_type const& action_reference() {
         return parser::action_reference;
+    }
+
+    parser::action_call_type const& action_call() {
+        return parser::action_call;
     }
 
     parser::action_rule_type const& action_rule() {

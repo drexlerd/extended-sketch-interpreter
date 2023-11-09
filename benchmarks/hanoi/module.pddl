@@ -30,11 +30,13 @@
         (:initial_memory_state m0)
         (:registers (r4))
         (:booleans )
-        (:numericals )
+        (:numericals
+            (nS "n_count(c_some(r_primitive(next,0,1),c_register(0)))")
+        )
         (:concepts
             (S "c_some(r_primitive(next,0,1),c_register(0))")
         )
-        (:load_rule   (:conditions (:memory m0) (:c_n_gt S)             ) (:effects (:memory m1) (:load (r4 S))))
+        (:load_rule   (:conditions (:memory m0) (:c_n_gt nS)             ) (:effects (:memory m1) (:load (r4 S))))
         (:call_rule (:conditions (:memory m1) ) (:effects (:memory m2) (:call hanoi(:register r4, :register r1, :register r3, :register r2))))
         (:call_rule (:conditions (:memory m2) ) (:effects (:memory m3) (:call hanoi(:register r4, :register r1, :register r3, :register r2))))
 
