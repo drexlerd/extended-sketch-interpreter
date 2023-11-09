@@ -67,7 +67,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${CMAKE_CURRENT_LIST_DIR}")
-include_directories("${CMAKE_CURRENT_LIST_DIR}/src/private/dlplan")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/src/private/dlplan/")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

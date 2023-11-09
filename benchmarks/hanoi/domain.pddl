@@ -1,6 +1,7 @@
 
 (define (domain hanoi)
 (:requirements :strips)
+(:constants peg1 peg2 peg3 )
 (:predicates (clear ?x)
              (on ?x ?y)
              (smaller ?x ?y)
@@ -16,4 +17,5 @@
               (on ?disc ?to)
               (not (on ?disc ?from))
               (not (clear ?to)))
- ))
+ )
+ )

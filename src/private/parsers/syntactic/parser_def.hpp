@@ -157,7 +157,7 @@ namespace mimir::extended_sketch { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::feature_effect()
-                > lit('(') > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
+                > lit('(') > lit(":action") > action_reference > lit('(') > *register_reference > lit(')') > lit(')')
             > lit(')')
         > lit(')');
 

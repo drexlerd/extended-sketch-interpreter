@@ -3,7 +3,7 @@
 
 (define (problem hanoi-3)
 (:domain hanoi)
-(:objects peg1 peg2 peg3 d1 d2 d3 )
+(:objects d1 d2 d3 )
 (:init
 (smaller peg1 d1)
 (smaller peg1 d2)
@@ -19,8 +19,11 @@
 (smaller d3 d1)
 (smaller d2 d2)
 (smaller d3 d2)
-(next d3 d2)
+(next d1 peg1)
+(next d1 peg2)
+(next d1 peg3)
 (next d2 d1)
+(next d3 d2)
 (clear peg2)
             (clear peg3)
             (clear d1)
@@ -29,7 +32,7 @@
 (on d1 d2)
 )
 (:goal
-(and 
+(and
 (on d3 peg3)
 (on d2 d3)
 (on d1 d2)
