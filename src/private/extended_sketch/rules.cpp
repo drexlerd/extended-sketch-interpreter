@@ -95,7 +95,7 @@ void LoadRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& effect : m_feature_effects) {
         out << effect->str() << " ";
     }
-    out << "(:load " << m_register->name << " " << m_concept->get_key() << ") ";
+    out << "(:load (" << m_register->name << " " << m_concept->get_key() << ")) ";
     out << ") ";  // effects
     out << ")";  // rule
 }
