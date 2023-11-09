@@ -4,7 +4,7 @@
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/support/utility/annotate_on_success.hpp>
 
-#include "src/private/dlplan/include/dlplan/policy/parsers/syntactic/parser.hpp"
+#include "../../dlplan/include/dlplan/policy/parsers/syntactic/parser.hpp"
 
 #include "error_handler.hpp"
 #include "ast.hpp"

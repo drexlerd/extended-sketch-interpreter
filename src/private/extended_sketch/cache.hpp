@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "src/private/dlplan/src/utils/cache.h"
+#include "../dlplan/src/utils/cache.h"
 
 #include "declarations.hpp"
 

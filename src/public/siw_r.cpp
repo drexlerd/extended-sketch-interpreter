@@ -1,15 +1,15 @@
 #include <string>
 #include <iostream>
 
-#include "src/private/dlplan/include/dlplan/common/parsers/filesystem.hpp"
-#include "src/private/dlplan/include/dlplan/core.h"
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/formalism/domain.hpp"
-#include "src/private/pddl/pddl_parser.hpp"
+#include "../private/dlplan/include/dlplan/common/parsers/filesystem.hpp"
+#include "../private/dlplan/include/dlplan/core.h"
+#include "../private/dlplan/include/dlplan/policy.h"
+#include "../private/formalism/domain.hpp"
+#include "../private/pddl/pddl_parser.hpp"
 
-#include "src/private/extended_sketch/extended_sketch.hpp"
-#include "src/private/parsers/driver.hpp"
-#include "src/private/planners/siw_r.hpp"
+#include "../private/extended_sketch/extended_sketch.hpp"
+#include "../private/parsers/driver.hpp"
+#include "../private/planners/siw_r.hpp"
 
 
 using namespace std;

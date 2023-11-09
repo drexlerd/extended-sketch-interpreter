@@ -1,13 +1,13 @@
 #ifndef DLPLAN_INCLUDE_DLPLAN_CORE_PARSERS_SEMANTIC_PARSER_HPP_
 #define DLPLAN_INCLUDE_DLPLAN_CORE_PARSERS_SEMANTIC_PARSER_HPP_
 
+#include "../syntactic/ast.hpp"
+
+#include "../../../common/parsers/config.hpp"
+#include "../../../core.h"
+
 #include <tuple>
 #include <variant>
-
-#include "include/dlplan/core.h"
-
-#include "include/dlplan/common/parsers/config.hpp"
-#include "include/dlplan/core/parsers/syntactic/ast.hpp"
 
 
 namespace dlplan::core {
@@ -47,6 +47,8 @@ extern std::shared_ptr<const core::Concept> parse(const ast::OrConcept& node, co
 extern std::shared_ptr<const core::Concept> parse(const ast::PrimitiveConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 
 extern std::shared_ptr<const core::Concept> parse(const ast::ProjectionConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
+
+extern std::shared_ptr<const core::Concept> parse(const ast::RegisterConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 
 extern std::shared_ptr<const core::Concept> parse(const ast::SomeConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 

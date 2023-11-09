@@ -4,9 +4,9 @@
 #include <tuple>
 #include <variant>
 
-#include "src/private/dlplan/include/dlplan/common/parsers/config.hpp"
-#include "src/private/extended_sketch/declarations.hpp"
-#include "src/private/parsers/syntactic/ast.hpp"
+#include "../../dlplan/include/dlplan/common/parsers/config.hpp"
+#include "../../extended_sketch/declarations.hpp"
+#include "../../parsers/syntactic/ast.hpp"
 
 
 #include "context.hpp"

@@ -1,8 +1,8 @@
 #ifndef SRC_PRIVATE_EXTENDED_SKETCH_EXTENDED_STATE_HPP_
 #define SRC_PRIVATE_EXTENDED_SKETCH_EXTENDED_STATE_HPP_
 
-#include "src/private/formalism/declarations.hpp"
-#include "src/private/dlplan/include/dlplan/core.h"
+#include "../formalism/declarations.hpp"
+#include "../dlplan/include/dlplan/core.h"
 #include "declarations.hpp"
 
 

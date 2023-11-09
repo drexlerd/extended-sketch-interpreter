@@ -63,12 +63,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Add library and executable targets
 ##############################################################
 
-# add_compile_definitions(BOOST_PHOENIX_STL_TUPLE_H_)
-
-# include_directories("${PROJECT_SOURCE_DIR}")
-include_directories("${CMAKE_CURRENT_LIST_DIR}")
-include_directories("${CMAKE_CURRENT_LIST_DIR}/src/private/dlplan/")
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src)

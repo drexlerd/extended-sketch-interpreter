@@ -7,7 +7,7 @@
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
 
-#include "src/private/dlplan/include/dlplan/policy/parsers/syntactic/ast.hpp"
+#include "../../dlplan/include/dlplan/policy/parsers/syntactic/ast.hpp"
 
 
 namespace mimir::extended_sketch::ast

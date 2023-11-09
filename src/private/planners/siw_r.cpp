@@ -3,12 +3,12 @@
 #include <iostream>
 #include <iomanip>
 
-#include "src/private/extended_sketch/extended_sketch.hpp"
-#include "src/private/extended_sketch/extended_state.hpp"
-#include "src/private/extended_sketch/rules.hpp"
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/planners/iw_search.hpp"
-#include "src/private/planners/atom_registry.hpp"
+#include "../extended_sketch/extended_sketch.hpp"
+#include "../extended_sketch/extended_state.hpp"
+#include "../extended_sketch/rules.hpp"
+#include "../dlplan/include/dlplan/policy.h"
+#include "../planners/iw_search.hpp"
+#include "../planners/atom_registry.hpp"
 
 
 using namespace std;

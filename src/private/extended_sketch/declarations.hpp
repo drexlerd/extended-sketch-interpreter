@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "src/private/dlplan/include/dlplan/core.h"
-#include "src/private/dlplan/include/dlplan/policy.h"
+#include "../dlplan/include/dlplan/core.h"
+#include "../dlplan/include/dlplan/policy.h"
 
 
 

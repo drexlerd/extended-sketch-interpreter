@@ -1,7 +1,7 @@
 #include "extended_state.hpp"
 
-#include "src/private/formalism/state.hpp"
-#include "src/private/planners/atom_registry.hpp"
+#include "../formalism/state.hpp"
+#include "../planners/atom_registry.hpp"
 
 namespace mimir::extended_sketch {
 

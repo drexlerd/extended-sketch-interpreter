@@ -3,7 +3,7 @@
 
 #include "declarations.hpp"
 
-#include "src/private/formalism/action_schema.hpp"
+#include "../formalism/action_schema.hpp"
 
 #include "extended_state.hpp"
 #include "memory_state.hpp"

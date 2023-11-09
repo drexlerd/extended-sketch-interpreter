@@ -3,7 +3,7 @@
 
 #include "ast.hpp"
 
-#include "src/private/dlplan/include/dlplan/common/parsers/config.hpp"
+#include "../../dlplan/include/dlplan/common/parsers/config.hpp"
 
 
 namespace mimir::extended_sketch {

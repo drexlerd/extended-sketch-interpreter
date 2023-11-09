@@ -1,7 +1,7 @@
 #ifndef SRC_SEARCH_GOAL_TEST_HPP_
 #define SRC_SEARCH_GOAL_TEST_HPP_
 
-#include "src/private/extended_sketch/declarations.hpp"
+#include "../extended_sketch/declarations.hpp"
 
 #include "../formalism/state.hpp"
 #include "state_data.hpp"

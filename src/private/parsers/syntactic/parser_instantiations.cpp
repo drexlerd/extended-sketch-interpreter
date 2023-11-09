@@ -1,6 +1,6 @@
 #include "parser_def.hpp"
 
-#include "src/private/dlplan/include/dlplan/common/parsers/config.hpp"
+#include "../../dlplan/include/dlplan/common/parsers/config.hpp"
 
 using namespace dlplan;
 

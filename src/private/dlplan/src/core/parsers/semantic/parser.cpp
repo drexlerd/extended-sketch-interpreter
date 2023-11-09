@@ -1,4 +1,4 @@
-#include "include/dlplan/core/parsers/semantic/parser.hpp"
+#include "../../../../include/dlplan/core/parsers/semantic/parser.hpp"
 
 #include <sstream>
 
@@ -86,8 +86,8 @@ public:
 
     void operator()(const std::shared_ptr<const core::Role>&) { }
 
-    void operator()(const std::shared_ptr<const core::Concept>& concept) {
-        result = concept;
+    void operator()(const std::shared_ptr<const core::Concept>& concept_) {
+        result = concept_;
     }
 };
 
@@ -270,7 +270,7 @@ parse(const ast::ProjectionConcept& node, const error_handler_type& error_handle
 }
 
 std::shared_ptr<const core::Concept>
-parse(const ast::RegisterConcept& node, const error_handler_type& error_handler, SyntacticElementFactory& context) {
+parse(const ast::RegisterConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context) {
     return context.make_register_concept(
         parse(node.pos, error_handler, context));
 }

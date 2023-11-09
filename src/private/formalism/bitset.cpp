@@ -251,7 +251,7 @@ namespace std
         std::size_t last_relevant_index = bitset.data.size();
 
         // Find the last block that differs from the default block
-        for (std::size_t index = bitset.data.size() - 1; index >= 0; --index)
+        for (int index = bitset.data.size() - 1; index >= 0; --index)
         {
             if (bitset.data[index] != default_block)
             {

@@ -3,11 +3,11 @@
 
 #include <memory>
 
-#include "src/private/dlplan/include/dlplan/core.h"
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/formalism/domain.hpp"
-#include "src/private/extended_sketch/declarations.hpp"
-#include "src/private/dlplan/include/dlplan/common/parsers/config.hpp"
+#include "../dlplan/include/dlplan/core.h"
+#include "../dlplan/include/dlplan/policy.h"
+#include "../formalism/domain.hpp"
+#include "../extended_sketch/declarations.hpp"
+#include "../dlplan/include/dlplan/common/parsers/config.hpp"
 #include "semantic/context.hpp"
 
 namespace mimir::extended_sketch {

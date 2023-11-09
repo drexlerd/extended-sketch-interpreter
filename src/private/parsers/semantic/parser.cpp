@@ -2,16 +2,16 @@
 
 #include <sstream>
 
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/dlplan/include/dlplan/policy/parsers/semantic/parser.hpp"
-#include "src/private/extended_sketch/memory_state.hpp"
-#include "src/private/extended_sketch/register.hpp"
-#include "src/private/extended_sketch/rules.hpp"
-#include "src/private/extended_sketch/extended_sketch.hpp"
-#include "src/private/extended_sketch/call.hpp"
-#include "src/private/extended_sketch/signature.hpp"
-#include "src/private/extended_sketch/module.hpp"
-#include "src/private/extended_sketch/parameters.hpp"
+#include "../../dlplan/include/dlplan/policy.h"
+#include "../../dlplan/include/dlplan/policy/parsers/semantic/parser.hpp"
+#include "../../extended_sketch/memory_state.hpp"
+#include "../../extended_sketch/register.hpp"
+#include "../../extended_sketch/rules.hpp"
+#include "../../extended_sketch/extended_sketch.hpp"
+#include "../../extended_sketch/call.hpp"
+#include "../../extended_sketch/signature.hpp"
+#include "../../extended_sketch/module.hpp"
+#include "../../extended_sketch/parameters.hpp"
 
 using namespace dlplan;
 using namespace mimir::extended_sketch;

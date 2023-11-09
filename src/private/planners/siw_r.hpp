@@ -1,12 +1,12 @@
 #ifndef SRC_PRIVATE_PLANNERS_SIW_R_HPP_
 #define SRC_PRIVATE_PLANNERS_SIW_R_HPP_
 
-#include "src/private/dlplan/include/dlplan/core.h"
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/formalism/domain.hpp"
-#include "src/private/extended_sketch/declarations.hpp"
+#include "../dlplan/include/dlplan/core.h"
+#include "../dlplan/include/dlplan/policy.h"
+#include "../formalism/domain.hpp"
+#include "../extended_sketch/declarations.hpp"
 
-#include "src/private/planners/iw_search.hpp"
+#include "../planners/iw_search.hpp"
 
 
 namespace mimir::extended_sketch {

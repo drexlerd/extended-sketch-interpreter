@@ -4,7 +4,7 @@
 #include <map>
 #include <iostream>
 
-#include "src/private/dlplan/include/dlplan/policy/parsers/syntactic/error_handler.hpp"
+#include "../../dlplan/include/dlplan/policy/parsers/syntactic/error_handler.hpp"
 
 
 namespace mimir::extended_sketch

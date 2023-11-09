@@ -6,13 +6,13 @@
 #include <string>
 #include <unordered_map>
 
-#include "src/private/formalism/domain.hpp"
-#include "src/private/dlplan/include/dlplan/core.h"
-#include "src/private/dlplan/include/dlplan/policy.h"
-#include "src/private/dlplan/include/dlplan/policy/parsers/semantic/context.hpp"
+#include "../../formalism/domain.hpp"
+#include "../../dlplan/include/dlplan/core.h"
+#include "../../dlplan/include/dlplan/policy.h"
+#include "../../dlplan/include/dlplan/policy/parsers/semantic/context.hpp"
 
-#include "src/private/extended_sketch/declarations.hpp"
-#include "src/private/parsers/syntactic/ast.hpp"
+#include "../../extended_sketch/declarations.hpp"
+#include "../../parsers/syntactic/ast.hpp"
 
 
 namespace mimir::extended_sketch {

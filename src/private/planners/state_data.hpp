@@ -2,8 +2,8 @@
 #define PLANNERS_STATE_DATA_HPP_
 
 #include "../formalism/problem.hpp"
-#include "src/private/extended_sketch/declarations.hpp"
-#include "src/private/extended_sketch/extended_state.hpp"
+#include "../extended_sketch/declarations.hpp"
+#include "../extended_sketch/extended_state.hpp"
 
 
 #include <vector>

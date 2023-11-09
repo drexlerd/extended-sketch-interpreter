@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "src/private/extended_sketch/parameters.hpp"
+#include "../extended_sketch/parameters.hpp"
 
 namespace mimir::extended_sketch {
 

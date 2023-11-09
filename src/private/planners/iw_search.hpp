@@ -8,7 +8,7 @@
 #include "state_data.hpp"
 #include "random_generator.hpp"
 
-#include "src/private/extended_sketch/extended_state.hpp"
+#include "../extended_sketch/extended_state.hpp"
 
 #include "../dlplan/include/dlplan/novelty.h"
 
