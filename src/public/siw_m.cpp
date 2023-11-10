@@ -82,6 +82,17 @@ int main(int argc, char** argv) {
     }
     resolve_function_calls(modules);
     // 4. Run SIW_M
+    /*
+    SIWMSearch siwm(domain_description, problem_description, instance_info, modules);
+    std::vector<mimir::formalism::Action> plan;
+    bool solution_found = siwm.find_plan(plan);
+    if (solution_found) {
+        std::cout << std::endl << "Solution found!" << std::endl;
+        siwm.print_statistics();
+    } else {
+        std::cout << std::endl << "No solution found!" << std::endl;
+    }
+    */
     return 0;
 }
 

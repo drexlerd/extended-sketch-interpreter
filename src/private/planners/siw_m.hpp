@@ -1,5 +1,5 @@
-#ifndef SRC_PRIVATE_PLANNERS_SIW_R_HPP_
-#define SRC_PRIVATE_PLANNERS_SIW_R_HPP_
+#ifndef SRC_PRIVATE_PLANNERS_SIW_M_HPP_
+#define SRC_PRIVATE_PLANNERS_SIW_M_HPP_
 
 #include "../dlplan/include/dlplan/core.h"
 #include "../dlplan/include/dlplan/policy.h"
@@ -11,24 +11,13 @@
 
 namespace mimir::extended_sketch {
 
-class SIWRSearch {
+class SIWMSearch {
 private:
     mimir::formalism::DomainDescription m_domain;
     mimir::formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
-    ExtendedSketch m_extended_sketch;
+    ModuleList m_modules;
     std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
-
-private:
-    bool try_apply_load_rule(
-        const ExtendedState& current_state,
-        int& step,
-        ExtendedState& successor_state);
-
-    bool try_apply_search_rule(
-        const ExtendedState& current_state,
-        int& step,
-        ExtendedState& successor_state);
 
 public:
     uint32_t pruned;
@@ -46,11 +35,11 @@ public:
     int64_t time_search_ns;
     int64_t time_total_ns;
 
-    SIWRSearch(
+    SIWMSearch(
         const mimir::formalism::DomainDescription& domain,
         const mimir::formalism::ProblemDescription& problem,
         const std::shared_ptr<dlplan::core::InstanceInfo> instance_info,
-        const extended_sketch::ExtendedSketch& extended_sketch);
+        const extended_sketch::ModuleList& modules);
 
     bool find_plan(std::vector<mimir::formalism::Action>& plan);
 

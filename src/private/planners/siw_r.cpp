@@ -23,12 +23,10 @@ SIWRSearch::SIWRSearch(
     const DomainDescription& domain,
     const ProblemDescription& problem,
     const std::shared_ptr<InstanceInfo> instance_info,
-    const std::shared_ptr<PolicyFactory> policy_factory,
     const ExtendedSketch& extended_sketch)
     : m_domain(domain),
       m_problem(problem),
       m_instance_info(instance_info),
-      m_policy_factory(policy_factory),
       m_extended_sketch(extended_sketch),
       pruned(0),
       generated(0),
