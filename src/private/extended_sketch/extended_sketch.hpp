@@ -25,6 +25,12 @@ private:
     ActionRuleList m_action_rules;
     SearchRuleList m_search_rules;
 
+    // For more convenient access.
+    std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> m_sketches_by_memory_state;
+    std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState> m_rule_to_memory_effect;
+    std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
+    std::unordered_map<Register, int> m_register_mapping;
+
 public:
     ExtendedSketchImpl(
         const MemoryStateMap& memory_states,
@@ -36,7 +42,11 @@ public:
         const LoadRuleList& load_rules,
         const CallRuleList& call_rules,
         const ActionRuleList& action_rules,
-        const SearchRuleList& search_rules);
+        const SearchRuleList& search_rules,
+        const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+        const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+        const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
+        const std::unordered_map<Register, int>& register_mapping);
 
     const MemoryState& get_initial_memory_state() const;
     const RegisterMap& get_registers() const;
@@ -45,6 +55,11 @@ public:
     const CallRuleList& get_call_rules() const;
     const ActionRuleList& get_action_rules() const;
     const SearchRuleList& get_search_rules() const;
+
+    const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& get_sketches_by_memory_state() const;
+    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& get_rule_to_memory_effect() const;
+    const std::unordered_map<MemoryState, std::vector<LoadRule>>& get_load_rules_by_memory_state() const;
+    const std::unordered_map<Register, int>& get_register_mapping() const;
 
     std::string compute_signature() const;
 };
@@ -59,7 +74,11 @@ extern ExtendedSketch make_extended_sketch(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const SearchRuleList& search_rules);
+    const SearchRuleList& search_rules,
+    const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+    const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
+    const std::unordered_map<Register, int>& register_mapping);
 
 }
 

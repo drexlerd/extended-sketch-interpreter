@@ -5,6 +5,8 @@
 #include "register.hpp"
 #include "rules.hpp"
 
+using namespace std;
+
 
 namespace mimir::extended_sketch {
 
@@ -18,7 +20,11 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const SearchRuleList& search_rules)
+    const SearchRuleList& search_rules,
+    const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+    const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
+    const std::unordered_map<Register, int>& register_mapping)
     : m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
       m_registers(registers),
@@ -28,7 +34,11 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_load_rules(load_rules),
       m_call_rules(call_rules),
       m_action_rules(action_rules),
-      m_search_rules(search_rules) {
+      m_search_rules(search_rules),
+      m_sketches_by_memory_state(sketches_by_memory_state),
+      m_rule_to_memory_effect(rule_to_memory_effect),
+      m_load_rules_by_memory_state(load_rules_by_memory_state),
+      m_register_mapping(register_mapping) {
 }
 
 const MemoryState& ExtendedSketchImpl::get_initial_memory_state() const {
@@ -53,6 +63,22 @@ const ActionRuleList& ExtendedSketchImpl::get_action_rules() const {
 
 const SearchRuleList& ExtendedSketchImpl::get_search_rules() const {
     return m_search_rules;
+}
+
+const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& ExtendedSketchImpl::get_sketches_by_memory_state() const {
+    return m_sketches_by_memory_state;
+}
+
+const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& ExtendedSketchImpl::get_rule_to_memory_effect() const {
+    return m_rule_to_memory_effect;
+}
+
+const std::unordered_map<MemoryState, std::vector<LoadRule>>& ExtendedSketchImpl::get_load_rules_by_memory_state() const {
+    return m_load_rules_by_memory_state;
+}
+
+const std::unordered_map<Register, int>& ExtendedSketchImpl::get_register_mapping() const {
+    return m_register_mapping;
 }
 
 
@@ -111,12 +137,18 @@ ExtendedSketch make_extended_sketch(
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
-    const SearchRuleList& search_rules) {
+    const SearchRuleList& search_rules,
+    const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+    const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
+    const std::unordered_map<Register, int>& register_mapping) {
     return std::make_shared<ExtendedSketchImpl>(
         memory_states, initial_memory_state,
         registers,
         booleans, numericals, concepts,
-        load_rules, call_rules, action_rules, search_rules);
+        load_rules, call_rules, action_rules, search_rules,
+        sketches_by_memory_state, rule_to_memory_effect,
+        load_rules_by_memory_state, register_mapping);
 }
 
 }

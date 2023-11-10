@@ -40,39 +40,14 @@ SIWRSearch::SIWRSearch(
       time_total_ns(0),
       average_effective_arity(0),
       maximum_effective_arity(0) {
-    std::cout << "Initialize mapping from register to index" << std::endl;
-    for (const auto& pair : m_extended_sketch->get_registers()) {
-        m_register_mapping.emplace(pair.second, m_register_mapping.size());
-    }
-    // Build sketches for external rules, one for each memory state
-    std::cout << "Group search rules by memory state" << std::endl;
-    unordered_map<MemoryState, vector<SearchRule>> search_rules_by_memory_state;
-    for (const auto& search_rule : m_extended_sketch->get_search_rules()) {
-        search_rules_by_memory_state[search_rule->get_memory_state_condition()].push_back(search_rule);
-    }
-    for (const auto& pair : search_rules_by_memory_state) {
-        Rules sketch_rules;
-        for (const auto& search_rule : pair.second) {
-            auto sketch_rule = m_policy_factory->make_rule(search_rule->get_feature_conditions(), search_rule->get_feature_effects());
-            m_rule_to_memory_effect.emplace(sketch_rule, search_rule->get_memory_state_effect());
-            sketch_rules.insert(sketch_rule);
-        }
-        auto sketch = m_policy_factory->make_policy(sketch_rules);
-        m_sketches_by_memory_state[pair.first] = sketch;
-    }
-    // Group loadrules by internal memory
-    std::cout << "Group load rules by memory state" << std::endl;
-    for (const auto& load_rule : m_extended_sketch->get_load_rules()) {
-        m_load_rules_by_memory_state[load_rule->get_memory_state_condition()].push_back(load_rule);
-    }
 }
 
 bool SIWRSearch::try_apply_load_rule(
     const ExtendedState& current_state,
     int& step,
     ExtendedState& successor_state) {
-    auto it1 = m_load_rules_by_memory_state.find(current_state.memory);
-    if (it1 != m_load_rules_by_memory_state.end()) {
+    auto it1 = m_extended_sketch->get_load_rules_by_memory_state().find(current_state.memory);
+    if (it1 != m_extended_sketch->get_load_rules_by_memory_state().end()) {
         for (const auto& load_rule : it1->second) {
             bool all_conditions_satisfied = true;
             for (const auto& condition : load_rule->get_feature_conditions()) {
@@ -83,7 +58,7 @@ bool SIWRSearch::try_apply_load_rule(
             }
             if (all_conditions_satisfied) {
                 std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
-                load_rule->apply(current_state, m_register_mapping, successor_state);
+                load_rule->apply(current_state, m_extended_sketch->get_register_mapping(), successor_state);
                 return true;
             }
         }
@@ -95,8 +70,8 @@ bool SIWRSearch::try_apply_search_rule(
     const ExtendedState& current_state,
     int& step,
     ExtendedState& successor_state) {
-    auto it2 = m_sketches_by_memory_state.find(current_state.memory);
-    if (it2 != m_sketches_by_memory_state.end()) {
+    auto it2 = m_extended_sketch->get_sketches_by_memory_state().find(current_state.memory);
+    if (it2 != m_extended_sketch->get_sketches_by_memory_state().end()) {
         std::cout << ++step << ". Apply search rule" << std::endl;
         std::vector<Action> partial_plan;
         std::shared_ptr<const dlplan::policy::Rule> reason;
@@ -130,7 +105,7 @@ bool SIWRSearch::try_apply_search_rule(
         if (!reason) {
             throw std::runtime_error("There should be a reason to reach a goal");
         }
-        successor_state.memory = m_rule_to_memory_effect.at(reason);
+        successor_state.memory = m_extended_sketch->get_rule_to_memory_effect().at(reason);
         std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
         return true;
     }
@@ -142,7 +117,7 @@ bool SIWRSearch::try_apply_search_rule(
 bool SIWRSearch::find_plan(vector<Action>& plan) {
     std::cout << "Initialize extended state" << std::endl;
     ExtendedState current_state = mimir::extended_sketch::create_initial_state(
-        m_problem, m_instance_info, m_extended_sketch->get_initial_memory_state(), m_register_mapping.size());
+        m_problem, m_instance_info, m_extended_sketch->get_initial_memory_state(), m_extended_sketch->get_register_mapping().size());
 
     std::cout << "Initialize IW_R search" << std::endl;
     int max_arity = 2;
@@ -150,7 +125,7 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
         m_problem,
         m_instance_info,
         mimir::planners::SuccessorGeneratorType::LIFTED,
-        m_sketches_by_memory_state,
+        m_extended_sketch->get_sketches_by_memory_state(),
         max_arity);
 
     std::cout << std::endl << "Start SIW_R*" << std::endl;

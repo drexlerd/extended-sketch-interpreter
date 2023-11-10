@@ -20,11 +20,6 @@ private:
     ExtendedSketch m_extended_sketch;
     std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
 
-    std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> m_sketches_by_memory_state;
-    std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState> m_rule_to_memory_effect;
-    std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
-    std::unordered_map<Register, int> m_register_mapping;
-
 private:
     bool try_apply_load_rule(
         const ExtendedState& current_state,

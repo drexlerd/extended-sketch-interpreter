@@ -1,5 +1,6 @@
 #include "parser.hpp"
 
+#include <unordered_map>
 #include <sstream>
 
 #include "../../dlplan/include/dlplan/policy.h"
@@ -13,6 +14,7 @@
 #include "../../extended_sketch/signature.hpp"
 #include "../../extended_sketch/module.hpp"
 #include "../../extended_sketch/parameters.hpp"
+#include "../../extended_sketch/declarations.hpp"
 
 using namespace dlplan;
 using namespace mimir::extended_sketch;
@@ -302,12 +304,46 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     auto numericals = dlplan::policy::parse(node.numericals, error_handler, context.dlplan_context);
     auto concepts = dlplan::policy::parse(node.concepts, error_handler, context.dlplan_context);
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
+
+    // For more convenient access.
+    std::unordered_map<Register, int> register_mapping;
+    std::cout << "Initialize mapping from register to index" << std::endl;
+    for (const auto& pair : registers) {
+        register_mapping.emplace(pair.second, register_mapping.size());
+    }
+    // Build sketches for external rules, one for each memory state
+    std::cout << "Group search rules by memory state" << std::endl;
+    std::unordered_map<MemoryState, std::vector<SearchRule>> search_rules_by_memory_state;
+    for (const auto& search_rule : search_rules) {
+        search_rules_by_memory_state[search_rule->get_memory_state_condition()].push_back(search_rule);
+    }
+    std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState> rule_to_memory_effect;
+    std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state;
+    for (const auto& pair : search_rules_by_memory_state) {
+        dlplan::policy::Rules sketch_rules;
+        for (const auto& search_rule : pair.second) {
+            auto sketch_rule = context.dlplan_context.policy_factory.make_rule(search_rule->get_feature_conditions(), search_rule->get_feature_effects());
+            rule_to_memory_effect.emplace(sketch_rule, search_rule->get_memory_state_effect());
+            sketch_rules.insert(sketch_rule);
+        }
+        auto sketch = context.dlplan_context.policy_factory.make_policy(sketch_rules);
+        sketches_by_memory_state[pair.first] = sketch;
+    }
+    // Group loadrules by internal memory
+    std::cout << "Group load rules by memory state" << std::endl;
+    std::unordered_map<MemoryState, std::vector<LoadRule>> load_rules_by_memory_state;
+    for (const auto& load_rule : load_rules) {
+        load_rules_by_memory_state[load_rule->get_memory_state_condition()].push_back(load_rule);
+    }
     return make_extended_sketch(
         memory_states, initial_memory_state,
         registers,
         booleans, numericals, concepts,
-        load_rules, call_rules, action_rules, search_rules
-    );
+        load_rules, call_rules, action_rules, search_rules,
+        sketches_by_memory_state,
+        rule_to_memory_effect,
+        load_rules_by_memory_state,
+        register_mapping);
 }
 
 
