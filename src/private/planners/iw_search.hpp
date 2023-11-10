@@ -70,11 +70,11 @@ namespace mimir::planners
         virtual ~IWSearch();
 
         virtual bool find_plan(
-        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
-        const mimir::extended_sketch::ExtendedState& initial_state,
-        mimir::extended_sketch::ExtendedState& final_state,
-        std::vector<formalism::Action> &plan,
-        std::shared_ptr<const dlplan::policy::Rule>& reason);
+            const std::shared_ptr<const dlplan::policy::Policy>& sketch,
+            const mimir::extended_sketch::ExtendedState& initial_state,
+            mimir::extended_sketch::ExtendedState& final_state,
+            std::vector<formalism::Action> &plan,
+            std::shared_ptr<const dlplan::policy::Rule>& reason);
 
         const ExtendedSketchGoalTest& get_goal_test() const;
     };
