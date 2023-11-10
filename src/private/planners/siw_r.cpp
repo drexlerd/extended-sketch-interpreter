@@ -48,6 +48,7 @@ bool SIWRSearch::find_plan(ActionList& plan) {
     int num_iw_searches = 0;
     while (!literals_hold(m_problem->goal, current_state.mimir)) {
         ExtendedState successor_state;
+        
         bool applied = m_extended_sketch->try_apply_load_rule(current_state, step, successor_state);
         if (applied) {
             current_state = successor_state;

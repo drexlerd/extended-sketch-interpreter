@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     // 4. Run SIW_R
     int max_arity = 2;
     mimir::planners::SIWRSearch siwr(domain_description, problem_description, instance_info, extended_sketch, mimir::planners::SuccessorGeneratorType::LIFTED, max_arity);
-    std::vector<mimir::formalism::Action> plan;
+    mimir::formalism::ActionList plan;
     bool solution_found = siwr.find_plan(plan);
     if (solution_found) {
         std::cout << std::endl << "Solution found!" << std::endl;

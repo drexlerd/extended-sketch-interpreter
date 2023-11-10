@@ -1,6 +1,8 @@
 #ifndef SRC_PRIVATE_PLANNERS_SIW_M_HPP_
 #define SRC_PRIVATE_PLANNERS_SIW_M_HPP_
 
+#include "iw_search_statistics.hpp"
+
 #include "../dlplan/include/dlplan/core.h"
 #include "../dlplan/include/dlplan/policy.h"
 #include "../formalism/domain.hpp"
@@ -9,39 +11,33 @@
 #include "../planners/iw_search.hpp"
 
 
-namespace mimir::extended_sketch {
+namespace mimir::planners {
 
 class SIWMSearch {
 private:
-    mimir::formalism::DomainDescription m_domain;
-    mimir::formalism::ProblemDescription m_problem;
+    formalism::DomainDescription m_domain;
+    formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
-    ModuleList m_modules;
-    std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
+    extended_sketch::ModuleList m_modules;
+
+    planners::SuccessorGenerator m_successor_generator;
+    int m_max_arity;
 
 public:
-    uint32_t pruned;
-    uint32_t generated;
-    uint32_t expanded;
-    uint32_t max_expanded;
-    int effective_arity;
+    IWSearchStatistics statistics;
+
     float average_effective_arity;
     int maximum_effective_arity;
 
-    int64_t time_successors_ns;
-    int64_t time_apply_ns;
-    int64_t time_grounding_ns;
-    int64_t time_goal_test_ns;
-    int64_t time_search_ns;
-    int64_t time_total_ns;
-
     SIWMSearch(
-        const mimir::formalism::DomainDescription& domain,
-        const mimir::formalism::ProblemDescription& problem,
+        const formalism::DomainDescription& domain,
+        const formalism::ProblemDescription& problem,
         const std::shared_ptr<dlplan::core::InstanceInfo> instance_info,
-        const extended_sketch::ModuleList& modules);
+        const extended_sketch::ModuleList& modules,
+        planners::SuccessorGeneratorType successor_generator_type,
+        int max_arity);
 
-    bool find_plan(std::vector<mimir::formalism::Action>& plan);
+    bool find_plan(mimir::formalism::ActionList& plan);
 
     void print_statistics(int num_indent=0) const;
 };

@@ -15,10 +15,10 @@ namespace mimir::planners {
 
 class SIWRSearch {
 private:
-    mimir::formalism::DomainDescription m_domain;
-    mimir::formalism::ProblemDescription m_problem;
+    formalism::DomainDescription m_domain;
+    formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
-    mimir::extended_sketch::ExtendedSketch m_extended_sketch;
+    extended_sketch::ExtendedSketch m_extended_sketch;
 
     planners::SuccessorGenerator m_successor_generator;
     int m_max_arity;
@@ -30,14 +30,14 @@ public:
     int maximum_effective_arity;
 
     SIWRSearch(
-        const mimir::formalism::DomainDescription& domain,
-        const mimir::formalism::ProblemDescription& problem,
+        const formalism::DomainDescription& domain,
+        const formalism::ProblemDescription& problem,
         const std::shared_ptr<dlplan::core::InstanceInfo> instance_info,
         const extended_sketch::ExtendedSketch& extended_sketch,
         planners::SuccessorGeneratorType successor_generator_type,
         int max_arity);
 
-    bool find_plan(std::vector<mimir::formalism::Action>& plan);
+    bool find_plan(formalism::ActionList& plan);
 
     void print_statistics(int num_indent=0) const;
 };

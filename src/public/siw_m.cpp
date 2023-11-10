@@ -11,6 +11,7 @@
 #include "../private/parsers/driver.hpp"
 #include "../private/parsers/semantic/parser.hpp"
 #include "../private/parsers/semantic/context.hpp"
+#include "../private/planners/siw_m.hpp"
 
 
 using namespace std;
@@ -82,9 +83,9 @@ int main(int argc, char** argv) {
     }
     resolve_function_calls(modules);
     // 4. Run SIW_M
-    /*
-    SIWMSearch siwm(domain_description, problem_description, instance_info, modules);
-    std::vector<mimir::formalism::Action> plan;
+    int max_arity = 2;
+    mimir::planners::SIWMSearch siwm(domain_description, problem_description, instance_info, modules, mimir::planners::SuccessorGeneratorType::LIFTED, max_arity);
+    mimir::formalism::ActionList plan;
     bool solution_found = siwm.find_plan(plan);
     if (solution_found) {
         std::cout << std::endl << "Solution found!" << std::endl;
@@ -92,7 +93,7 @@ int main(int argc, char** argv) {
     } else {
         std::cout << std::endl << "No solution found!" << std::endl;
     }
-    */
+    
     return 0;
 }
 
