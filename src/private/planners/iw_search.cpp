@@ -77,18 +77,7 @@ namespace mimir::planners
                          max_arity_(max_arity),
                          print_(false),
                          random_generator_(std::make_unique<RandomGenerator>()),
-                         g_value_(0),
-                         pruned(0),
-                         generated(0),
-                         expanded(0),
-                         max_expanded(std::numeric_limits<uint32_t>::max()),
-                         effective_arity(0),
-                         time_successors_ns(0),
-                         time_apply_ns(0),
-                         time_goal_test_ns(0),
-                         time_grounding_ns(0),
-                         time_search_ns(0),
-                         time_total_ns(0)
+                         g_value_(0)
     {
     }
 
@@ -114,33 +103,32 @@ namespace mimir::planners
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
         auto goal_test_result = goal_test.test_goal(state_data);
         const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
-        time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
+        statistics.time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
         if (goal_test_result.is_goal)
         {
-            plan.clear();
             final_state = state_data.extended_state;
             reason = goal_test_result.reason;
             return true;
         }
 
-        ++expanded;
+        ++statistics.expanded;
         const auto grounding_time_start = std::chrono::high_resolution_clock::now();
         auto applicable_actions = successor_generator_->get_applicable_actions(initial_state.mimir);
         std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
         const auto grounding_time_end = std::chrono::high_resolution_clock::now();
-        time_successors_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
+        statistics.time_successors_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
 
         for (const auto &action : applicable_actions)
         {
             const auto apply_time_start = std::chrono::high_resolution_clock::now();
             const auto successor_state = formalism::apply(action, initial_state.mimir);
             const auto apply_time_end = std::chrono::high_resolution_clock::now();
-            time_apply_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(apply_time_end - apply_time_start).count();
+            statistics.time_apply_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(apply_time_end - apply_time_start).count();
 
             uint32_t successor_state_index = state_registry.find_state(successor_state);
             if (successor_state_index == StateRegistry::no_state)
             {
-                ++generated;
+                ++statistics.generated;
                 successor_state_index = state_registry.register_state(successor_state);
                 StateData successor_state_data = StateData{
                     successor_state_index,
@@ -157,10 +145,9 @@ namespace mimir::planners
                 const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
                 auto goal_test_result = goal_test.test_goal(successor_state_data);
                 const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
-                time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
+                statistics.time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
                 if (goal_test_result.is_goal)
                 {
-                    plan.clear();
                     plan.push_back(action);
                     final_state = successor_state_data.extended_state;
                     reason = goal_test_result.reason;
@@ -210,17 +197,17 @@ namespace mimir::planners
 
                 if (test_prune({}, state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
                 {
-                    ++pruned;
+                    ++statistics.pruned;
                     assert(context_index == StateToContextIndex::not_exists);
                 }
                 else
                 {
-                    ++generated;
+                    ++statistics.generated;
 
                     const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
                     const auto goal_test_result = goal_test.test_goal(state_data);
                     const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
-                    time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
+                    statistics.time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
 
                     uint32_t successor_context_index = search_space.add_context(
                         SearchContext(
@@ -238,7 +225,7 @@ namespace mimir::planners
 
         uint32_t last_fringe_value = 0;
 
-        while ((queue.size() > 0) && (expanded < max_expanded))
+        while ((queue.size() > 0))
         {
             auto state_index = queue.front();
             queue.pop_front();
@@ -252,13 +239,13 @@ namespace mimir::planners
                 last_fringe_value = context.fringe_value;
                 const auto fringe_time_end = std::chrono::high_resolution_clock::now();
                 const auto fringe_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(fringe_time_end - time_start).count();
-                std::cout << "[f = " << context.fringe_value << "] Expanded: " << expanded << "; Generated: " << generated << " (" << fringe_time_ms
+                std::cout << "[f = " << context.fringe_value << "] Expanded: " << statistics.expanded << "; Generated: " << statistics.generated << " (" << fringe_time_ms
                           << " ms)" << std::endl;
             }
 
             context.is_expanded = true;
             search_space.set_context(context_index, context);
-            ++expanded;
+            ++statistics.expanded;
             const auto grounding_time_start = std::chrono::high_resolution_clock::now();
             const auto state = state_registry.lookup_state(context.state_index);
             StateData state_data = StateData{
@@ -275,14 +262,14 @@ namespace mimir::planners
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
             std::shuffle(applicable_actions.begin(), applicable_actions.end(), random_generator_->random_generator);
             const auto grounding_time_end = std::chrono::high_resolution_clock::now();
-            time_successors_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
+            statistics.time_successors_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
 
             for (const auto &action : applicable_actions)
             {
                 const auto apply_time_start = std::chrono::high_resolution_clock::now();
                 const auto successor_state = formalism::apply(action, state);
                 const auto apply_time_end = std::chrono::high_resolution_clock::now();
-                time_apply_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(apply_time_end - apply_time_start).count();
+                statistics.time_apply_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(apply_time_end - apply_time_start).count();
 
                 uint32_t successor_state_index = state_registry.find_state(successor_state);
                 if (successor_state_index == StateRegistry::no_state)
@@ -314,17 +301,17 @@ namespace mimir::planners
                     };
                     if (test_prune(state_data.extended_state.dlplan->get_atom_indices(), successor_state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
                     {
-                        ++pruned;
+                        ++statistics.pruned;
                         assert(successor_context_index == StateToContextIndex::not_exists);
                     }
                     else
                     {
-                        ++generated;
+                        ++statistics.generated;
 
                         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
                         const auto goal_test_result = goal_test.test_goal(successor_state_data);
                         const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
-                        time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
+                        statistics.time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
 
                         uint32_t successor_context_index = search_space.add_context(
                             SearchContext(
@@ -356,13 +343,7 @@ namespace mimir::planners
         mimir::extended_sketch::ExtendedState& final_state,
         std::vector<formalism::Action> &plan,
         std::shared_ptr<const dlplan::policy::Rule>& reason) {
-        pruned = 0;
-        generated = 0;
-        expanded = 0;
-        time_goal_test_ns = 0;
-        time_successors_ns = 0;
-        time_apply_ns = 0;
-        time_search_ns = 0;
+        statistics = IWSearchStatistics();
 
         const auto time_start = std::chrono::high_resolution_clock::now();
 
@@ -388,11 +369,11 @@ namespace mimir::planners
 
         for (int arity = 0; arity <= max_arity_; ++arity)
         {
-            effective_arity = arity;
             if (arity == 0)
             {
                 if (width_zero_search(initial_state_prime, goal_test, final_state, state_registry, atom_registry, plan, reason))
                 {
+                    statistics.effective_arity = arity;
                     found_solution = true;
                     break;
                 }
@@ -402,37 +383,16 @@ namespace mimir::planners
                 std::cout << std::endl;
                 if (width_arity_search(initial_state_prime, goal_test, final_state, arity, state_registry, atom_registry, plan, reason))
                 {
+                    statistics.effective_arity = arity;
                     found_solution = true;
                     break;
                 }
             }
         }
-        if (!found_solution) {
-            effective_arity = std::numeric_limits<uint32_t>::max();
-        }
 
         const auto time_end = std::chrono::high_resolution_clock::now();
-        time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
-        time_total_ns = time_grounding_ns + time_search_ns;
+        statistics.time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
+        statistics.time_total_ns = statistics.time_grounding_ns + statistics.time_search_ns;
         return found_solution;
-    }
-
-    void IWSearch::print_statistics(int num_indent) const {
-        auto spaces = std::vector<char>(num_indent, ' ');
-        std::string indent(spaces.begin(), spaces.end());
-        std::cout << indent << "Expanded " << expanded << " states" << std::endl;
-        std::cout << indent << "Generated " << generated << " states" << std::endl;
-        std::cout << indent << "Pruned " << pruned << " states" << std::endl;
-        std::cout << indent << "Effective width " << effective_arity << std::endl;
-        std::cout << indent << "Successor time: " << time_successors_ns / (int64_t) 1E6 << " ms"
-                << " (" << std::fixed << std::setprecision(3) << (100.0 * time_successors_ns) / time_total_ns << "%)" << std::endl;
-        std::cout << indent << "Apply time: " << time_apply_ns / (int64_t) 1E6 << " ms"
-                << " (" << std::fixed << std::setprecision(3) << (100.0 * time_apply_ns) / time_total_ns << "%)" << std::endl;
-        std::cout << indent << "Grounding time: " << time_grounding_ns / (int64_t) 1E6 << " ms"
-                    << " (" << std::fixed << std::setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << std::endl;
-        std::cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
-                << " (" << std::fixed << std::setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << std::endl;
-        std::cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << std::endl;
-        std::cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << std::endl;
     }
 }

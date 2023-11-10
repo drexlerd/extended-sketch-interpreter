@@ -5,6 +5,9 @@
 #include "register.hpp"
 #include "rules.hpp"
 
+#include "../planners/iw_search.hpp"
+
+
 using namespace std;
 
 
@@ -41,44 +44,104 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_register_mapping(register_mapping) {
 }
 
-const MemoryState& ExtendedSketchImpl::get_initial_memory_state() const {
-    return m_initial_memory_state;
+bool ExtendedSketchImpl::try_apply_load_rule(
+    const ExtendedState& current_state,
+    int& step,
+    ExtendedState& successor_state) {
+    auto it1 = m_load_rules_by_memory_state.find(current_state.memory);
+    if (it1 != m_load_rules_by_memory_state.end()) {
+        for (const auto& load_rule : it1->second) {
+            bool all_conditions_satisfied = true;
+            for (const auto& condition : load_rule->get_feature_conditions()) {
+                if (!condition->evaluate(*current_state.dlplan)) {
+                    all_conditions_satisfied = false;
+                    break;
+                }
+            }
+            if (all_conditions_satisfied) {
+                std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
+                load_rule->apply(current_state, m_register_mapping, successor_state);
+                return true;
+            }
+        }
+    }
+    //cout << "No applicable load rule in memory state " << current_state.memory->compute_signature() << endl;
+    return false;
 }
 
-const RegisterMap& ExtendedSketchImpl::get_registers() const {
-    return m_registers;
+bool ExtendedSketchImpl::try_apply_search_rule(
+    const mimir::formalism::ProblemDescription& problem,
+    const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
+    const mimir::planners::SuccessorGenerator& successor_generator,
+    int max_arity,
+    const ExtendedState& current_state,
+    int& step,
+    ExtendedState& successor_state,
+    mimir::formalism::ActionList& plan,
+    mimir::planners::IWSearchStatistics& statistics) {
+    
+    auto it2 = m_sketches_by_memory_state.find(current_state.memory);
+    if (it2 != m_sketches_by_memory_state.end()) {
+        auto iw_search = make_unique<mimir::planners::IWSearch>(
+            problem,
+            instance_info,
+            successor_generator,
+            max_arity);
+            
+        std::cout << ++step << ". Apply search rule";
+        std::shared_ptr<const dlplan::policy::Rule> reason;
+        mimir::formalism::ActionList partial_plan;
+        bool partial_solution_found = iw_search->find_plan(
+            it2->second,
+            current_state,
+            successor_state,
+            partial_plan,
+            reason);
+        statistics = iw_search->statistics;
+
+        if (!partial_solution_found) {
+            return false;
+        } else {
+            plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
+            std::cout << " Partial plan:" << std::endl;
+            for (const auto& action : partial_plan) {
+                std::cout << "    " << action << std::endl;
+            }
+        }
+
+        if (!reason) {
+            throw std::runtime_error("There should be a reason to reach a goal");
+        }
+        successor_state.memory = m_rule_to_memory_effect.at(reason);
+        std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
+
+        return true;
+    }
+
+    // cout << "No applicable search rule in memory state " << current_state.memory->compute_signature() << endl;
+    return false;  // unsolved
 }
 
-const LoadRuleList& ExtendedSketchImpl::get_load_rules() const {
-    return m_load_rules;
+ExtendedState ExtendedSketchImpl::create_initial_extended_state(
+    const mimir::formalism::ProblemDescription& problem,
+    const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info) {
+    std::vector<int> register_contents(m_register_mapping.size(), 0);
+    auto current_state = mimir::formalism::create_state(problem->initial, problem);
+    std::shared_ptr<const dlplan::core::State> current_dlplan_state = nullptr;
+    {
+        mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);
+        current_dlplan_state = std::make_shared<dlplan::core::State>(instance_info, atom_registry.convert_state(current_state), register_contents, 0);
+    }
+    return ExtendedState{
+        m_initial_memory_state,
+        current_state,
+        current_dlplan_state
+    };
 }
+
 
 const CallRuleList& ExtendedSketchImpl::get_call_rules() const {
     return m_call_rules;
-}
-
-const ActionRuleList& ExtendedSketchImpl::get_action_rules() const {
-    return m_action_rules;
-}
-
-const SearchRuleList& ExtendedSketchImpl::get_search_rules() const {
-    return m_search_rules;
-}
-
-const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& ExtendedSketchImpl::get_sketches_by_memory_state() const {
-    return m_sketches_by_memory_state;
-}
-
-const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& ExtendedSketchImpl::get_rule_to_memory_effect() const {
-    return m_rule_to_memory_effect;
-}
-
-const std::unordered_map<MemoryState, std::vector<LoadRule>>& ExtendedSketchImpl::get_load_rules_by_memory_state() const {
-    return m_load_rules_by_memory_state;
-}
-
-const std::unordered_map<Register, int>& ExtendedSketchImpl::get_register_mapping() const {
-    return m_register_mapping;
 }
 
 

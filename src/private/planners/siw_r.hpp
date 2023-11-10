@@ -1,6 +1,8 @@
 #ifndef SRC_PRIVATE_PLANNERS_SIW_R_HPP_
 #define SRC_PRIVATE_PLANNERS_SIW_R_HPP_
 
+#include "iw_search_statistics.hpp"
+
 #include "../dlplan/include/dlplan/core.h"
 #include "../dlplan/include/dlplan/policy.h"
 #include "../formalism/domain.hpp"
@@ -9,44 +11,23 @@
 #include "../planners/iw_search.hpp"
 
 
-namespace mimir::extended_sketch {
+namespace mimir::planners {
 
 class SIWRSearch {
 private:
     mimir::formalism::DomainDescription m_domain;
     mimir::formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
-    ExtendedSketch m_extended_sketch;
+    mimir::extended_sketch::ExtendedSketch m_extended_sketch;
 
     planners::SuccessorGenerator m_successor_generator;
     int m_max_arity;
 
-private:
-    bool try_apply_load_rule(
-        const ExtendedState& current_state,
-        int& step,
-        ExtendedState& successor_state);
-
-    bool try_apply_search_rule(
-        const ExtendedState& current_state,
-        int& step,
-        ExtendedState& successor_state);
-
 public:
-    uint32_t pruned;
-    uint32_t generated;
-    uint32_t expanded;
-    uint32_t max_expanded;
-    int effective_arity;
+    IWSearchStatistics statistics;
+
     float average_effective_arity;
     int maximum_effective_arity;
-
-    int64_t time_successors_ns;
-    int64_t time_apply_ns;
-    int64_t time_grounding_ns;
-    int64_t time_goal_test_ns;
-    int64_t time_search_ns;
-    int64_t time_total_ns;
 
     SIWRSearch(
         const mimir::formalism::DomainDescription& domain,

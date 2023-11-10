@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "declarations.hpp"
+#include "extended_state.hpp"
+#include "../planners/iw_search_statistics.hpp"
+#include "../generators/successor_generator_factory.hpp"
 
 
 namespace mimir::extended_sketch {
@@ -48,18 +51,28 @@ public:
         const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
         const std::unordered_map<Register, int>& register_mapping);
 
-    const MemoryState& get_initial_memory_state() const;
-    const RegisterMap& get_registers() const;
+    bool try_apply_load_rule(
+        const ExtendedState& current_state,
+        int& step,
+        ExtendedState& successor_state);
 
-    const LoadRuleList& get_load_rules() const;
+    bool try_apply_search_rule(
+        const mimir::formalism::ProblemDescription& problem,
+        const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
+        const mimir::planners::SuccessorGenerator& successor_generator,
+        int max_arity,
+        const ExtendedState& current_state,
+        int& step,
+        ExtendedState& successor_state,
+        mimir::formalism::ActionList& plan,
+        mimir::planners::IWSearchStatistics& statistics);
+
+    ExtendedState create_initial_extended_state(
+        const mimir::formalism::ProblemDescription& problem,
+        const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info);
+
+
     const CallRuleList& get_call_rules() const;
-    const ActionRuleList& get_action_rules() const;
-    const SearchRuleList& get_search_rules() const;
-
-    const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& get_sketches_by_memory_state() const;
-    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& get_rule_to_memory_effect() const;
-    const std::unordered_map<MemoryState, std::vector<LoadRule>>& get_load_rules_by_memory_state() const;
-    const std::unordered_map<Register, int>& get_register_mapping() const;
 
     std::string compute_signature() const;
 };

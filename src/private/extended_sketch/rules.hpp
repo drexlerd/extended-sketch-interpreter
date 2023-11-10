@@ -135,6 +135,12 @@ extern ActionRule make_action_rule(
     const ActionCall& call);
 
 
+struct SearchRuleResult {
+    bool solution_found;
+    
+};
+
+
 class SearchRuleImpl : public ExtendedRuleImpl {
 public:
     using ExtendedRuleImpl::compute_signature;
