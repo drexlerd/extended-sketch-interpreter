@@ -21,7 +21,7 @@ private:
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
-    ConceptMap m_concepts;
+    ConceptMap m_concepts;  // TODO: add registers to concepts
 
     LoadRuleList m_load_rules;
     CallRuleList m_call_rules;
