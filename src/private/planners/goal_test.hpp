@@ -23,7 +23,6 @@ private:
     mimir::formalism::ProblemDescription problem_;
     std::shared_ptr<dlplan::core::InstanceInfo> instance_;
 
-    std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state_;
     std::shared_ptr<const dlplan::policy::Policy> sketch_;
 
     std::shared_ptr<const dlplan::core::State> dlplan_initial_state_;
@@ -38,11 +37,24 @@ public:
     ExtendedSketchGoalTest(
         mimir::formalism::ProblemDescription problem,
         std::shared_ptr<dlplan::core::InstanceInfo> instance,
-        std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state)
+        std::shared_ptr<const dlplan::policy::Policy> sketch,
+        const mimir::extended_sketch::ExtendedState& initial_state)
         : problem_(problem), instance_(instance),
-          sketches_by_memory_state_(sketches_by_memory_state), sketch_(nullptr),
-          dlplan_initial_state_(nullptr), caches_(dlplan::core::DenotationsCaches()), applicable_rules_({}),
+          sketch_(sketch),
+          dlplan_initial_state_(initial_state.dlplan), caches_(dlplan::core::DenotationsCaches()), applicable_rules_({}),
           count_goal_test_(0), time_top_goal_ns_(0), time_sketch_goal_ns_(0) {
+        applicable_rules_ = sketch_->evaluate_conditions(*dlplan_initial_state_, caches_);
+        if (applicable_rules_.empty()) {
+            std::cout << sketch_->str() << std::endl;
+            throw std::runtime_error("No rule applicable for state: " + dlplan_initial_state_->str());
+        }
+        /*
+        std::cout << dlplan_initial_state_->str() << std::endl;
+        std::cout << "Num applicable rules: " << applicable_rules_.size() << std::endl;
+        for (const auto& applicable_rule : applicable_rules_) {
+            std::cout << applicable_rule->str() << std::endl;
+        }
+        */
     }
 
     GoalTestResult test_goal(const StateData& state_data) {
@@ -77,29 +89,6 @@ public:
         */
         return GoalTestResult{false, nullptr};
     }
-
-    void set_initial_state(const mimir::planners::StateData& state_data) {
-        auto it = sketches_by_memory_state_.find(state_data.extended_state.memory);
-        if (it == sketches_by_memory_state_.end()) {
-            throw std::runtime_error("ExtendedSketchGoalTest::set_initial_state - no sketch exists for memory state");
-        }
-        sketch_ = it->second;
-
-        dlplan_initial_state_ = state_data.extended_state.dlplan;
-        caches_ = dlplan::core::DenotationsCaches();
-        applicable_rules_ = sketch_->evaluate_conditions(*dlplan_initial_state_, caches_);
-        if (applicable_rules_.empty()) {
-            std::cout << sketch_->str() << std::endl;
-            throw std::runtime_error("No rule applicable for state: " + dlplan_initial_state_->str());
-        }
-        /*
-        std::cout << dlplan_initial_state_->str() << std::endl;
-        std::cout << "Num applicable rules: " << applicable_rules_.size() << std::endl;
-        for (const auto& applicable_rule : applicable_rules_) {
-            std::cout << applicable_rule->str() << std::endl;
-        }
-        */
-    };
 
     void print_statistics(int num_indent=0) const {
         auto spaces = std::vector<char>(num_indent, ' ');

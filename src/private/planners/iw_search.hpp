@@ -30,7 +30,6 @@ namespace mimir::planners
     formalism::ProblemDescription problem_;
     std::shared_ptr<dlplan::core::InstanceInfo> instance_info_;
     planners::SuccessorGenerator successor_generator_;
-    ExtendedSketchGoalTest goal_test_;
     int max_arity_;
     bool print_;
     std::shared_ptr<RandomGenerator> random_generator_;
@@ -42,6 +41,7 @@ namespace mimir::planners
     /// @return
     bool width_zero_search(
         const mimir::extended_sketch::ExtendedState& initial_state,
+        ExtendedSketchGoalTest& goal_test,
         mimir::extended_sketch::ExtendedState& final_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -50,6 +50,7 @@ namespace mimir::planners
 
     bool width_arity_search(
         const mimir::extended_sketch::ExtendedState& initial_state,
+        ExtendedSketchGoalTest& goal_test,
         mimir::extended_sketch::ExtendedState& final_state,
         int arity,
         StateRegistry& state_registry,
@@ -74,12 +75,12 @@ namespace mimir::planners
     IWSearch(
         const formalism::ProblemDescription &problem,
         const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
-        planners::SuccessorGeneratorType successor_generator_type,
-        const std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+        const planners::SuccessorGenerator& successor_generator,
         int max_arity);
     virtual ~IWSearch();
 
     virtual bool find_plan(
+      const std::shared_ptr<const dlplan::policy::Policy>& sketch,
       const mimir::extended_sketch::ExtendedState& initial_state,
       mimir::extended_sketch::ExtendedState& final_state,
       std::vector<formalism::Action> &plan,

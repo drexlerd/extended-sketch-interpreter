@@ -116,7 +116,6 @@ namespace mimir::planners {
                     << " (" << std::fixed << std::setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << std::endl;
             std::cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
                     << " (" << std::fixed << std::setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << std::endl;
-            inner_search_.get_goal_test()->print_statistics();
             std::cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << std::endl;
             std::cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << std::endl;
         }

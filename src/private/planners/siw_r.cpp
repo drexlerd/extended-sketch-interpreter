@@ -23,21 +23,29 @@ SIWRSearch::SIWRSearch(
     const DomainDescription& domain,
     const ProblemDescription& problem,
     const std::shared_ptr<InstanceInfo> instance_info,
-    const ExtendedSketch& extended_sketch)
+    const ExtendedSketch& extended_sketch,
+    planners::SuccessorGeneratorType successor_generator_type,
+    int max_arity)
     : m_domain(domain),
       m_problem(problem),
       m_instance_info(instance_info),
       m_extended_sketch(extended_sketch),
+      m_max_arity(max_arity),
       pruned(0),
       generated(0),
       expanded(0),
       time_successors_ns(0),
       time_apply_ns(0),
+      time_grounding_ns(0),
       time_goal_test_ns(0),
       time_search_ns(0),
       time_total_ns(0),
       average_effective_arity(0),
       maximum_effective_arity(0) {
+    const auto grounding_time_start = std::chrono::high_resolution_clock::now();
+    m_successor_generator = planners::create_sucessor_generator(problem, successor_generator_type);
+    const auto grounding_time_end = std::chrono::high_resolution_clock::now();
+    time_grounding_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
 }
 
 bool SIWRSearch::try_apply_load_rule(
@@ -61,6 +69,7 @@ bool SIWRSearch::try_apply_load_rule(
             }
         }
     }
+    //cout << "No applicable load rule in memory state " << current_state.memory->compute_signature() << endl;
     return false;
 }
 
@@ -68,26 +77,34 @@ bool SIWRSearch::try_apply_search_rule(
     const ExtendedState& current_state,
     int& step,
     ExtendedState& successor_state) {
+    
     auto it2 = m_extended_sketch->get_sketches_by_memory_state().find(current_state.memory);
     if (it2 != m_extended_sketch->get_sketches_by_memory_state().end()) {
+        auto iw_search = make_unique<mimir::planners::IWSearch>(
+            m_problem,
+            m_instance_info,
+            m_successor_generator,
+            m_max_arity);
+            
         std::cout << ++step << ". Apply search rule" << std::endl;
         std::vector<Action> partial_plan;
         std::shared_ptr<const dlplan::policy::Rule> reason;
-        bool partial_solution_found = m_iw_search->find_plan(
+        bool partial_solution_found = iw_search->find_plan(
+            it2->second,
             current_state,
             successor_state,
             partial_plan,
             reason);
-        pruned += m_iw_search->pruned;
-        generated += m_iw_search->generated;
-        expanded += m_iw_search->expanded;
-        time_successors_ns += m_iw_search->time_successors_ns;
-        time_apply_ns += m_iw_search->time_apply_ns;
-        time_goal_test_ns += m_iw_search->time_goal_test_ns;
+        pruned += iw_search->pruned;
+        generated += iw_search->generated;
+        expanded += iw_search->expanded;
+        time_successors_ns += iw_search->time_successors_ns;
+        time_apply_ns += iw_search->time_apply_ns;
+        time_goal_test_ns += iw_search->time_goal_test_ns;
 
         if (partial_solution_found) {
-            average_effective_arity += m_iw_search->effective_arity;
-            maximum_effective_arity = std::max(maximum_effective_arity, m_iw_search->effective_arity);
+            average_effective_arity += iw_search->effective_arity;
+            maximum_effective_arity = std::max(maximum_effective_arity, iw_search->effective_arity);
             std::cout << "  Compatible rule: " << reason->str() << std::endl;
             std::cout << "  Partial plan: " << std::endl;
             for (const auto& action : partial_plan)
@@ -108,7 +125,7 @@ bool SIWRSearch::try_apply_search_rule(
         return true;
     }
 
-    cout << "No applicable rule in extended sketch" << endl;
+    // cout << "No applicable search rule in memory state " << current_state.memory->compute_signature() << endl;
     return false;  // unsolved
 }
 
@@ -116,15 +133,6 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
     std::cout << "Initialize extended state" << std::endl;
     ExtendedState current_state = mimir::extended_sketch::create_initial_state(
         m_problem, m_instance_info, m_extended_sketch->get_initial_memory_state(), m_extended_sketch->get_register_mapping().size());
-
-    std::cout << "Initialize IW_R search" << std::endl;
-    int max_arity = 2;
-    m_iw_search = make_unique<mimir::planners::IWSearch>(
-        m_problem,
-        m_instance_info,
-        mimir::planners::SuccessorGeneratorType::LIFTED,
-        m_extended_sketch->get_sketches_by_memory_state(),
-        max_arity);
 
     std::cout << std::endl << "Start SIW_R*" << std::endl;
     const auto time_start = std::chrono::high_resolution_clock::now();
@@ -147,7 +155,7 @@ bool SIWRSearch::find_plan(vector<Action>& plan) {
     }
     const auto time_end = std::chrono::high_resolution_clock::now();
     time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
-    time_total_ns = m_iw_search->time_grounding_ns + time_search_ns;
+    time_total_ns = time_grounding_ns + time_search_ns;
     average_effective_arity /= static_cast<double>(num_iw_searches);
     return true;  // solved
 }
@@ -168,7 +176,6 @@ void SIWRSearch::print_statistics(int num_indent) const {
             << " (" << fixed << setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << endl;
     cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
             << " (" << fixed << setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << endl;
-    m_iw_search->get_goal_test().print_statistics(num_indent);
     cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << endl;
     cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << endl;
 }

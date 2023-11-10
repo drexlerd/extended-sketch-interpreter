@@ -70,12 +70,10 @@ namespace mimir::planners
     IWSearch::IWSearch(
         const formalism::ProblemDescription &problem,
         const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
-        planners::SuccessorGeneratorType successor_generator_type,
-        const std::unordered_map<mimir::extended_sketch::MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
+        const planners::SuccessorGenerator& successor_generator,
         int max_arity) : problem_(problem),
                          instance_info_(instance_info),
-                         successor_generator_(nullptr),
-                         goal_test_(ExtendedSketchGoalTest(problem, instance_info, sketches_by_memory_state)),
+                         successor_generator_(successor_generator),
                          max_arity_(max_arity),
                          print_(false),
                          random_generator_(std::make_unique<RandomGenerator>()),
@@ -92,16 +90,13 @@ namespace mimir::planners
                          time_search_ns(0),
                          time_total_ns(0)
     {
-        const auto grounding_time_start = std::chrono::high_resolution_clock::now();
-        successor_generator_ = planners::create_sucessor_generator(problem_, successor_generator_type);
-        const auto grounding_time_end = std::chrono::high_resolution_clock::now();
-        time_grounding_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(grounding_time_end - grounding_time_start).count();
     }
 
     IWSearch::~IWSearch() { }
 
     bool IWSearch::width_zero_search(
         const mimir::extended_sketch::ExtendedState& initial_state,
+        ExtendedSketchGoalTest& goal_test,
         mimir::extended_sketch::ExtendedState& final_state,
         StateRegistry& state_registry,
         AtomRegistry& atom_registry,
@@ -109,23 +104,15 @@ namespace mimir::planners
         std::shared_ptr<const dlplan::policy::Rule>& reason)
     {
         uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
-        if (initial_state_index == StateRegistry::no_state) {
-            initial_state_index = state_registry.register_state(initial_state.mimir);
-        }
+        assert(initial_state_index != StateRegistry::no_state);
+
         StateData state_data = StateData{
             initial_state_index,
-            mimir::extended_sketch::ExtendedState {
-                initial_state.memory,
-                initial_state.mimir,
-                std::make_shared<dlplan::core::State>(instance_info_,
-                    atom_registry.convert_state(initial_state.mimir),
-                    initial_state.dlplan->get_register_contents(),
-                    initial_state_index) }
+            initial_state,
         };
 
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
-        goal_test_.set_initial_state(state_data);
-        auto goal_test_result = goal_test_.test_goal(state_data);
+        auto goal_test_result = goal_test.test_goal(state_data);
         const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
         time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
         if (goal_test_result.is_goal)
@@ -168,7 +155,7 @@ namespace mimir::planners
                 };
 
                 const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
-                auto goal_test_result = goal_test_.test_goal(successor_state_data);
+                auto goal_test_result = goal_test.test_goal(successor_state_data);
                 const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
                 time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
                 if (goal_test_result.is_goal)
@@ -186,6 +173,7 @@ namespace mimir::planners
 
     bool IWSearch::width_arity_search(
         const mimir::extended_sketch::ExtendedState& initial_state,
+        ExtendedSketchGoalTest& goal_test,
         mimir::extended_sketch::ExtendedState& final_state,
         int arity,
         StateRegistry& state_registry,
@@ -230,7 +218,7 @@ namespace mimir::planners
                     ++generated;
 
                     const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
-                    const auto goal_test_result = goal_test_.test_goal(state_data);
+                    const auto goal_test_result = goal_test.test_goal(state_data);
                     const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
                     time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
 
@@ -334,7 +322,7 @@ namespace mimir::planners
                         ++generated;
 
                         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
-                        const auto goal_test_result = goal_test_.test_goal(successor_state_data);
+                        const auto goal_test_result = goal_test.test_goal(successor_state_data);
                         const auto goal_test_time_end = std::chrono::high_resolution_clock::now();
                         time_goal_test_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(goal_test_time_end - goal_test_time_start).count();
 
@@ -363,6 +351,7 @@ namespace mimir::planners
     }
 
     bool IWSearch::find_plan(
+        const std::shared_ptr<const dlplan::policy::Policy>& sketch,
         const mimir::extended_sketch::ExtendedState& initial_state,
         mimir::extended_sketch::ExtendedState& final_state,
         std::vector<formalism::Action> &plan,
@@ -379,13 +368,30 @@ namespace mimir::planners
 
         auto found_solution = false;
         StateRegistry state_registry;
+
+        // Initialize dlplan state with respect to a new atom registry.
         auto atom_registry = DLPlanAtomRegistry(problem_, instance_info_);
+        uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
+        if (initial_state_index == StateRegistry::no_state) {
+            initial_state_index = state_registry.register_state(initial_state.mimir);
+        }
+        auto initial_state_prime = 
+            mimir::extended_sketch::ExtendedState {
+                initial_state.memory,
+                initial_state.mimir,
+                std::make_shared<dlplan::core::State>(instance_info_,
+                    atom_registry.convert_state(initial_state.mimir),
+                    initial_state.dlplan->get_register_contents(),
+                    initial_state_index)
+        };
+        ExtendedSketchGoalTest goal_test = ExtendedSketchGoalTest(problem_, instance_info_, sketch, initial_state_prime);
+
         for (int arity = 0; arity <= max_arity_; ++arity)
         {
             effective_arity = arity;
             if (arity == 0)
             {
-                if (width_zero_search(initial_state, final_state, state_registry, atom_registry, plan, reason))
+                if (width_zero_search(initial_state_prime, goal_test, final_state, state_registry, atom_registry, plan, reason))
                 {
                     found_solution = true;
                     break;
@@ -394,7 +400,7 @@ namespace mimir::planners
             else
             {
                 std::cout << std::endl;
-                if (width_arity_search(initial_state, final_state, arity, state_registry, atom_registry, plan, reason))
+                if (width_arity_search(initial_state_prime, goal_test, final_state, arity, state_registry, atom_registry, plan, reason))
                 {
                     found_solution = true;
                     break;
@@ -426,12 +432,7 @@ namespace mimir::planners
                     << " (" << std::fixed << std::setprecision(3) << (100.0 * time_grounding_ns) / time_total_ns << "%)" << std::endl;
         std::cout << indent << "Goal time: " << time_goal_test_ns / (int64_t) 1E6 << " ms"
                 << " (" << std::fixed << std::setprecision(3) << (100.0 * time_goal_test_ns) / time_total_ns << "%)" << std::endl;
-        goal_test_.print_statistics(num_indent);
         std::cout << indent << "Search time: " << time_search_ns / (int64_t) 1E6 << " ms" << std::endl;
         std::cout << indent << "Total time: " << time_total_ns / (int64_t) 1E6 << " ms" << std::endl;
-    }
-
-    const ExtendedSketchGoalTest& IWSearch::get_goal_test() const {
-        return goal_test_;
     }
 }

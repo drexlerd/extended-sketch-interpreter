@@ -17,7 +17,9 @@ private:
     mimir::formalism::ProblemDescription m_problem;
     std::shared_ptr<dlplan::core::InstanceInfo> m_instance_info;
     ExtendedSketch m_extended_sketch;
-    std::unique_ptr<mimir::planners::IWSearch> m_iw_search;
+
+    planners::SuccessorGenerator m_successor_generator;
+    int m_max_arity;
 
 private:
     bool try_apply_load_rule(
@@ -50,7 +52,9 @@ public:
         const mimir::formalism::DomainDescription& domain,
         const mimir::formalism::ProblemDescription& problem,
         const std::shared_ptr<dlplan::core::InstanceInfo> instance_info,
-        const extended_sketch::ExtendedSketch& extended_sketch);
+        const extended_sketch::ExtendedSketch& extended_sketch,
+        planners::SuccessorGeneratorType successor_generator_type,
+        int max_arity);
 
     bool find_plan(std::vector<mimir::formalism::Action>& plan);
 
