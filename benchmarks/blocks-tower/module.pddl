@@ -14,16 +14,17 @@
             (W "c_primitive(on-table_g,0)")
             (M "c_some(r_primitive(on_g,0,1),c_register(0))")
             (R1 "c_register(1)")
+            (C "c_or(c_register(0), c_register(1))")
         )
         (:load_rule (:conditions (:memory m0) (:c_n_gt nW)) (:effects (:memory m1) (:load (r0 W))))
         (:load_rule (:conditions (:memory m1) (:c_n_gt nM)) (:effects (:memory m2) (:load (r1 M))))
-        (:call_rule (:conditions (:memory m2))             (:effects (:memory m3) (:call clear(:register r0, :register r1))))
-        (:call_rule (:conditions (:memory m3))             (:effects (:memory m4) (:call on(:register r0, :register r1))))
+        (:call_rule (:conditions (:memory m2))             (:effects (:memory m3) (:call clear(C))))
+        (:call_rule (:conditions (:memory m3))             (:effects (:memory m4) (:call on(r0, r1))))
         (:load_rule (:conditions (:memory m4)) (:effects (:memory m1) (:load (r0 R1))))
     )
 )
 (:module
-    (:signature clear(:register r1, :register r2))
+    (:signature clear(C1, C2))
     (:extended_sketch
         (:memory_states (m0 m1 m2))
         (:initial_memory_state m0)
@@ -32,12 +33,10 @@
             (H "b_empty(c_primitive(holding,0))")
         )
         (:numericals
-            (n "n_count(c_some(r_transitive_closure(r_primitive(on,0,1)),c_register(0)))")
-            (nC "n_count(c_diff(c_diff(c_or(c_register(1),c_register(2)),c_primitive(clear,0)),c_primitive(holding,0)))")
+            (n "n_count(c_some(r_transitive_closure(r_primitive(on,0,1)),c_register(r0)))")
+            (nC "n_count(c_variable(C)"))
         )
-        (:concepts
-            (C "c_diff(c_diff(c_or(c_register(1),c_register(2)),c_primitive(clear,0)),c_primitive(holding,0))")
-        )
+
         (:load_rule   (:conditions (:memory m0) (:c_n_gt nC)             ) (:effects (:memory m1) (:e_b_bot H) (:e_n_bot nC) (:load (r0 C))))
         (:search_rule (:conditions (:memory m1) (:c_b_neg H)             ) (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_n_bot nC)))
         (:search_rule (:conditions (:memory m1) (:c_b_pos H) (:c_n_gt n) ) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_n_bot nC)))
@@ -46,7 +45,7 @@
     )
 )
 (:module
-    (:signature on(:register r2, :register r3))
+    (:signature on(X, Y))
     (:extended_sketch
         (:memory_states (m0 m1 m2 m3))
         (:initial_memory_state m0)
@@ -55,15 +54,10 @@
             (On "b_empty(r_and(r_primitive(on,0,1),r_primitive(on_g,0,1)))")
         )
         (:numericals
-            (nX "n_count(c_register(2))")
-            (nY "n_count(c_register(3))")
-            (nC "n_count(c_diff(c_or(c_register(2), c_register(3)), c_primitive(clear, 0)))")
+            (nX "n_count(c_variable(X))")
+            (nY "n_count(c_variable(Y))")
         )
-        (:concepts
-            (X "c_register(2)")
-            (Y "c_register(3)")
-            (C "c_diff(c_or(c_register(2), c_register(3)), c_primitive(clear, 0))")
-        )
+        (:concepts )
         (:load_rule   (:conditions (:memory m0) (:c_n_gt nX)             ) (:effects (:memory m1) (:e_n_bot nC) (:load (r0 X))))
         (:load_rule   (:conditions (:memory m1) (:c_n_gt nY)             ) (:effects (:memory m2) (:e_n_bot nC) (:load (r1 Y))))
         (:search_rule (:conditions (:memory m2) (:c_n_gt nC)            ) (:effects (:memory m2) (:e_b_bot On) (:e_n_dec nC)))
