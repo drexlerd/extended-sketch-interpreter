@@ -25,7 +25,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const ActionRuleList& action_rules,
     const SearchRuleList& search_rules,
     const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
-    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+    const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
     const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
     const std::unordered_map<Register, int>& register_mapping)
     : m_memory_states(memory_states),
@@ -39,7 +39,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_action_rules(action_rules),
       m_search_rules(search_rules),
       m_sketches_by_memory_state(sketches_by_memory_state),
-      m_rule_to_memory_effect(rule_to_memory_effect),
+      m_search_rule_by_rule_by_memory_state(search_rule_by_rule_by_memory_state),
       m_load_rules_by_memory_state(load_rules_by_memory_state),
       m_register_mapping(register_mapping) {
 }
@@ -112,7 +112,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
         if (!reason) {
             throw std::runtime_error("There should be a reason to reach a goal");
         }
-        successor_state.memory = m_rule_to_memory_effect.at(reason);
+        successor_state.memory = m_search_rule_by_rule_by_memory_state.at(current_state.memory).at(reason)->get_memory_state_effect();
         std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 
         return true;
@@ -202,7 +202,7 @@ ExtendedSketch make_extended_sketch(
     const ActionRuleList& action_rules,
     const SearchRuleList& search_rules,
     const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
-    const std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState>& rule_to_memory_effect,
+    const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
     const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
     const std::unordered_map<Register, int>& register_mapping) {
     return std::make_shared<ExtendedSketchImpl>(
@@ -210,7 +210,7 @@ ExtendedSketch make_extended_sketch(
         registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules,
-        sketches_by_memory_state, rule_to_memory_effect,
+        sketches_by_memory_state, search_rule_by_rule_by_memory_state,
         load_rules_by_memory_state, register_mapping);
 }
 

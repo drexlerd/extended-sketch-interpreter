@@ -317,13 +317,13 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     for (const auto& search_rule : search_rules) {
         search_rules_by_memory_state[search_rule->get_memory_state_condition()].push_back(search_rule);
     }
-    std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, MemoryState> rule_to_memory_effect;
+    std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>> search_rule_by_rule_by_memory_state;
     std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> sketches_by_memory_state;
     for (const auto& pair : search_rules_by_memory_state) {
         dlplan::policy::Rules sketch_rules;
         for (const auto& search_rule : pair.second) {
             auto sketch_rule = context.dlplan_context.policy_factory.make_rule(search_rule->get_feature_conditions(), search_rule->get_feature_effects());
-            rule_to_memory_effect.emplace(sketch_rule, search_rule->get_memory_state_effect());
+            search_rule_by_rule_by_memory_state[pair.first][sketch_rule] = search_rule;
             sketch_rules.insert(sketch_rule);
         }
         auto sketch = context.dlplan_context.policy_factory.make_policy(sketch_rules);
@@ -341,7 +341,7 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules,
         sketches_by_memory_state,
-        rule_to_memory_effect,
+        search_rule_by_rule_by_memory_state,
         load_rules_by_memory_state,
         register_mapping);
 }

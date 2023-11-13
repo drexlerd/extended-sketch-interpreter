@@ -55,6 +55,7 @@ public:
             std::cout << applicable_rule->str() << std::endl;
         }
         */
+        
     }
 
     GoalTestResult test_goal(const StateData& state_data) {
@@ -65,6 +66,13 @@ public:
         ++count_goal_test_;
         const auto start_sketch_goal = std::chrono::high_resolution_clock::now();
         std::shared_ptr<const dlplan::policy::Rule> reason = nullptr;
+        /*
+        std::cout << state_data.extended_state.dlplan->str() << std::endl;
+        for (const auto& numerical : sketch_->get_numericals()) {
+            std::cout << numerical->get_numerical()->evaluate(*dlplan_initial_state_) << " " << numerical->get_numerical()->evaluate(*state_data.extended_state.dlplan) << " " << numerical->get_key() << std::endl;
+        }
+        */
+
         for (const auto& rule : applicable_rules_) {
             if (rule->evaluate_effects(*dlplan_initial_state_, *state_data.extended_state.dlplan, caches_)) {
                 is_goal = true;
