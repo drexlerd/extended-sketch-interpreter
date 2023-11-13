@@ -116,6 +116,14 @@ std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_eq_condition(const 
     return m_caches.m_condition_cache->insert(std::make_unique<EqualNumericalCondition>(numerical, m_caches.m_condition_cache->size())).first;
 }
 
+std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_condition_cache->insert(std::make_unique<GreaterConceptCondition>(concept, m_caches.m_condition_cache->size())).first;
+}
+
+std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_condition_cache->insert(std::make_unique<EqualConceptCondition>(concept, m_caches.m_condition_cache->size())).first;
+}
+
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_pos_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
     return m_caches.m_effect_cache->insert(std::make_unique<PositiveBooleanEffect>(boolean, m_caches.m_effect_cache->size())).first;
 }
@@ -138,6 +146,18 @@ std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
     return m_caches.m_effect_cache->insert(std::make_unique<UnchangedNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_effect_cache->insert(std::make_unique<IncrementConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_effect_cache->insert(std::make_unique<DecrementConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_effect_cache->insert(std::make_unique<UnchangedConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
 }
 
 std::shared_ptr<const Rule> PolicyFactoryImpl::make_rule(const Conditions& conditions, const Effects& effects) {

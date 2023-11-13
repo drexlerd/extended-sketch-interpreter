@@ -27,6 +27,10 @@ std::shared_ptr<const NamedNumerical> BooleanEffect::get_numerical() const {
     return nullptr;
 }
 
+std::shared_ptr<const NamedConcept> BooleanEffect::get_concept() const {
+    return nullptr;
+}
+
 
 NumericalEffect::NumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
     : BaseEffect(index), m_numerical(numerical) { }
@@ -41,6 +45,30 @@ std::shared_ptr<const NamedBoolean> NumericalEffect::get_boolean() const {
 
 std::shared_ptr<const NamedNumerical> NumericalEffect::get_numerical() const {
     return m_numerical;
+}
+
+std::shared_ptr<const NamedConcept> NumericalEffect::get_concept() const {
+    return nullptr;
+}
+
+
+ConceptEffect::ConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
+    : BaseEffect(index), m_concept(concept) { }
+
+int ConceptEffect::compute_evaluate_time_score() const {
+    return m_concept->compute_evaluate_time_score();
+}
+
+std::shared_ptr<const NamedBoolean> ConceptEffect::get_boolean() const {
+    return nullptr;
+}
+
+std::shared_ptr<const NamedNumerical> ConceptEffect::get_numerical() const {
+    return nullptr;
+}
+
+std::shared_ptr<const NamedConcept> ConceptEffect::get_concept() const {
+    return m_concept;
 }
 
 
@@ -173,6 +201,76 @@ std::string UnchangedNumericalEffect::str() const {
     return "(:e_n_bot " + m_numerical->get_key() + ")";
 }
 
+
+IncrementConceptEffect::IncrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
+    : ConceptEffect(concept, index) {}
+
+bool IncrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
+    return m_concept->get_concept()->evaluate(source_state).size() < m_concept->get_concept()->evaluate(target_state).size();
+}
+
+bool IncrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
+    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval < target_eval;
+}
+
+std::string IncrementConceptEffect::compute_repr() const{
+    return "(:e_c_inc \"" + m_concept->get_concept()->compute_repr() + "\")";
+}
+
+std::string IncrementConceptEffect::str() const {
+    return "(:e_c_inc " + m_concept->get_key() + ")";
+}
+
+
+DecrementConceptEffect::DecrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
+    : ConceptEffect(concept, index) {}
+
+bool DecrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
+    return m_concept->get_concept()->evaluate(source_state).size() > m_concept->get_concept()->evaluate(target_state).size();
+}
+
+bool DecrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
+    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval > target_eval;
+}
+
+std::string DecrementConceptEffect::compute_repr() const{
+    return "(:e_c_dec \"" + m_concept->get_concept()->compute_repr() + "\")";
+}
+
+std::string DecrementConceptEffect::str() const {
+    return "(:e_c_dec " + m_concept->get_key() + ")";
+}
+
+
+UnchangedConceptEffect::UnchangedConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
+    : ConceptEffect(concept, index) {}
+
+bool UnchangedConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
+    return m_concept->get_concept()->evaluate(source_state).size() == m_concept->get_concept()->evaluate(target_state).size();
+}
+
+bool UnchangedConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
+    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    return source_eval == target_eval;
+}
+
+std::string UnchangedConceptEffect::compute_repr() const{
+    return "(:e_c_bot \"" + m_concept->get_concept()->compute_repr() + "\")";
+}
+
+std::string UnchangedConceptEffect::str() const {
+    return "(:e_c_bot " + m_concept->get_key() + ")";
+}
+
 }
 
 namespace boost::serialization {
@@ -205,6 +303,22 @@ void save_construct_data(Archive& /* ar */ , const dlplan::policy::NumericalEffe
 
 template<class Archive>
 void load_construct_data(Archive& /* ar */ , dlplan::policy::NumericalEffect* /* t */ , const unsigned int /* version */ )
+{
+}
+
+template<typename Archive>
+void serialize( Archive& /* ar */ , dlplan::policy::ConceptEffect& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::BaseEffect>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& /* ar */ , const dlplan::policy::ConceptEffect* /* t */ , const unsigned int /* version */ )
+{
+}
+
+template<class Archive>
+void load_construct_data(Archive& /* ar */ , dlplan::policy::ConceptEffect* /* t */ , const unsigned int /* version */ )
 {
 }
 
@@ -346,6 +460,77 @@ void load_construct_data(Archive& ar, dlplan::policy::UnchangedNumericalEffect* 
     ::new(t)dlplan::policy::UnchangedNumericalEffect(numerical, index);
 }
 
+
+
+template<typename Archive>
+void serialize(Archive& /* ar */ , dlplan::policy::IncrementConceptEffect& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const dlplan::policy::IncrementConceptEffect* t, const unsigned int /* version */ )
+{
+    ar << t->m_concept;
+    ar << t->m_index;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, dlplan::policy::IncrementConceptEffect* t, const unsigned int /* version */ )
+{
+    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
+    dlplan::policy::EffectIndex index;
+    ar >> concept;
+    ar >> index;
+    ::new(t)dlplan::policy::IncrementConceptEffect(concept, index);
+}
+
+template<typename Archive>
+void serialize(Archive& /* ar */ , dlplan::policy::DecrementConceptEffect& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const dlplan::policy::DecrementConceptEffect* t, const unsigned int /* version */ )
+{
+    ar << t->m_concept;
+    ar << t->m_index;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, dlplan::policy::DecrementConceptEffect* t, const unsigned int /* version */ )
+{
+    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
+    dlplan::policy::EffectIndex index;
+    ar >> concept;
+    ar >> index;
+    ::new(t)dlplan::policy::DecrementConceptEffect(concept, index);
+}
+
+template<typename Archive>
+void serialize(Archive& /* ar */ , dlplan::policy::UnchangedConceptEffect& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const dlplan::policy::UnchangedConceptEffect* t, const unsigned int /* version */ )
+{
+    ar << t->m_concept;
+    ar << t->m_index;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, dlplan::policy::UnchangedConceptEffect* t, const unsigned int /* version */ )
+{
+    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
+    dlplan::policy::EffectIndex index;
+    ar >> concept;
+    ar >> index;
+    ::new(t)dlplan::policy::UnchangedConceptEffect(concept, index);
+}
+
 template void serialize(boost::archive::text_iarchive& ar,
     dlplan::policy::BooleanEffect& t, const unsigned int version);
 template void serialize(boost::archive::text_oarchive& ar,
@@ -417,6 +602,42 @@ template void save_construct_data(boost::archive::text_oarchive& ar,
     const dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
 template void load_construct_data(boost::archive::text_iarchive& ar,
     dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::ConceptEffect& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::ConceptEffect& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::ConceptEffect* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::ConceptEffect* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::IncrementConceptEffect& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::IncrementConceptEffect& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::DecrementConceptEffect& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::DecrementConceptEffect& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::UnchangedConceptEffect& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::UnchangedConceptEffect& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
 }
 
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::PositiveBooleanEffect)
@@ -425,3 +646,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedBooleanEffect)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::IncrementNumericalEffect)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::DecrementNumericalEffect)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedNumericalEffect)
+BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::IncrementConceptEffect)
+BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::DecrementConceptEffect)
+BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedConceptEffect)

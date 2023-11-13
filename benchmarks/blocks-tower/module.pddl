@@ -24,7 +24,7 @@
     )
 )
 (:module
-    (:signature clear(C1, C2))
+    (:signature clear(C))
     (:extended_sketch
         (:memory_states (m0 m1 m2))
         (:initial_memory_state m0)

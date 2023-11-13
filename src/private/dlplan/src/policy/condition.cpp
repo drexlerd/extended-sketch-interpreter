@@ -26,6 +26,10 @@ std::shared_ptr<const NamedNumerical> BooleanCondition::get_numerical() const {
     return nullptr;
 }
 
+std::shared_ptr<const NamedConcept> BooleanCondition::get_concept() const {
+    return nullptr;
+}
+
 
 NumericalCondition::NumericalCondition(std::shared_ptr<const NamedNumerical> numerical, ConditionIndex index)
     : BaseCondition(index), m_numerical(numerical) { }
@@ -40,6 +44,30 @@ std::shared_ptr<const NamedBoolean> NumericalCondition::get_boolean() const {
 
 std::shared_ptr<const NamedNumerical> NumericalCondition::get_numerical() const {
     return m_numerical;
+}
+
+std::shared_ptr<const NamedConcept> NumericalCondition::get_concept() const {
+    return nullptr;
+}
+
+
+ConceptCondition::ConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index)
+    : BaseCondition(index), m_concept(concept) { }
+
+int ConceptCondition::compute_evaluate_time_score() const {
+    return m_concept->compute_evaluate_time_score();
+}
+
+std::shared_ptr<const NamedBoolean> ConceptCondition::get_boolean() const {
+    return nullptr;
+}
+
+std::shared_ptr<const NamedNumerical> ConceptCondition::get_numerical() const {
+    return nullptr;
+}
+
+std::shared_ptr<const NamedConcept> ConceptCondition::get_concept() const {
+    return m_concept;
 }
 
 
@@ -122,6 +150,46 @@ std::string GreaterNumericalCondition::str() const {
     return "(:c_n_gt " + m_numerical->get_key() + ")";
 }
 
+
+EqualConceptCondition::EqualConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index)
+    : ConceptCondition(concept, index) { }
+
+bool EqualConceptCondition::evaluate(const core::State& source_state) const {
+    return m_concept->get_concept()->evaluate(source_state).size() == 0;
+}
+
+bool EqualConceptCondition::evaluate(const core::State& source_state, core::DenotationsCaches& caches) const {
+    return m_concept->get_concept()->evaluate(source_state, caches)->size() == 0;
+}
+
+std::string EqualConceptCondition::compute_repr() const {
+    return "(:c_c_eq \"" + m_concept->get_concept()->compute_repr() + "\")";
+}
+
+std::string EqualConceptCondition::str() const {
+    return "(:c_c_eq " + m_concept->get_key() + ")";
+}
+
+
+GreaterConceptCondition::GreaterConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index)
+    : ConceptCondition(concept, index) { }
+
+bool GreaterConceptCondition::evaluate(const core::State& source_state) const {
+    return m_concept->get_concept()->evaluate(source_state).size() > 0;
+}
+
+bool GreaterConceptCondition::evaluate(const core::State& source_state, core::DenotationsCaches& caches) const {
+    return m_concept->get_concept()->evaluate(source_state, caches)->size() > 0;
+}
+
+std::string GreaterConceptCondition::compute_repr() const {
+    return "(:c_c_gt \"" + m_concept->get_concept()->compute_repr() + "\")";
+}
+
+std::string GreaterConceptCondition::str() const {
+    return "(:c_c_gt " + m_concept->get_key() + ")";
+}
+
 }
 
 
@@ -156,6 +224,22 @@ void save_construct_data(Archive& /* ar */ , const dlplan::policy::NumericalCond
 
 template<class Archive>
 void load_construct_data(Archive& /* ar */ , dlplan::policy::NumericalCondition* /* t */ , const unsigned int /* version */ )
+{
+}
+
+template<typename Archive>
+void serialize( Archive& /* ar */ , dlplan::policy::ConceptCondition& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::BaseCondition>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& /* ar */ , const dlplan::policy::ConceptCondition* /* t */ , const unsigned int /* version */ )
+{
+}
+
+template<class Archive>
+void load_construct_data(Archive& /* ar */ , dlplan::policy::ConceptCondition* /* t */ , const unsigned int /* version */ )
 {
 }
 
@@ -251,6 +335,53 @@ void load_construct_data(Archive& ar, dlplan::policy::EqualNumericalCondition* t
     ::new(t)dlplan::policy::EqualNumericalCondition(numerical, index);
 }
 
+
+template<typename Archive>
+void serialize(Archive& /* ar */ , dlplan::policy::GreaterConceptCondition& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::ConceptCondition>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const dlplan::policy::GreaterConceptCondition* t, const unsigned int /* version */ )
+{
+    ar << t->m_concept;
+    ar << t->m_index;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, dlplan::policy::GreaterConceptCondition* t, const unsigned int /* version */ )
+{
+    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
+    dlplan::policy::ConditionIndex index;
+    ar >> concept;
+    ar >> index;
+    ::new(t)dlplan::policy::GreaterConceptCondition(concept, index);
+}
+
+template<typename Archive>
+void serialize(Archive& /* ar */ , dlplan::policy::EqualConceptCondition& t, const unsigned int /* version */ )
+{
+    boost::serialization::base_object<dlplan::policy::ConceptCondition>(t);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const dlplan::policy::EqualConceptCondition* t, const unsigned int /* version */ )
+{
+    ar << t->m_concept;
+    ar << t->m_index;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, dlplan::policy::EqualConceptCondition* t, const unsigned int /* version */ )
+{
+    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
+    dlplan::policy::ConditionIndex index;
+    ar >> concept;
+    ar >> index;
+    ::new(t)dlplan::policy::EqualConceptCondition(concept, index);
+}
+
 template void serialize(boost::archive::text_iarchive& ar,
     dlplan::policy::BooleanCondition& t, const unsigned int version);
 template void serialize(boost::archive::text_oarchive& ar,
@@ -304,9 +435,39 @@ template void save_construct_data(boost::archive::text_oarchive& ar,
     const dlplan::policy::EqualNumericalCondition* t, const unsigned int version);
 template void load_construct_data(boost::archive::text_iarchive& ar,
     dlplan::policy::EqualNumericalCondition* t, const unsigned int version);
+
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::ConceptCondition& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::ConceptCondition& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::ConceptCondition* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::ConceptCondition* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::GreaterConceptCondition& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::GreaterConceptCondition& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::GreaterConceptCondition* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::GreaterConceptCondition* t, const unsigned int version);
+
+template void serialize(boost::archive::text_iarchive& ar,
+    dlplan::policy::EqualConceptCondition& t, const unsigned int version);
+template void serialize(boost::archive::text_oarchive& ar,
+    dlplan::policy::EqualConceptCondition& t, const unsigned int version);
+template void save_construct_data(boost::archive::text_oarchive& ar,
+    const dlplan::policy::EqualConceptCondition* t, const unsigned int version);
+template void load_construct_data(boost::archive::text_iarchive& ar,
+    dlplan::policy::EqualConceptCondition* t, const unsigned int version);
 }
 
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::PositiveBooleanCondition)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::NegativeBooleanCondition)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::GreaterNumericalCondition)
 BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::EqualNumericalCondition)
+BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::GreaterConceptCondition)
+BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::EqualConceptCondition)

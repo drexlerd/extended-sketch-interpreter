@@ -302,6 +302,7 @@ public:
 
     virtual std::shared_ptr<const NamedBoolean> get_boolean() const = 0;
     virtual std::shared_ptr<const NamedNumerical> get_numerical() const = 0;
+    virtual std::shared_ptr<const NamedConcept> get_concept() const = 0;
     ConditionIndex get_index() const;
 };
 
@@ -342,6 +343,7 @@ public:
     EffectIndex get_index() const;
     virtual std::shared_ptr<const NamedBoolean> get_boolean() const = 0;
     virtual std::shared_ptr<const NamedNumerical> get_numerical() const = 0;
+    virtual std::shared_ptr<const NamedConcept> get_concept() const = 0;
 };
 
 
@@ -495,12 +497,17 @@ public:
     std::shared_ptr<const BaseCondition> make_neg_condition(const std::shared_ptr<const NamedBoolean>& boolean);
     std::shared_ptr<const BaseCondition> make_gt_condition(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseCondition> make_eq_condition(const std::shared_ptr<const NamedNumerical>& numerical);
+    std::shared_ptr<const BaseCondition> make_gt_condition(const std::shared_ptr<const NamedConcept>& concept);
+    std::shared_ptr<const BaseCondition> make_eq_condition(const std::shared_ptr<const NamedConcept>& concept);
     std::shared_ptr<const BaseEffect> make_pos_effect(const std::shared_ptr<const NamedBoolean>& boolean);
     std::shared_ptr<const BaseEffect> make_neg_effect(const std::shared_ptr<const NamedBoolean>& boolean);
     std::shared_ptr<const BaseEffect> make_bot_effect(const std::shared_ptr<const NamedBoolean>& boolean);
     std::shared_ptr<const BaseEffect> make_inc_effect(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseEffect> make_dec_effect(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseEffect> make_bot_effect(const std::shared_ptr<const NamedNumerical>& numerical);
+    std::shared_ptr<const BaseEffect> make_inc_effect(const std::shared_ptr<const NamedConcept>& concept);
+    std::shared_ptr<const BaseEffect> make_dec_effect(const std::shared_ptr<const NamedConcept>& concept);
+    std::shared_ptr<const BaseEffect> make_bot_effect(const std::shared_ptr<const NamedConcept>& concept);
 
     /**
      * Uniquely adds a rule and returns it.

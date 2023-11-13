@@ -105,6 +105,14 @@ std::shared_ptr<const BaseCondition> PolicyFactory::make_eq_condition(const std:
     return m_pImpl->make_eq_condition(numerical);
 }
 
+std::shared_ptr<const BaseCondition> PolicyFactory::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_gt_condition(concept);
+}
+
+std::shared_ptr<const BaseCondition> PolicyFactory::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_eq_condition(concept);
+}
+
 std::shared_ptr<const BaseEffect> PolicyFactory::make_pos_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
     return m_pImpl->make_pos_effect(boolean);
 }
@@ -127,6 +135,18 @@ std::shared_ptr<const BaseEffect> PolicyFactory::make_dec_effect(const std::shar
 
 std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
     return m_pImpl->make_bot_effect(numerical);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_inc_effect(concept);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_dec_effect(concept);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_bot_effect(concept);
 }
 
 std::shared_ptr<const Rule> PolicyFactory::make_rule(

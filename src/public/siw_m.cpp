@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     } else {
         std::cout << std::endl << "No solution found!" << std::endl;
     }
-    
+
     return 0;
 }
 

@@ -12,12 +12,16 @@
 namespace dlplan::policy {
 class BooleanEffect;
 class NumericalEffect;
+class ConceptEffect;
 class PositiveBooleanEffect;
 class NegativeBooleanEffect;
 class UnchangedBooleanEffect;
 class IncrementNumericalEffect;
 class DecrementNumericalEffect;
 class UnchangedNumericalEffect;
+class IncrementConceptEffect;
+class DecrementConceptEffect;
+class UnchangedConceptEffect;
 }
 
 
@@ -35,6 +39,13 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const dlplan::policy::NumericalEffect* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, dlplan::policy::NumericalEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::ConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::ConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::ConceptEffect* t, const unsigned int version);
 
     template <typename Archive>
     void serialize(Archive& ar, dlplan::policy::PositiveBooleanEffect& effect, const unsigned int version);
@@ -77,6 +88,27 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::IncrementConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::DecrementConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::UnchangedConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
 }
 
 
@@ -100,6 +132,7 @@ protected:
 
     std::shared_ptr<const NamedBoolean> get_boolean() const override;
     std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
 };
 
 
@@ -122,6 +155,30 @@ protected:
 
     std::shared_ptr<const NamedBoolean> get_boolean() const override;
     std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
+};
+
+
+class ConceptEffect : public BaseEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, ConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const ConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, ConceptEffect* t, const unsigned int version);
+
+protected:
+    std::shared_ptr<const NamedConcept> m_concept;
+
+protected:
+    ConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    int compute_evaluate_time_score() const override;
+
+    std::shared_ptr<const NamedBoolean> get_boolean() const override;
+    std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
 };
 
 
@@ -143,6 +200,7 @@ public:
     std::string compute_repr() const override;
     std::string str() const override;
 };
+
 
 class NegativeBooleanEffect : public BooleanEffect {
 private:
@@ -239,6 +297,65 @@ public:
     std::string str() const override;
 };
 
+
+class IncrementConceptEffect : public ConceptEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, IncrementConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const IncrementConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, IncrementConceptEffect* t, const unsigned int version);
+
+public:
+    IncrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+class DecrementConceptEffect : public ConceptEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, DecrementConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const DecrementConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, DecrementConceptEffect* t, const unsigned int version);
+
+public:
+    DecrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+class UnchangedConceptEffect : public ConceptEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, UnchangedConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const UnchangedConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, UnchangedConceptEffect* t, const unsigned int version);
+
+public:
+    UnchangedConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+
 }
 
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::PositiveBooleanEffect, "dlplan::policy::PositiveBooleanEffect")
@@ -247,5 +364,8 @@ BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedBooleanEffect, "dlplan::policy:
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::IncrementNumericalEffect, "dlplan::policy::IncrementNumericalEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::DecrementNumericalEffect, "dlplan::policy::DecrementNumericalEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedNumericalEffect, "dlplan::policy::UnchangedNumericalEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::IncrementConceptEffect, "dlplan::policy::IncrementConceptEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::DecrementConceptEffect, "dlplan::policy::DecrementConceptEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedConceptEffect, "dlplan::policy::UnchangedConceptEffect")
 
 #endif

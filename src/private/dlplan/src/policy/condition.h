@@ -14,10 +14,13 @@ using namespace dlplan;
 namespace dlplan::policy {
 class BooleanCondition;
 class NumericalCondition;
+class ConceptCondition;
 class PositiveBooleanCondition;
 class NegativeBooleanCondition;
 class EqualNumericalCondition;
 class GreaterNumericalCondition;
+class EqualConceptCondition;
+class GreaterConceptCondition;
 }
 
 
@@ -35,6 +38,13 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const dlplan::policy::NumericalCondition* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, dlplan::policy::NumericalCondition* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::ConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::ConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::ConceptCondition* t, const unsigned int version);
 
     template <typename Archive>
     void serialize(Archive& ar, dlplan::policy::PositiveBooleanCondition& t, const unsigned int version);
@@ -63,6 +73,20 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const dlplan::policy::GreaterNumericalCondition* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, dlplan::policy::GreaterNumericalCondition* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::EqualConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::EqualConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::EqualConceptCondition* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::GreaterConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::GreaterConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::GreaterConceptCondition* t, const unsigned int version);
 }
 
 
@@ -86,8 +110,8 @@ protected:
     int compute_evaluate_time_score() const override;
 
     std::shared_ptr<const NamedBoolean> get_boolean() const override;
-
     std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
 };
 
 
@@ -110,6 +134,30 @@ protected:
 
     std::shared_ptr<const NamedBoolean> get_boolean() const override;
     std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
+};
+
+
+class ConceptCondition : public BaseCondition {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, ConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const ConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, ConceptCondition* t, const unsigned int version);
+
+protected:
+    const std::shared_ptr<const NamedConcept> m_concept;
+
+protected:
+    ConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index);
+
+    int compute_evaluate_time_score() const override;
+
+    std::shared_ptr<const NamedBoolean> get_boolean() const override;
+    std::shared_ptr<const NamedNumerical> get_numerical() const override;
+    std::shared_ptr<const NamedConcept> get_concept() const override;
 };
 
 
@@ -189,11 +237,52 @@ public:
     std::string str() const override;
 };
 
+
+class EqualConceptCondition : public ConceptCondition {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, EqualConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const EqualConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, EqualConceptCondition* t, const unsigned int version);
+
+public:
+    EqualConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index);
+
+    bool evaluate(const core::State& source_state) const override;
+    bool evaluate(const core::State& source_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+class GreaterConceptCondition : public ConceptCondition {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, GreaterConceptCondition& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const GreaterConceptCondition* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, GreaterConceptCondition* t, const unsigned int version);
+
+public:
+    GreaterConceptCondition(std::shared_ptr<const NamedConcept> concept, ConditionIndex index);
+
+    bool evaluate(const core::State& source_state) const override;
+    bool evaluate(const core::State& source_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
 }
 
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::PositiveBooleanCondition, "dlplan::policy::PositiveBooleanCondition")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::NegativeBooleanCondition, "dlplan::policy::NegativeBooleanCondition")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::GreaterNumericalCondition, "dlplan::policy::GreaterNumericalCondition")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::EqualNumericalCondition, "dlplan::policy::EqualNumericalCondition")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::GreaterConceptCondition, "dlplan::policy::GreaterConceptCondition")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::EqualConceptCondition, "dlplan::policy::EqualConceptCondition")
 
 #endif

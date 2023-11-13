@@ -36,6 +36,9 @@ namespace mimir::extended_sketch {
         std::unordered_map<std::string, Data<ast::Register, Register>> registers;
         std::unordered_map<std::string, Data<ast::MemoryState, MemoryState>> memory_states;
 
+        // We realise arguments as registers and refer to them via concepts
+        std::unordered_map<Register, Concept> register_to_concept;
+
         /// @brief Constructor for parsing an extended sketch
         Context(
             const mimir::formalism::DomainDescription& domain_description,
