@@ -4,6 +4,7 @@
 
 #include "memory_state.hpp"
 #include "register.hpp"
+#include "../formalism/state.hpp"
 
 
 namespace mimir::extended_sketch {
@@ -59,6 +60,7 @@ void LoadRuleImpl::apply(
     const ExtendedState& current_state,
     const std::unordered_map<Concept, int>& register_mapping,
     ExtendedState& successor_state) {
+    std::cout << current_state.mimir << std::endl;
     const auto denotation = m_concept->get_concept()->evaluate(*current_state.dlplan);
     if (denotation.size() == 0) {
         throw std::runtime_error("Tried to load object from empty concept into register");
@@ -123,9 +125,17 @@ CallRuleImpl::CallRuleImpl(
     const ModuleCall& call)
     : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_call(call),
-      callee() { }
+      m_callee() { }
 
 CallRuleImpl::~CallRuleImpl() = default;
+
+const ModuleCall& CallRuleImpl::get_call() const {
+    return m_call;
+}
+
+void CallRuleImpl::set_callee(const Module& module) {
+    m_callee = module;
+}
 
 void CallRuleImpl::compute_signature(std::stringstream& out) const {
     out << "(:call_rule "

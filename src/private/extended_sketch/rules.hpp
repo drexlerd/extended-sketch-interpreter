@@ -78,8 +78,7 @@ class CallRuleImpl : public ExtendedRuleImpl {
 public:
     ModuleCall m_call;
 
-    class ExtendedSketchImpl;
-    std::weak_ptr<ExtendedSketchImpl> callee;
+    std::weak_ptr<ModuleImpl> m_callee;
 
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
@@ -94,6 +93,9 @@ public:
         const EffectSet& feature_effects,
         const ModuleCall& call);
     ~CallRuleImpl() override;
+
+    const ModuleCall& get_call() const;
+    void set_callee(const Module& module);
 
     void compute_signature(std::stringstream& out) const override;
 };

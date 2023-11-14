@@ -22,6 +22,10 @@ std::string ModuleImpl::compute_signature() const {
     return ss.str();
 }
 
+const Signature& ModuleImpl::get_signature() const {
+    return signature;
+}
+
 const ExtendedSketch& ModuleImpl::get_extended_sketch() const {
     return extended_sketch;
 }

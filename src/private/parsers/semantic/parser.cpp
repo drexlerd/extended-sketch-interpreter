@@ -322,10 +322,22 @@ Module parse(const ast::Module& node, const dlplan::error_handler_type& error_ha
 
 void resolve_function_calls(
     const ModuleList& modules) {
+    std::unordered_map<std::string, Module> signature_to_module;
     for (const auto& module : modules) {
-        for (const auto& call_rule : module->get_extended_sketch()->get_call_rules()) {
-            std::cout << call_rule->m_call.compute_signature() << std::endl;
-
+        std::stringstream signature_ss;
+        signature_ss << module->get_signature().get_name() << " " << module->get_signature().get_parameters().size();
+        signature_to_module[signature_ss.str()] = module;
+    }
+    for (auto& module : modules) {
+        for (auto& call_rule : module->get_extended_sketch()->get_call_rules()) {
+            std::stringstream call_ss;
+            call_ss << call_rule->get_call().get_name() << " " << call_rule->get_call().get_arguments().size();
+            auto it = signature_to_module.find(call_ss.str());
+            if (it == signature_to_module.end()) {
+                // TODO: we want access to the error_handler and ast nodes here to point to the file.
+                throw std::runtime_error("Could not resolve function call " + call_rule->get_call().compute_signature());
+            }
+            call_rule->set_callee(it->second);
         }
     }
 }

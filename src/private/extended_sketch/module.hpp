@@ -24,6 +24,7 @@ public:
 
     std::string compute_signature() const;
 
+    const Signature& get_signature() const;
     const ExtendedSketch& get_extended_sketch() const;
 };
 
