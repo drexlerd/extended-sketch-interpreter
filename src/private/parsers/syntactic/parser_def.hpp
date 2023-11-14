@@ -61,12 +61,6 @@ namespace mimir::extended_sketch { namespace parser
 
     load_rule_type const load_rule = "load_rule";
 
-    argument_register_type const argument_register = "argument_register";
-
-    argument_concept_type const argument_concept = "argument_concept";
-
-    argument_type const argument = "argument";
-
     module_call_type const module_call = "module_call";
 
     call_rule_type const call_rule = "call_rule";
@@ -86,12 +80,6 @@ namespace mimir::extended_sketch { namespace parser
     extended_sketch_type const extended_sketch = "extended_sketch";
 
     extended_sketch_root_type const extended_sketch_root = "extended_sketch";
-
-    x3::rule<ParameterRegisterClass, ast::ParameterRegister> const parameter_register = "parameter_register";
-
-    x3::rule<ParameterConceptClass, ast::ParameterConcept> const parameter_concept = "parameter_concept";
-
-    x3::rule<ParameterClass, ast::Parameter> const parameter = "parameter";
 
     x3::rule<SignatureClass, ast::Signature> const
         signature = "signature";
@@ -132,10 +120,7 @@ namespace mimir::extended_sketch { namespace parser
             > lit(')')
         > lit(')');
 
-    const auto argument_register_def = lit(":register") > register_reference;
-    const auto argument_concept_def = lit(":concept") > dlplan::policy::concept_reference();
-    const auto argument_def = argument_register | argument_concept;
-    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> argument % lit(',') > lit(')') > lit(')');
+    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> dlplan::policy::concept_reference() % lit(',') > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
@@ -150,7 +135,7 @@ namespace mimir::extended_sketch { namespace parser
         > lit(')');
 
     const auto action_reference_def = name;
-    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> argument % lit(',') > lit(')') > lit(')');
+    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> dlplan::policy::concept_reference() % lit(',') > lit(')') > lit(')');
     const auto action_rule_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
@@ -191,13 +176,10 @@ namespace mimir::extended_sketch { namespace parser
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;
 
-    const auto parameter_register_def = lit(":register") > register_;
-    const auto parameter_concept_def = lit(":concept") > dlplan::policy::concept_definition();
-    const auto parameter_def = parameter_register | parameter_concept;
     const auto signature_def = lit('(') >> lit(":signature")
         > name
             > lit('(')
-                >> -(parameter % lit(','))
+                >> -(dlplan::policy::concept() % lit(','))
             > lit(')')
         > lit(')');
 
@@ -213,12 +195,11 @@ namespace mimir::extended_sketch { namespace parser
         register_, register_reference, registers,
         memory_condition, memory_effect,
         load_rule,
-        argument_register, argument_concept, argument, module_call, call_rule,
+        module_call, call_rule,
         action_reference, action_call, action_rule,
         search_rule,
         rule, rules,
         extended_sketch, extended_sketch_root,
-        parameter_register, parameter_concept, parameter,
         signature, module_, module_root)
 
     ///////////////////////////////////////////////////////////////////////////
@@ -237,9 +218,6 @@ namespace mimir::extended_sketch { namespace parser
     struct MemoryEffectClass : x3::annotate_on_success {};
     struct LoadRuleClass : x3::annotate_on_success {};
     struct ArgumentRegisterClass : x3::annotate_on_success {};
-    struct ArgumentConceptClass : x3::annotate_on_success {};
-    struct ArgumentClass : x3::annotate_on_success {};
-    struct ArgumentsClass : x3::annotate_on_success {};
     struct ModuleCallClass : x3::annotate_on_success {};
     struct CallRuleClass : x3::annotate_on_success {};
     struct ActionReferenceClass : x3::annotate_on_success {};
@@ -251,9 +229,6 @@ namespace mimir::extended_sketch { namespace parser
     struct ExtendedSketchClass : x3::annotate_on_success {};
     struct ExtendedSketchRootClass : x3::annotate_on_success, error_handler_extended_sketch {};
 
-    struct ParameterRegisterClass : x3::annotate_on_success {};
-    struct ParameterConceptClass : x3::annotate_on_success {};
-    struct ParameterClass : x3::annotate_on_success {};
     struct SignatureClass : x3::annotate_on_success {};
 
     struct ModuleClass : x3::annotate_on_success {};
@@ -309,18 +284,6 @@ namespace mimir::extended_sketch
         return parser::load_rule;
     }
 
-
-    parser::argument_register_type const& argument_register() {
-        return parser::argument_register;
-    }
-
-    parser::argument_concept_type const& argument_concept() {
-        return parser::argument_concept;
-    }
-
-    parser::argument_type const& argument() {
-        return parser::argument;
-    }
 
     parser::module_call_type const& module_call() {
         return parser::module_call;

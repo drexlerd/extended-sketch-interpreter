@@ -40,7 +40,7 @@ public:
     ExtendedSketchImpl(
         const MemoryStateMap& memory_states,
         const MemoryState& initial_memory_state,
-        const ConceptMap& registers,
+        const RegisterMap& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,

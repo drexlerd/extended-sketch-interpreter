@@ -101,25 +101,10 @@ namespace mimir::extended_sketch::ast
         Name reference;
     };
 
-    struct ArgumentRegister : x3::position_tagged {
-        RegisterReference reference;
-    };
-
-    struct ArgumentConcept : x3::position_tagged {
-        dlplan::policy::ast::ConceptReference reference;
-    };
-
-    struct Argument : x3::position_tagged,
-        x3::variant<
-            x3::forward_ast<ArgumentRegister>,
-            x3::forward_ast<ArgumentConcept>> {
-        using base_type::base_type;
-        using base_type::operator=;
-    };
 
     struct ModuleCall : x3::position_tagged {
         Name name;
-        std::vector<Argument> arguments;
+        std::vector<dlplan::policy::ast::ConceptReference> arguments;
     };
 
     struct CallRule : x3::position_tagged {
@@ -136,7 +121,7 @@ namespace mimir::extended_sketch::ast
 
     struct ActionCall : x3::position_tagged {
         ActionReference reference;
-        std::vector<Argument> arguments;
+        std::vector<dlplan::policy::ast::ConceptReference> arguments;
     };
 
     struct ActionRule : x3::position_tagged {
@@ -181,25 +166,9 @@ namespace mimir::extended_sketch::ast
 
 
     /* Signature entry */
-    struct ParameterRegister : x3::position_tagged {
-        Register definition;
-    };
-
-    struct ParameterConcept : x3::position_tagged {
-        dlplan::policy::ast::ConceptDefinition definition;
-    };
-
-    struct Parameter : x3::position_tagged,
-        x3::variant<
-            x3::forward_ast<ParameterRegister>,
-            x3::forward_ast<ParameterConcept>> {
-        using base_type::base_type;
-        using base_type::operator=;
-    };
-
     struct Signature : x3::position_tagged {
         Name name;
-        std::vector<Parameter> parameters;
+        std::vector<dlplan::policy::ast::Concept> parameters;
     };
 
     struct Module : x3::position_tagged {

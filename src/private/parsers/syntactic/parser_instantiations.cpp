@@ -35,12 +35,6 @@ namespace mimir::extended_sketch::parser
         load_rule_type, iterator_type, context_type)
 
     BOOST_SPIRIT_INSTANTIATE(
-        argument_register_type, iterator_type, context_type)
-    BOOST_SPIRIT_INSTANTIATE(
-        argument_concept_type, iterator_type, context_type)
-    BOOST_SPIRIT_INSTANTIATE(
-        argument_type, iterator_type, context_type)
-    BOOST_SPIRIT_INSTANTIATE(
         module_call_type, iterator_type, context_type)
     BOOST_SPIRIT_INSTANTIATE(
         call_rule_type, iterator_type, context_type)
