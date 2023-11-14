@@ -21,8 +21,6 @@ namespace mimir::extended_sketch
         struct MemoryStatesClass;
         struct InitialMemoryStateClass;
 
-        struct RegisterClass;
-        struct RegisterReferenceClass;
         struct RegistersClass;
 
         struct MemoryConditionClass;
@@ -56,8 +54,6 @@ namespace mimir::extended_sketch
         typedef x3::rule<MemoryStatesClass, ast::MemoryStates> memory_states_type;
         typedef x3::rule<InitialMemoryStateClass, ast::InitialMemoryState> initial_memory_state_type;
 
-        typedef x3::rule<RegisterClass, ast::Register> register_type;
-        typedef x3::rule<RegisterReferenceClass, ast::RegisterReference> register_reference_type;
         typedef x3::rule<RegistersClass, ast::Registers> registers_type;
 
         typedef x3::rule<MemoryConditionClass, ast::MemoryCondition> memory_condition_type;
@@ -87,7 +83,7 @@ namespace mimir::extended_sketch
         BOOST_SPIRIT_DECLARE(
             name_type,
             memory_state_type, memory_state_reference_type, memory_states_type, initial_memory_state_type,
-            register_type, register_reference_type, registers_type,
+            registers_type,
             memory_condition_type, memory_effect_type,
             load_rule_type,
             module_call_type, call_rule_type,
@@ -106,8 +102,6 @@ namespace mimir::extended_sketch
     parser::memory_states_type const& memory_states();
     parser::initial_memory_state_type const& initial_memory_state();
 
-    parser::register_type const& register_();
-    parser::register_reference_type const& register_reference();
     parser::registers_type const& registers();
 
     parser::memory_condition_type const& memory_condition();

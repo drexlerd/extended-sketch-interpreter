@@ -48,7 +48,7 @@ LoadRuleImpl::LoadRuleImpl(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Register& reg,
+    const Concept& reg,
     const Concept& concept)
     : ExtendedRuleImpl(condition_memory_state, effect_memory_state, feature_conditions, feature_effects),
       m_register(reg), m_concept(concept) { }
@@ -57,7 +57,7 @@ LoadRuleImpl::~LoadRuleImpl() = default;
 
 void LoadRuleImpl::apply(
     const ExtendedState& current_state,
-    const std::unordered_map<Register, int>& register_mapping,
+    const std::unordered_map<Concept, int>& register_mapping,
     ExtendedState& successor_state) {
     const auto denotation = m_concept->get_concept()->evaluate(*current_state.dlplan);
     if (denotation.size() == 0) {
@@ -79,7 +79,7 @@ void LoadRuleImpl::apply(
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
-    std::cout << "  Set content of register " << m_register->compute_signature() << " to object " << object_name << std::endl;
+    std::cout << "  Set content of register " << m_register->get_key() << " to object " << object_name << std::endl;
     std::cout << "  Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
 }
 
@@ -96,7 +96,7 @@ void LoadRuleImpl::compute_signature(std::stringstream& out) const {
     for (const auto& effect : m_feature_effects) {
         out << effect->str() << " ";
     }
-    out << "(:load (" << m_register->name << " " << m_concept->get_key() << ")) ";
+    out << "(:load (" << m_register->get_key() << " " << m_concept->get_key() << ")) ";
     out << ") ";  // effects
     out << ")";  // rule
 }
@@ -106,7 +106,7 @@ LoadRule make_load_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Register& reg,
+    const Concept& reg,
     const Concept& concept) {
     return std::make_shared<LoadRuleImpl>(
         condition_memory_state, effect_memory_state,

@@ -33,11 +33,10 @@ namespace mimir::extended_sketch {
         dlplan::policy::Context dlplan_context;
 
         // Our context
-        std::unordered_map<std::string, Data<ast::Register, Register>> registers;
         std::unordered_map<std::string, Data<ast::MemoryState, MemoryState>> memory_states;
 
         // We realise arguments as registers and refer to them via concepts
-        std::unordered_map<Register, Concept> register_to_concept;
+        std::unordered_map<Concept, int> register_mapping;
 
         /// @brief Constructor for parsing an extended sketch
         Context(

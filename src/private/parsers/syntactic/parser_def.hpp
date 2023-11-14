@@ -49,10 +49,6 @@ namespace mimir::extended_sketch { namespace parser
 
     initial_memory_state_type const initial_memory_state = "initial_memory_state";
 
-    register_type const register_ = "register";
-
-    register_reference_type const register_reference = "register_reference";
-
     registers_type const registers = "registers";
 
     memory_condition_type const memory_condition = "memory_condition";
@@ -100,9 +96,7 @@ namespace mimir::extended_sketch { namespace parser
     const auto memory_states_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state > lit(')') > lit(')');
     const auto initial_memory_state_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
 
-    const auto register__def = name;
-    const auto register_reference_def = name;
-    const auto registers_def = lit('(') >> lit(":registers") > lit('(') > *register_ > lit(')') > lit(')');
+    const auto registers_def = lit('(') >> lit(":registers") > lit('(') > *dlplan::policy::concept_definition() > lit(')') > lit(')');
 
     const auto memory_condition_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
     const auto memory_effect_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
@@ -116,7 +110,7 @@ namespace mimir::extended_sketch { namespace parser
             > lit('(') > lit(":effects")
                 > memory_effect
                 >> *dlplan::policy::feature_effect()
-                > lit('(') > lit(":load") > lit('(') > register_reference > dlplan::policy::concept_reference() > lit(')') > lit(')')
+                > lit('(') > lit(":load") > lit('(') > dlplan::policy::concept_reference() > dlplan::policy::concept_reference() > lit(')') > lit(')')
             > lit(')')
         > lit(')');
 
@@ -179,7 +173,7 @@ namespace mimir::extended_sketch { namespace parser
     const auto signature_def = lit('(') >> lit(":signature")
         > name
             > lit('(')
-                >> -(dlplan::policy::concept() % lit(','))
+                >> -(dlplan::policy::concept_definition() % lit(','))
             > lit(')')
         > lit(')');
 
@@ -192,7 +186,7 @@ namespace mimir::extended_sketch { namespace parser
 
     BOOST_SPIRIT_DEFINE(name,
         memory_state, memory_state_reference, memory_states, initial_memory_state,
-        register_, register_reference, registers,
+        registers,
         memory_condition, memory_effect,
         load_rule,
         module_call, call_rule,
@@ -211,8 +205,6 @@ namespace mimir::extended_sketch { namespace parser
     struct MemoryStateReferenceClass : x3::annotate_on_success {};
     struct MemoryStatesClass : x3::annotate_on_success {};
     struct InitialMemoryStateClass : x3::annotate_on_success {};
-    struct RegisterClass : x3::annotate_on_success {};
-    struct RegisterReferenceClass : x3::annotate_on_success {};
     struct RegistersClass : x3::annotate_on_success {};
     struct MemoryConditionClass : x3::annotate_on_success {};
     struct MemoryEffectClass : x3::annotate_on_success {};
@@ -255,15 +247,6 @@ namespace mimir::extended_sketch
 
     parser::initial_memory_state_type const& initial_memory_state() {
         return parser::initial_memory_state;
-    }
-
-
-    parser::register_type const& register_() {
-        return parser::register_;
-    }
-
-    parser::register_reference_type const& register_reference() {
-        return parser::register_reference;
     }
 
     parser::registers_type const& registers() {

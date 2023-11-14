@@ -64,16 +64,8 @@ namespace mimir::extended_sketch::ast
 
 
     /* Register entry and references */
-    struct Register : x3::position_tagged {
-        Name key;
-    };
-
-    struct RegisterReference : x3::position_tagged {
-        Name key;
-    };
-
     struct Registers : x3::position_tagged {
-        std::vector<Register> definitions;
+        std::vector<dlplan::policy::ast::ConceptDefinition> definitions;
     };
 
 
@@ -93,7 +85,7 @@ namespace mimir::extended_sketch::ast
         std::vector<dlplan::policy::ast::FeatureCondition> feature_conditions;
         MemoryEffect memory_effect;
         std::vector<dlplan::policy::ast::FeatureEffect> feature_effects;
-        RegisterReference register_reference;
+        dlplan::policy::ast::ConceptReference register_reference;
         dlplan::policy::ast::ConceptReference concept_reference;
     };
 
@@ -168,7 +160,7 @@ namespace mimir::extended_sketch::ast
     /* Signature entry */
     struct Signature : x3::position_tagged {
         Name name;
-        std::vector<dlplan::policy::ast::Concept> parameters;
+        std::vector<dlplan::policy::ast::ConceptDefinition> parameters;
     };
 
     struct Module : x3::position_tagged {

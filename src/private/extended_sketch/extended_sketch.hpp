@@ -17,8 +17,6 @@ private:
     MemoryStateMap m_memory_states;
     MemoryState m_initial_memory_state;
 
-    RegisterMap m_registers;
-
     BooleanMap m_booleans;
     NumericalMap m_numericals;
     ConceptMap m_concepts;  // TODO: add registers to concepts
@@ -32,7 +30,7 @@ private:
     std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>> m_sketches_by_memory_state;
     std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>> m_search_rule_by_rule_by_memory_state;
     std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
-    std::unordered_map<Register, int> m_register_mapping;
+    std::unordered_map<Concept, int> m_register_mapping;
 
     friend class ModuleImpl;
 
@@ -40,7 +38,6 @@ public:
     ExtendedSketchImpl(
         const MemoryStateMap& memory_states,
         const MemoryState& initial_memory_state,
-        const RegisterMap& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
@@ -51,7 +48,7 @@ public:
         const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
         const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
         const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
-        const std::unordered_map<Register, int>& register_mapping);
+        const std::unordered_map<Concept, int>& register_mapping);
 
     bool try_apply_load_rule(
         const ExtendedState& current_state,
@@ -82,7 +79,6 @@ public:
 extern ExtendedSketch make_extended_sketch(
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
@@ -93,7 +89,7 @@ extern ExtendedSketch make_extended_sketch(
     const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
     const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
     const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
-    const std::unordered_map<Register, int>& register_mapping);
+    const std::unordered_map<Concept, int>& register_mapping);
 
 }
 

@@ -16,8 +16,6 @@ BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::MemoryStateReference, key
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::MemoryStates, definitions)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::InitialMemoryState, reference)
 
-BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Register, key)
-BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::RegisterReference, key)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Registers, definitions)
 
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::MemoryCondition, reference)

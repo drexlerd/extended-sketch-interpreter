@@ -16,7 +16,6 @@ namespace mimir::extended_sketch {
 ExtendedSketchImpl::ExtendedSketchImpl(
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
@@ -27,10 +26,9 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
     const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
     const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
-    const std::unordered_map<Register, int>& register_mapping)
+    const std::unordered_map<Concept, int>& register_mapping)
     : m_memory_states(memory_states),
       m_initial_memory_state(initial_memory_state),
-      m_registers(registers),
       m_booleans(booleans),
       m_numericals(numericals),
       m_concepts(concepts),
@@ -160,8 +158,8 @@ std::string ExtendedSketchImpl::compute_signature() const {
     ss << ")\n";  // memory_states
     ss << "(:initial_memory_state " << m_initial_memory_state->compute_signature() << ")\n";
     ss << "(:registers ";
-    for (const auto& pair : m_registers) {
-        ss << pair.second->compute_signature() << " ";
+    for (const auto& pair : m_register_mapping) {
+        ss << pair.first->str() << " ";
     }
     ss << ")\n";  // register
     ss << "(:booleans ";
@@ -198,7 +196,6 @@ std::string ExtendedSketchImpl::compute_signature() const {
 ExtendedSketch make_extended_sketch(
     const MemoryStateMap& memory_states,
     const MemoryState& initial_memory_state,
-    const RegisterMap& registers,
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
@@ -209,10 +206,9 @@ ExtendedSketch make_extended_sketch(
     const std::unordered_map<MemoryState, std::shared_ptr<const dlplan::policy::Policy>>& sketches_by_memory_state,
     const std::unordered_map<MemoryState, std::unordered_map<std::shared_ptr<const dlplan::policy::Rule>, SearchRule>>& search_rule_by_rule_by_memory_state,
     const std::unordered_map<MemoryState, std::vector<LoadRule>>& load_rules_by_memory_state,
-    const std::unordered_map<Register, int>& register_mapping) {
+    const std::unordered_map<Concept, int>& register_mapping) {
     return std::make_shared<ExtendedSketchImpl>(
         memory_states, initial_memory_state,
-        registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules,
         sketches_by_memory_state, search_rule_by_rule_by_memory_state,

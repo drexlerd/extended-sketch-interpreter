@@ -64,35 +64,23 @@ static MemoryState parse(const ast::InitialMemoryState& node, const error_handle
     return parse(node.reference, error_handler, context);
 }
 
-static Register parse(const ast::Register& node, const error_handler_type& error_handler, Context& context) {
-    const auto key = parse(node.key, error_handler, context);
-    const auto it = context.registers.find(key);
-    if (it != context.registers.end()) {
-        error_handler(node, "Multiple definitions of register " + key);
-        error_handler(it->second.node, "Previous definition: ");
-        throw std::runtime_error("Failed parse.");
-    }
-    return context.registers.emplace(key, Data<ast::Register, Register>{ node, make_register(key)} ).first->second.result;
-}
 
-static Register parse(const ast::RegisterReference& node, const error_handler_type& error_handler, Context& context) {
-    auto key = parse(node.key, error_handler, context);
-    const auto it = context.registers.find(key);
-    if (it == context.registers.end()) {
-        error_handler(node, "Undefined register " + key);
-        throw std::runtime_error("Failed parse.");
-    }
-    return it->second.result;
-}
-
-static RegisterMap parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
-    RegisterMap registers;
+static ConceptMap parse(const ast::Registers& node, const error_handler_type& error_handler, Context& context) {
+    ConceptMap registers;
     for (const auto& child : node.definitions) {
-        auto register_ = parse(child, error_handler, context);
-        registers.emplace(register_->compute_signature(), register_);
+        auto key = dlplan::policy::parse(child, error_handler, context.dlplan_context);
+        int register_index = registers.size();
+
+        auto concept = context.dlplan_context.policy_factory.make_concept(key,
+            context.dlplan_context.policy_factory.get_element_factory()->make_register_concept(register_index));
+
+        registers.emplace(key, concept);
+        context.register_mapping.emplace(concept, register_index);
+        context.dlplan_context.concepts.emplace(key, dlplan::policy::NamedConceptData{child, concept});
     }
     return registers;
 }
+
 
 static MemoryState parse(const ast::MemoryCondition& node, const error_handler_type& error_handler, Context& context) {
     return parse(node.reference, error_handler, context);
@@ -114,7 +102,7 @@ static LoadRule parse(const ast::LoadRule& node, const error_handler_type& error
     for (const auto& effect_node : node.feature_effects) {
         feature_effects.insert(dlplan::policy::parse(effect_node, error_handler, context.dlplan_context));
     }
-    auto register_ = parse(node.register_reference, error_handler, context);
+    auto register_ = dlplan::policy::parse(node.register_reference, error_handler, context.dlplan_context);
     auto concept_ = dlplan::policy::parse(node.concept_reference, error_handler, context.dlplan_context);
     return make_load_rule(memory_condition, memory_effect, feature_conditions, feature_effects, register_, concept_);
 }
@@ -271,21 +259,10 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     auto registers = parse(node.registers, error_handler, context);
     auto booleans = dlplan::policy::parse(node.booleans, error_handler, context.dlplan_context);
     auto numericals = dlplan::policy::parse(node.numericals, error_handler, context.dlplan_context);
-    // We take concepts from the context because concepts are also module parameters
-    // or registers, and not just the ones from the following parse call.
-    dlplan::policy::parse(node.concepts, error_handler, context.dlplan_context);
-    ConceptMap concepts;
-    for (const auto& pair : context.dlplan_context.concepts) {
-        concepts.emplace(pair.first, pair.second.result);
-    }
+    auto concepts = dlplan::policy::parse(node.concepts, error_handler, context.dlplan_context);
+
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
 
-    // For more convenient access.
-    std::unordered_map<Register, int> register_mapping;
-    std::cout << "Initialize mapping from register to index" << std::endl;
-    for (const auto& pair : registers) {
-        register_mapping.emplace(pair.second, register_mapping.size());
-    }
     // Build sketches for external rules, one for each memory state
     std::cout << "Group search rules by memory state" << std::endl;
     std::unordered_map<MemoryState, std::vector<SearchRule>> search_rules_by_memory_state;
@@ -312,13 +289,12 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     }
     return make_extended_sketch(
         memory_states, initial_memory_state,
-        registers,
         booleans, numericals, concepts,
         load_rules, call_rules, action_rules, search_rules,
         sketches_by_memory_state,
         search_rule_by_rule_by_memory_state,
         load_rules_by_memory_state,
-        register_mapping);
+        context.register_mapping);
 }
 
 
@@ -326,8 +302,13 @@ static Signature parse(const ast::Signature& node, const error_handler_type& err
     const auto name = parse(node.name, error_handler, context);
     ConceptList parameters;
     for (const auto& child_node : node.parameters) {
-        auto pair = dlplan::policy::parse(child_node, error_handler, context.dlplan_context);
-        parameters.push_back(pair.second);
+        auto key = dlplan::policy::parse(child_node, error_handler, context.dlplan_context);
+
+        auto concept = context.dlplan_context.policy_factory.make_concept(key,
+            context.dlplan_context.policy_factory.get_element_factory()->make_argument_concept(parameters.size()));
+
+        parameters.push_back(concept);
+        context.dlplan_context.concepts.emplace(key, dlplan::policy::NamedConceptData{child_node, concept});
     }
     return Signature(name, parameters);
 }

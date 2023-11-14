@@ -20,10 +20,6 @@ namespace mimir::extended_sketch::parser
         initial_memory_state_type, iterator_type, context_type)
 
     BOOST_SPIRIT_INSTANTIATE(
-        register_type, iterator_type, context_type)
-    BOOST_SPIRIT_INSTANTIATE(
-        register_reference_type, iterator_type, context_type)
-    BOOST_SPIRIT_INSTANTIATE(
         registers_type, iterator_type, context_type)
 
     BOOST_SPIRIT_INSTANTIATE(

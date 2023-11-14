@@ -39,7 +39,7 @@ protected:
 
 class LoadRuleImpl : public ExtendedRuleImpl {
 public:
-    Register m_register;
+    Concept m_register;
     Concept m_concept;
 
     using ExtendedRuleImpl::compute_signature;
@@ -53,13 +53,13 @@ public:
         const MemoryState& effect_memory_state,
         const ConditionSet& feature_conditions,
         const EffectSet& feature_effects,
-        const Register& reg,
+        const Concept& reg,
         const Concept& concept);
     ~LoadRuleImpl() override;
 
     void apply(
         const ExtendedState& current_state,
-        const std::unordered_map<Register,int>& register_mapping,
+        const std::unordered_map<Concept,int>& register_mapping,
         ExtendedState& successor_state);
 
     void compute_signature(std::stringstream& out) const override;
@@ -70,7 +70,7 @@ extern LoadRule make_load_rule(
     const MemoryState& effect_memory_state,
     const ConditionSet& feature_conditions,
     const EffectSet& feature_effects,
-    const Register& reg,
+    const Concept& reg,
     const Concept& concept);
 
 
@@ -137,7 +137,7 @@ extern ActionRule make_action_rule(
 
 struct SearchRuleResult {
     bool solution_found;
-    
+
 };
 
 
