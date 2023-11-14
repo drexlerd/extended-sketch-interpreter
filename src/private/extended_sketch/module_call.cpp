@@ -5,14 +5,14 @@
 
 namespace mimir::extended_sketch {
 
-ModuleCall::ModuleCall(const std::string& name, const ArgumentList& arguments)
+ModuleCall::ModuleCall(const std::string& name, const ConceptList& arguments)
     : name(name), arguments(arguments) { }
 
 const std::string& ModuleCall::get_name() const {
     return name;
 }
 
-const ArgumentList& ModuleCall::get_arguments() const {
+const ConceptList& ModuleCall::get_arguments() const {
     return arguments;
 }
 
@@ -24,7 +24,7 @@ std::string ModuleCall::compute_signature() const {
         if (i != 0) {
             ss << ",";
         }
-        std::visit([&](auto&& arg){ ss << arg.compute_signature(); }, arguments[i]);
+        std::cout << arguments[i]->str();
     }
     ss << ")";
     return ss.str();

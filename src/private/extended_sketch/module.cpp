@@ -3,6 +3,8 @@
 #include "signature.hpp"
 #include "extended_sketch.hpp"
 
+#include "../planners/atom_registry.hpp"
+
 
 namespace mimir::extended_sketch {
 

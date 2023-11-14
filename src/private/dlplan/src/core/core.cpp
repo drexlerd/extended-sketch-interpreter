@@ -148,6 +148,10 @@ std::shared_ptr<const Concept>SyntacticElementFactory::make_and_concept(const st
     return m_pImpl->make_and_concept(concept_left, concept_right);
 }
 
+std::shared_ptr<const Concept>SyntacticElementFactory::make_argument_concept(int pos) {
+    return m_pImpl->make_argument_concept(pos);
+}
+
 std::shared_ptr<const Concept>SyntacticElementFactory::make_bot_concept() {
     return m_pImpl->make_bot_concept();
 }

@@ -820,7 +820,9 @@ class State {
 private:
     std::shared_ptr<InstanceInfo> m_instance_info;
     AtomIndices m_atom_indices;
+    // TODO: we could use a shared_ptr here to save some time to copy this
     ObjectIndices m_register_contents;
+    std::vector<ConceptDenotation> m_argument_contents;
     int m_index;
 
     /// @brief Constructor for serialization.
@@ -834,8 +836,16 @@ public:
     State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms, StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, StateIndex index=-1);
     State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, const ObjectIndices& register_contents, StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, ObjectIndices&& register_contents, StateIndex index=-1);
+    State(std::shared_ptr<InstanceInfo> instance_info,
+        const AtomIndices& atom_indices,
+        const ObjectIndices& register_contents,
+        const std::vector<ConceptDenotation>& argument_contents,
+        StateIndex index=-1);
+    State(std::shared_ptr<InstanceInfo> instance_info,
+        AtomIndices&& atom_indices,
+        ObjectIndices&& register_contents,
+        std::vector<ConceptDenotation>&& argument_contents,
+        StateIndex index=-1);
     State(const State& other);
     State& operator=(const State& other);
     State(State&& other);
@@ -870,6 +880,7 @@ public:
     std::shared_ptr<InstanceInfo> get_instance_info() const;
     const AtomIndices& get_atom_indices() const;
     const ObjectIndices& get_register_contents() const;
+    const std::vector<ConceptDenotation>& get_argument_contents() const;
     StateIndex get_index() const;
 };
 
@@ -1117,6 +1128,7 @@ public:
 
     std::shared_ptr<const Concept> make_all_concept(const std::shared_ptr<const Role>& role, const std::shared_ptr<const Concept>& concept_);
     std::shared_ptr<const Concept> make_and_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right);
+    std::shared_ptr<const Concept> make_argument_concept(int pos);
     std::shared_ptr<const Concept> make_bot_concept();
     std::shared_ptr<const Concept> make_diff_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right);
     std::shared_ptr<const Concept> make_equal_concept(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);

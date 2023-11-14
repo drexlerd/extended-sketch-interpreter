@@ -138,6 +138,7 @@ namespace mimir::planners
                         std::make_shared<dlplan::core::State>(instance_info_,
                             atom_registry.convert_state(successor_state),
                             initial_state.dlplan->get_register_contents(),
+                            initial_state.dlplan->get_argument_contents(),
                             successor_state_index)
                     }
                 };
@@ -256,6 +257,7 @@ namespace mimir::planners
                     std::make_shared<dlplan::core::State>(instance_info_,
                         atom_registry.convert_state(state),
                         initial_state.dlplan->get_register_contents(),
+                        initial_state.dlplan->get_argument_contents(),
                         state_index),
                 }
             };
@@ -296,6 +298,7 @@ namespace mimir::planners
                             std::make_shared<dlplan::core::State>(instance_info_,
                                 atom_registry.convert_state(successor_state),
                                 initial_state.dlplan->get_register_contents(),
+                                initial_state.dlplan->get_argument_contents(),
                                 successor_state_index)
                         }
                     };
@@ -356,13 +359,14 @@ namespace mimir::planners
         if (initial_state_index == StateRegistry::no_state) {
             initial_state_index = state_registry.register_state(initial_state.mimir);
         }
-        auto initial_state_prime = 
+        auto initial_state_prime =
             mimir::extended_sketch::ExtendedState {
                 initial_state.memory,
                 initial_state.mimir,
                 std::make_shared<dlplan::core::State>(instance_info_,
                     atom_registry.convert_state(initial_state.mimir),
                     initial_state.dlplan->get_register_contents(),
+                    initial_state.dlplan->get_argument_contents(),
                     initial_state_index)
         };
         ExtendedSketchGoalTest goal_test = ExtendedSketchGoalTest(problem_, instance_info_, sketch, initial_state_prime);

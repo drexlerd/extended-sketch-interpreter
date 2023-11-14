@@ -218,6 +218,12 @@ parse(const ast::AndConcept& node, const error_handler_type& error_handler, Synt
 }
 
 std::shared_ptr<const core::Concept>
+parse(const ast::ArgumentConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context) {
+    return context.make_argument_concept(
+        parse(node.pos, error_handler, context));
+}
+
+std::shared_ptr<const core::Concept>
 parse(const ast::BotConcept&, const error_handler_type&, SyntacticElementFactory& context) {
     return context.make_bot_concept();
 }

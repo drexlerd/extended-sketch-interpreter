@@ -74,6 +74,7 @@ void LoadRuleImpl::apply(
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
             register_contents,
+            current_state.dlplan->get_argument_contents(),
             current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
     };
 

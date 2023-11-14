@@ -79,7 +79,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
     ExtendedState& successor_state,
     mimir::formalism::ActionList& plan,
     mimir::planners::IWSearchStatistics& statistics) {
-    
+
     auto it2 = m_sketches_by_memory_state.find(current_state.memory);
     if (it2 != m_sketches_by_memory_state.end()) {
         auto iw_search = make_unique<mimir::planners::IWSearch>(
@@ -87,7 +87,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
             instance_info,
             successor_generator,
             max_arity);
-            
+
         std::cout << ++step << ". Apply search rule";
         std::shared_ptr<const dlplan::policy::Rule> reason;
         mimir::formalism::ActionList partial_plan;
@@ -130,7 +130,12 @@ ExtendedState ExtendedSketchImpl::create_initial_extended_state(
     std::shared_ptr<const dlplan::core::State> current_dlplan_state = nullptr;
     {
         mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);
-        current_dlplan_state = std::make_shared<dlplan::core::State>(instance_info, atom_registry.convert_state(current_state), register_contents, 0);
+        current_dlplan_state = std::make_shared<dlplan::core::State>(
+            instance_info,
+            atom_registry.convert_state(current_state),
+            register_contents,
+            std::vector<dlplan::core::ConceptDenotation>{},  // no arguments since it is not wrapped into a module
+            0);
     }
     return ExtendedState{
         m_initial_memory_state,

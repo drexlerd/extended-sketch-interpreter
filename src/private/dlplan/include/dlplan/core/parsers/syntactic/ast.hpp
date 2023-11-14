@@ -23,6 +23,7 @@ namespace dlplan::core::ast
     struct NullaryBoolean;
     struct AllConcept;
     struct AndConcept;
+    struct ArgumentConcept;
     struct BotConcept;
     struct DiffConcept;
     struct EqualConcept;
@@ -87,6 +88,7 @@ namespace dlplan::core::ast
         x3::forward_ast<PrimitiveConcept>,
         x3::forward_ast<AllConcept>,
         x3::forward_ast<AndConcept>,
+        x3::forward_ast<ArgumentConcept>,
         x3::forward_ast<BotConcept>,
         x3::forward_ast<DiffConcept>,
         x3::forward_ast<EqualConcept>,
@@ -168,6 +170,10 @@ namespace dlplan::core::ast
     struct AndConcept : x3::position_tagged {
         Concept concept_left;
         Concept concept_right;
+    };
+
+    struct ArgumentConcept : x3::position_tagged {
+        Position pos;
     };
 
     struct BotConcept : x3::position_tagged {

@@ -32,6 +32,8 @@ extern std::shared_ptr<const core::Concept> parse(const ast::AllConcept& node, c
 
 extern std::shared_ptr<const core::Concept> parse(const ast::AndConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 
+extern std::shared_ptr<const core::Concept> parse(const ast::ArgumentConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
+
 extern std::shared_ptr<const core::Concept> parse(const ast::BotConcept&, const dlplan::error_handler_type&, SyntacticElementFactory& context);
 
 extern std::shared_ptr<const core::Concept> parse(const ast::DiffConcept& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);

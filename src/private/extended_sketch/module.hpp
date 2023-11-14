@@ -6,6 +6,7 @@
 
 #include "declarations.hpp"
 #include "signature.hpp"
+#include "extended_state.hpp"
 
 
 namespace mimir::extended_sketch {
@@ -29,7 +30,6 @@ public:
 extern Module make_module(
     const Signature& signature,
     const ExtendedSketch& extended_sketch);
-
 }
 
 #endif

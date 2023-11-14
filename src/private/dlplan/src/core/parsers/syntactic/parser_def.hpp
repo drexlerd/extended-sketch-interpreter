@@ -43,6 +43,7 @@ namespace dlplan::core::parser
     struct NullaryBooleanClass;
     struct AllConceptClass;
     struct AndConceptClass;
+    struct ArgumentConceptClass;
     struct BotConceptClass;
     struct DiffConceptClass;
     struct EqualConceptClass;
@@ -110,6 +111,9 @@ namespace dlplan::core::parser
 
     x3::rule<AndConceptClass, ast::AndConcept> const
         and_concept = "and_concept";
+
+    x3::rule<ArgumentConceptClass, ast::ArgumentConcept> const
+        argument_concept = "argument_concept";
 
     x3::rule<BotConceptClass, ast::BotConcept> const
         bot_concept = "bot_concept";
@@ -246,6 +250,8 @@ namespace dlplan::core::parser
 
     const auto and_concept_def = lit("c_and") > lit('(') > concept_ > lit(',') > concept_ > lit(')');
 
+    const auto argument_concept_def = lit("c_argument") > lit('(') > position > lit(')');
+
     // Note: Need this semantic action to synthesize the empty struct
     const auto bot_concept_def = lit("c_bot") >> x3::attr(ast::BotConcept{});
 
@@ -311,7 +317,7 @@ namespace dlplan::core::parser
     const auto boolean_root_def = eps > boolean;
 
     // Note: non recursive comes first, i.e., primitive_concept
-    const auto concept__def = primitive_concept | all_concept | and_concept | bot_concept | diff_concept | equal_concept | not_concept | one_of_concept | or_concept | projection_concept | register_concept | some_concept | subset_concept | top_concept;
+    const auto concept__def = primitive_concept | all_concept | and_concept | argument_concept | bot_concept | diff_concept | equal_concept | not_concept | one_of_concept | or_concept | projection_concept | register_concept | some_concept | subset_concept | top_concept;
     const auto concept_root_def = eps > concept_;
 
     const auto numerical_def = concept_distance_numerical | count_numerical | role_distance_numerical | sum_concept_distance_numerical | sum_role_distance_numerical;
@@ -336,7 +342,7 @@ namespace dlplan::core::parser
         element, element_root,
         concept_or_role,
         empty_boolean, inclusion_boolean, nullary_boolean,
-        all_concept, and_concept, bot_concept, diff_concept, equal_concept, not_concept, one_of_concept, or_concept, primitive_concept, projection_concept, register_concept, some_concept, subset_concept, top_concept,
+        all_concept, and_concept, argument_concept, bot_concept, diff_concept, equal_concept, not_concept, one_of_concept, or_concept, primitive_concept, projection_concept, register_concept, some_concept, subset_concept, top_concept,
         concept_distance_numerical, count_numerical, role_distance_numerical, sum_concept_distance_numerical, sum_role_distance_numerical,
         and_role, compose_role, diff_role, identity_role, inverse_role, not_role, or_role, primitive_role, restrict_role, top_role, transitive_closure_role, transitive_reflexive_closure_role)
 
@@ -354,6 +360,7 @@ namespace dlplan::core::parser
     struct NullaryBooleanClass : x3::annotate_on_success {};
     struct AllConceptClass : x3::annotate_on_success {};
     struct AndConceptClass : x3::annotate_on_success {};
+    struct ArgumentConceptClass : x3::annotate_on_success {};
     struct BotConceptClass : x3::annotate_on_success {};
     struct DiffConceptClass : x3::annotate_on_success {};
     struct EqualConceptClass : x3::annotate_on_success {};

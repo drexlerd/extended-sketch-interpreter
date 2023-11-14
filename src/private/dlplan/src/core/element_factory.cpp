@@ -6,6 +6,7 @@
 #include "elements/concepts/all.h"
 #include "elements/concepts/bot.h"
 #include "elements/concepts/and.h"
+#include "elements/concepts/argument.h"
 #include "elements/concepts/diff.h"
 #include "elements/concepts/equal.h"
 #include "elements/concepts/not.h"
@@ -237,6 +238,10 @@ std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_all_concept(con
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_and_concept(const std::shared_ptr<const Concept>& concept_left, const std::shared_ptr<const Concept>& concept_right) {
     return m_caches.m_concept_cache->insert(std::make_unique<AndConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), concept_left, concept_right)).first;
+}
+
+std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_argument_concept(int pos) {
+    return m_caches.m_concept_cache->insert(std::make_unique<ArgumentConcept>(m_vocabulary_info, m_caches.m_concept_cache->size(), pos)).first;
 }
 
 std::shared_ptr<const Concept> SyntacticElementFactoryImpl::make_bot_concept() {

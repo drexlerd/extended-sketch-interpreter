@@ -34,11 +34,13 @@ private:
     std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
     std::unordered_map<Register, int> m_register_mapping;
 
+    friend class ModuleImpl;
+
 public:
     ExtendedSketchImpl(
         const MemoryStateMap& memory_states,
         const MemoryState& initial_memory_state,
-        const RegisterMap& registers,
+        const ConceptMap& registers,
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,

@@ -3,20 +3,21 @@
 
 #include <string>
 
-#include "arguments.hpp"
+#include "declarations.hpp"
+
 
 namespace mimir::extended_sketch {
 
 class ModuleCall {
 private:
     std::string name;
-    ArgumentList arguments;
+    ConceptList arguments;
 
 public:
-    ModuleCall(const std::string& name, const ArgumentList& arguments);
+    ModuleCall(const std::string& name, const ConceptList& arguments);
 
     const std::string& get_name() const;
-    const ArgumentList& get_arguments() const;
+    const ConceptList& get_arguments() const;
 
     std::string compute_signature() const;
 };

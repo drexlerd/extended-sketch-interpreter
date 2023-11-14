@@ -19,6 +19,7 @@ BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::InclusionBoolean, element_left, ele
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::NullaryBoolean, predicate)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::AllConcept, role, concept_)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::AndConcept, concept_left, concept_right)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::ArgumentConcept, pos)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::BotConcept)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::DiffConcept, concept_left, concept_right)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::EqualConcept, role_left, role_right)
