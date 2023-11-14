@@ -24,7 +24,7 @@ std::string ModuleCall::compute_signature() const {
         if (i != 0) {
             ss << ",";
         }
-        std::cout << arguments[i]->str();
+        ss << arguments[i]->str();
     }
     ss << ")";
     return ss.str();

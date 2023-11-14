@@ -22,7 +22,7 @@ std::string Signature::compute_signature() const {
        << "(";
     for (size_t i = 0; i < m_parameters.size(); ++i) {
         if (i != 0) ss << ",";
-        std::cout << m_parameters[i]->str();
+        ss << m_parameters[i]->str();
     }
     ss << ")";
     return ss.str();

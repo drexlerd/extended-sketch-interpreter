@@ -94,11 +94,17 @@ namespace mimir::planners
     {
         uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
         assert(initial_state_index != StateRegistry::no_state);
+        if (g_values_.size() <= initial_state_index) {
+            g_values_.resize(2 * initial_state_index + 1, std::numeric_limits<int>::max());
+        }
+        g_values_[initial_state_index] = 0;
+        std::cout << "[" << 0 << "]" << std::flush;
 
         StateData state_data = StateData{
             initial_state_index,
             initial_state,
         };
+
 
         const auto goal_test_time_start = std::chrono::high_resolution_clock::now();
         auto goal_test_result = goal_test.test_goal(state_data);
@@ -130,6 +136,11 @@ namespace mimir::planners
             {
                 ++statistics.generated;
                 successor_state_index = state_registry.register_state(successor_state);
+                int g_value = 1;
+                if (g_value > g_value_) {
+                    g_value_ = g_value;
+                    std::cout << "[" << g_value_ << "]" << std::flush;
+                }
                 StateData successor_state_data = StateData{
                     successor_state_index,
                     mimir::extended_sketch::ExtendedState{
@@ -384,7 +395,7 @@ namespace mimir::planners
             }
             else
             {
-                std::cout << std::endl;
+                std::cout << "  ";
                 if (width_arity_search(initial_state_prime, goal_test, final_state, arity, state_registry, atom_registry, plan, reason))
                 {
                     statistics.effective_arity = arity;

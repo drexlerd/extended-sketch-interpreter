@@ -39,7 +39,7 @@ SIWMSearch::SIWMSearch(
 }
 
 bool SIWMSearch::find_plan(ActionList& plan) {
-    
+    return false;
 }
 
 void SIWMSearch::print_statistics(int num_indent) const {

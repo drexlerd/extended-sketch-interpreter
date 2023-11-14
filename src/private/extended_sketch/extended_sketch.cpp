@@ -86,7 +86,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
             successor_generator,
             max_arity);
 
-        std::cout << ++step << ". Apply search rule";
+        std::cout << ++step << ". Apply search rule ";
         std::shared_ptr<const dlplan::policy::Rule> reason;
         mimir::formalism::ActionList partial_plan;
         bool partial_solution_found = iw_search->find_plan(
@@ -96,12 +96,13 @@ bool ExtendedSketchImpl::try_apply_search_rule(
             partial_plan,
             reason);
         statistics = iw_search->statistics;
+        std::cout << std::endl;
 
         if (!partial_solution_found) {
             return false;
         } else {
             plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
-            std::cout << " Partial plan:" << std::endl;
+            std::cout << "  Partial plan:" << std::endl;
             for (const auto& action : partial_plan) {
                 std::cout << "    " << action << std::endl;
             }
