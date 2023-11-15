@@ -54,9 +54,13 @@ extern std::shared_ptr<const BaseEffect> parse(const ast::UnchangedBooleanEffect
 extern std::shared_ptr<const BaseEffect> parse(const ast::IncrementNumericalEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 extern std::shared_ptr<const BaseEffect> parse(const ast::DecrementNumericalEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 extern std::shared_ptr<const BaseEffect> parse(const ast::UnchangedNumericalEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
+extern std::shared_ptr<const BaseEffect> parse(const ast::GreaterNumericalEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
+extern std::shared_ptr<const BaseEffect> parse(const ast::EqualNumericalEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 extern std::shared_ptr<const BaseEffect> parse(const ast::IncrementConceptEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 extern std::shared_ptr<const BaseEffect> parse(const ast::DecrementConceptEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 extern std::shared_ptr<const BaseEffect> parse(const ast::UnchangedConceptEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
+extern std::shared_ptr<const BaseEffect> parse(const ast::GreaterConceptEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
+extern std::shared_ptr<const BaseEffect> parse(const ast::EqualConceptEffect& node, const dlplan::error_handler_type& error_handler, Context& context);
 
 extern std::shared_ptr<const BaseCondition> parse(const ast::FeatureCondition& node, const dlplan::error_handler_type& error_handler, Context& context);
 

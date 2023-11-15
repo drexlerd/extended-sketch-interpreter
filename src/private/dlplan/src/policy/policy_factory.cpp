@@ -148,6 +148,14 @@ std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::
     return m_caches.m_effect_cache->insert(std::make_unique<UnchangedNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
 }
 
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_gt_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
+    return m_caches.m_effect_cache->insert(std::make_unique<GreaterNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_eq_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
+    return m_caches.m_effect_cache->insert(std::make_unique<EqualNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+}
+
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
     return m_caches.m_effect_cache->insert(std::make_unique<IncrementConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
 }
@@ -158,6 +166,14 @@ std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
     return m_caches.m_effect_cache->insert(std::make_unique<UnchangedConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_effect_cache->insert(std::make_unique<GreaterConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_caches.m_effect_cache->insert(std::make_unique<EqualConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
 }
 
 std::shared_ptr<const Rule> PolicyFactoryImpl::make_rule(const Conditions& conditions, const Effects& effects) {

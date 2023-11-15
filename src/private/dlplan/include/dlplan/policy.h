@@ -505,9 +505,13 @@ public:
     std::shared_ptr<const BaseEffect> make_inc_effect(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseEffect> make_dec_effect(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseEffect> make_bot_effect(const std::shared_ptr<const NamedNumerical>& numerical);
+    std::shared_ptr<const BaseEffect> make_gt_effect(const std::shared_ptr<const NamedNumerical>& numerical);
+    std::shared_ptr<const BaseEffect> make_eq_effect(const std::shared_ptr<const NamedNumerical>& numerical);
     std::shared_ptr<const BaseEffect> make_inc_effect(const std::shared_ptr<const NamedConcept>& concept);
     std::shared_ptr<const BaseEffect> make_dec_effect(const std::shared_ptr<const NamedConcept>& concept);
     std::shared_ptr<const BaseEffect> make_bot_effect(const std::shared_ptr<const NamedConcept>& concept);
+    std::shared_ptr<const BaseEffect> make_gt_effect(const std::shared_ptr<const NamedConcept>& concept);
+    std::shared_ptr<const BaseEffect> make_eq_effect(const std::shared_ptr<const NamedConcept>& concept);
 
     /**
      * Uniquely adds a rule and returns it.

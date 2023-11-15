@@ -137,6 +137,14 @@ std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shar
     return m_pImpl->make_bot_effect(numerical);
 }
 
+std::shared_ptr<const BaseEffect> PolicyFactory::make_gt_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
+    return m_pImpl->make_gt_effect(numerical);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_eq_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
+    return m_pImpl->make_eq_effect(numerical);
+}
+
 std::shared_ptr<const BaseEffect> PolicyFactory::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
     return m_pImpl->make_inc_effect(concept);
 }
@@ -147,6 +155,14 @@ std::shared_ptr<const BaseEffect> PolicyFactory::make_dec_effect(const std::shar
 
 std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
     return m_pImpl->make_bot_effect(concept);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_gt_effect(concept);
+}
+
+std::shared_ptr<const BaseEffect> PolicyFactory::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept) {
+    return m_pImpl->make_eq_effect(concept);
 }
 
 std::shared_ptr<const Rule> PolicyFactory::make_rule(

@@ -273,6 +273,16 @@ std::shared_ptr<const BaseEffect> parse(
 }
 
 std::shared_ptr<const BaseEffect> parse(
+    const ast::GreaterNumericalEffect& node, const error_handler_type& error_handler, Context& context) {
+    return context.policy_factory.make_gt_effect(parse(node.reference, error_handler, context));
+}
+
+std::shared_ptr<const BaseEffect> parse(
+    const ast::EqualNumericalEffect& node, const error_handler_type& error_handler, Context& context) {
+    return context.policy_factory.make_eq_effect(parse(node.reference, error_handler, context));
+}
+
+std::shared_ptr<const BaseEffect> parse(
     const ast::IncrementConceptEffect& node, const error_handler_type& error_handler, Context& context) {
     return context.policy_factory.make_inc_effect(parse(node.reference, error_handler, context));
 }
@@ -285,6 +295,16 @@ std::shared_ptr<const BaseEffect> parse(
 std::shared_ptr<const BaseEffect> parse(
     const ast::UnchangedConceptEffect& node, const error_handler_type& error_handler, Context& context) {
     return context.policy_factory.make_bot_effect(parse(node.reference, error_handler, context));
+}
+
+std::shared_ptr<const BaseEffect> parse(
+    const ast::GreaterConceptEffect& node, const error_handler_type& error_handler, Context& context) {
+    return context.policy_factory.make_gt_effect(parse(node.reference, error_handler, context));
+}
+
+std::shared_ptr<const BaseEffect> parse(
+    const ast::EqualConceptEffect& node, const error_handler_type& error_handler, Context& context) {
+    return context.policy_factory.make_eq_effect(parse(node.reference, error_handler, context));
 }
 
 std::shared_ptr<const BaseCondition> parse(
