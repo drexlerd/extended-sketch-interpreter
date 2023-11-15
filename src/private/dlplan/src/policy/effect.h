@@ -19,9 +19,13 @@ class UnchangedBooleanEffect;
 class IncrementNumericalEffect;
 class DecrementNumericalEffect;
 class UnchangedNumericalEffect;
+class GreaterNumericalEffect;
+class EqualNumericalEffect;
 class IncrementConceptEffect;
 class DecrementConceptEffect;
 class UnchangedConceptEffect;
+class GreaterConceptEffect;
+class EqualConceptEffect;
 }
 
 
@@ -90,6 +94,20 @@ namespace boost::serialization {
     void load_construct_data(Archive& ar, dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
 
     template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::GreaterNumericalEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::GreaterNumericalEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::GreaterNumericalEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::EqualNumericalEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::EqualNumericalEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::EqualNumericalEffect* t, const unsigned int version);
+
+    template <typename Archive>
     void serialize(Archive& ar, dlplan::policy::IncrementConceptEffect& effect, const unsigned int version);
     template<class Archive>
     void save_construct_data(Archive& ar, const dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
@@ -109,6 +127,20 @@ namespace boost::serialization {
     void save_construct_data(Archive& ar, const dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
     template<class Archive>
     void load_construct_data(Archive& ar, dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::GreaterConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::GreaterConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::GreaterConceptEffect* t, const unsigned int version);
+
+    template <typename Archive>
+    void serialize(Archive& ar, dlplan::policy::EqualConceptEffect& effect, const unsigned int version);
+    template<class Archive>
+    void save_construct_data(Archive& ar, const dlplan::policy::EqualConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    void load_construct_data(Archive& ar, dlplan::policy::EqualConceptEffect* t, const unsigned int version);
 }
 
 
@@ -297,6 +329,44 @@ public:
     std::string str() const override;
 };
 
+class GreaterNumericalEffect : public NumericalEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, GreaterNumericalEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const GreaterNumericalEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, GreaterNumericalEffect* t, const unsigned int version);
+
+public:
+    GreaterNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+class EqualNumericalEffect : public NumericalEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, EqualNumericalEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const EqualNumericalEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, EqualNumericalEffect* t, const unsigned int version);
+
+public:
+    EqualNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
 
 class IncrementConceptEffect : public ConceptEffect {
 private:
@@ -355,6 +425,44 @@ public:
     std::string str() const override;
 };
 
+class GreaterConceptEffect : public ConceptEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, GreaterConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const GreaterConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, GreaterConceptEffect* t, const unsigned int version);
+
+public:
+    GreaterConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
+class EqualConceptEffect : public ConceptEffect {
+private:
+    template<typename Archive>
+    friend void boost::serialization::serialize(Archive& ar, EqualConceptEffect& t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::save_construct_data(Archive& ar, const EqualConceptEffect* t, const unsigned int version);
+    template<class Archive>
+    friend void boost::serialization::load_construct_data(Archive& ar, EqualConceptEffect* t, const unsigned int version);
+
+public:
+    EqualConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index);
+
+    bool evaluate(const core::State& source_state, const core::State& target_state) const override;
+    bool evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const override;
+
+    std::string compute_repr() const override;
+    std::string str() const override;
+};
+
 
 }
 
@@ -364,8 +472,12 @@ BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedBooleanEffect, "dlplan::policy:
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::IncrementNumericalEffect, "dlplan::policy::IncrementNumericalEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::DecrementNumericalEffect, "dlplan::policy::DecrementNumericalEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedNumericalEffect, "dlplan::policy::UnchangedNumericalEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::GreaterNumericalEffect, "dlplan::policy::GreaterNumericalEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::EqualNumericalEffect, "dlplan::policy::EqualNumericalEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::IncrementConceptEffect, "dlplan::policy::IncrementConceptEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::DecrementConceptEffect, "dlplan::policy::DecrementConceptEffect")
 BOOST_CLASS_EXPORT_KEY2(dlplan::policy::UnchangedConceptEffect, "dlplan::policy::UnchangedConceptEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::GreaterConceptEffect, "dlplan::policy::GreaterConceptEffect")
+BOOST_CLASS_EXPORT_KEY2(dlplan::policy::EqualConceptEffect, "dlplan::policy::EqualConceptEffect")
 
 #endif

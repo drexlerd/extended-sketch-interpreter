@@ -136,7 +136,11 @@ IncrementNumericalEffect::IncrementNumericalEffect(std::shared_ptr<const NamedNu
     : NumericalEffect(numerical, index) {}
 
 bool IncrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_numerical->get_numerical()->evaluate(source_state) < m_numerical->get_numerical()->evaluate(target_state);
+    int source_eval = m_numerical->get_numerical()->evaluate(source_state);
+    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval < target_eval;
 }
 
 bool IncrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
@@ -160,7 +164,11 @@ DecrementNumericalEffect::DecrementNumericalEffect(std::shared_ptr<const NamedNu
     : NumericalEffect(numerical, index) {}
 
 bool DecrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_numerical->get_numerical()->evaluate(source_state) > m_numerical->get_numerical()->evaluate(target_state);
+    int source_eval = m_numerical->get_numerical()->evaluate(source_state);
+    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval > target_eval;
 }
 
 bool DecrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
@@ -199,6 +207,28 @@ std::string UnchangedNumericalEffect::compute_repr() const{
 
 std::string UnchangedNumericalEffect::str() const {
     return "(:e_n_bot " + m_numerical->get_key() + ")";
+}
+
+
+GreaterNumericalEffect::GreaterNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
+    : NumericalEffect(numerical, index) {}
+
+bool GreaterNumericalEffect::evaluate(const core::State&, const core::State& target_state) const {
+    return m_numerical->get_numerical()->evaluate(target_state) > 0;
+}
+
+bool IncrementNumericalEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    if (target_eval == INF) return false;
+    return target_eval > 0;
+}
+
+std::string IncrementNumericalEffect::compute_repr() const{
+    return "(:e_n_gt \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+}
+
+std::string IncrementNumericalEffect::str() const {
+    return "(:e_n_gt " + m_numerical->get_key() + ")";
 }
 
 
