@@ -50,9 +50,13 @@ namespace dlplan::policy::ast
     struct IncrementNumericalEffect;
     struct DecrementNumericalEffect;
     struct UnchangedNumericalEffect;
+    struct GreaterNumericalEffect;
+    struct EqualNumericalEffect;
     struct IncrementConceptEffect;
     struct DecrementConceptEffect;
     struct UnchangedConceptEffect;
+    struct GreaterConceptEffect;
+    struct EqualConceptEffect;
 
     struct FeatureCondition;
     struct FeatureEffect;
@@ -223,6 +227,14 @@ namespace dlplan::policy::ast
         NumericalReference reference;
     };
 
+    struct GreaterNumericalEffect : x3::position_tagged {
+        NumericalReference reference;
+    };
+
+    struct EqualNumericalEffect : x3::position_tagged {
+        NumericalReference reference;
+    };
+
     struct IncrementConceptEffect : x3::position_tagged {
         ConceptReference reference;
     };
@@ -235,6 +247,14 @@ namespace dlplan::policy::ast
         ConceptReference reference;
     };
 
+    struct GreaterConceptEffect : x3::position_tagged {
+        ConceptReference reference;
+    };
+
+    struct EqualConceptEffect : x3::position_tagged {
+        ConceptReference reference;
+    };
+
     struct FeatureEffect : x3::position_tagged,
         x3::variant<
             x3::forward_ast<PositiveBooleanEffect>,
@@ -243,9 +263,13 @@ namespace dlplan::policy::ast
             x3::forward_ast<IncrementNumericalEffect>,
             x3::forward_ast<DecrementNumericalEffect>,
             x3::forward_ast<UnchangedNumericalEffect>,
+            x3::forward_ast<GreaterNumericalEffect>,
+            x3::forward_ast<EqualNumericalEffect>,
             x3::forward_ast<IncrementConceptEffect>,
             x3::forward_ast<DecrementConceptEffect>,
-            x3::forward_ast<UnchangedConceptEffect>> {
+            x3::forward_ast<UnchangedConceptEffect>,
+            x3::forward_ast<GreaterConceptEffect>,
+            x3::forward_ast<EqualConceptEffect>> {
         using base_type::base_type;
         using base_type::operator=;
     };

@@ -48,9 +48,13 @@ BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::UnchangedBooleanEffect, reference
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::IncrementNumericalEffect, reference)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::DecrementNumericalEffect, reference)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::UnchangedNumericalEffect, reference)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::GreaterNumericalEffect, reference)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::EqualNumericalEffect, reference)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::IncrementConceptEffect, reference)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::DecrementConceptEffect, reference)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::UnchangedConceptEffect, reference)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::GreaterConceptEffect, reference)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::EqualConceptEffect, reference)
 
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::Rule, feature_conditions, feature_effects)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::policy::ast::Rules, rules)
