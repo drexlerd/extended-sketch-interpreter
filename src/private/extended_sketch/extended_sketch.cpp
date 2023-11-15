@@ -57,7 +57,7 @@ bool ExtendedSketchImpl::try_apply_load_rule(
                 }
             }
             if (all_conditions_satisfied) {
-                std::cout << ++step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
+                std::cout << step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
                 load_rule->apply(current_state, m_register_mapping, successor_state);
                 return true;
             }
@@ -86,7 +86,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
             successor_generator,
             max_arity);
 
-        std::cout << ++step << ". Apply search rule ";
+        std::cout << step << ". Apply search rule ";
         std::shared_ptr<const dlplan::policy::Rule> reason;
         mimir::formalism::ActionList partial_plan;
         bool partial_solution_found = iw_search->find_plan(
@@ -112,6 +112,7 @@ bool ExtendedSketchImpl::try_apply_search_rule(
             throw std::runtime_error("There should be a reason to reach a goal");
         }
         successor_state.memory = m_search_rule_by_rule_by_memory_state.at(current_state.memory).at(reason)->get_memory_state_effect();
+        std::cout << "  Reason " << m_search_rule_by_rule_by_memory_state.at(current_state.memory).at(reason)->compute_signature() << std::endl;
         std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 
         return true;

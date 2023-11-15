@@ -401,6 +401,7 @@ class Policy {
 private:
     Booleans m_booleans;
     Numericals m_numericals;
+    Concepts m_concepts;
     Rules m_rules;
     int m_index;
 
@@ -446,6 +447,7 @@ public:
     PolicyIndex get_index() const;
     const Booleans& get_booleans() const;
     const Numericals& get_numericals() const;
+    const Concepts& get_concepts() const;
     const Rules& get_rules() const;
 };
 

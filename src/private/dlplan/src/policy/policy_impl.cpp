@@ -18,6 +18,7 @@ namespace dlplan::policy {
 Policy::Policy()
     : m_booleans(Booleans()),
       m_numericals(Numericals()),
+      m_concepts(Concepts()),
       m_rules(Rules()),
       m_index(-1) { }
 
@@ -34,6 +35,10 @@ Policy::Policy(const Rules& rules, PolicyIndex index)
             if (numerical) {
                 m_numericals.insert(numerical);
             }
+            const auto concept = condition->get_concept();
+            if (concept) {
+                m_concepts.insert(concept);
+            }
         }
         for (const auto& effect : rule->get_effects()) {
             const auto boolean = effect->get_boolean();
@@ -43,6 +48,10 @@ Policy::Policy(const Rules& rules, PolicyIndex index)
             const auto numerical = effect->get_numerical();
             if (numerical) {
                 m_numericals.insert(numerical);
+            }
+            const auto concept = effect->get_concept();
+            if (concept) {
+                m_concepts.insert(concept);
             }
         }
     }
@@ -168,6 +177,10 @@ const Booleans& Policy::get_booleans() const {
 
 const Numericals& Policy::get_numericals() const {
     return m_numericals;
+}
+
+const Concepts& Policy::get_concepts() const {
+    return m_concepts;
 }
 
 const Rules& Policy::get_rules() const {
