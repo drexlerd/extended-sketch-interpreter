@@ -91,6 +91,10 @@ bool ExtendedSketchImpl::try_apply_search_rule(
 
     auto it2 = m_sketches_by_memory_state.find(current_state.memory);
     if (it2 != m_sketches_by_memory_state.end()) {
+        if (it2->second->evaluate_conditions(*current_state.dlplan).empty()) {
+            return false;
+        }
+
         auto iw_search = make_unique<mimir::planners::IWSearch>(
             problem,
             instance_info,

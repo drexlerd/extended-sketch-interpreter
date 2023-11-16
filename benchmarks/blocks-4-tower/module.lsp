@@ -36,15 +36,14 @@
         )
         (:load_rule   (:conditions (:memory m0) (:c_c_gt D))              (:effects (:memory m1) (:e_b_bot H) (:e_c_bot D) (:load (r0 D))))
         (:search_rule (:conditions (:memory m0) (:c_b_neg H))             (:effects (:memory m2) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
-        (:search_rule (:conditions (:memory m0) (:c_c_eq D))              (:effects (:memory m2)))
 
-        (:search_rule (:conditions (:memory m1) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
-        (:search_rule (:conditions (:memory m1) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_dec D)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_dec D)))
 
-        (:search_rule (:conditions (:memory m1) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_bot D)))
-        (:search_rule (:conditions (:memory m1) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_inc D)))
-        (:search_rule (:conditions (:memory m1) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_dec D) (:e_n_gt n)))
-        (:search_rule (:conditions (:memory m1) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m0) (:e_b_neg H) (:e_n_dec n) (:e_c_dec D) (:e_n_eq n)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_bot D)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_inc D)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m1) (:e_b_neg H) (:e_n_dec n) (:e_c_dec D) (:e_n_gt n)))
+        (:search_rule (:conditions (:memory m1) (:c_c_gt D) (:c_b_pos H) (:c_n_gt n)) (:effects (:memory m0) (:e_b_neg H) (:e_n_dec n) (:e_c_dec D) (:e_n_eq n)))
     )
 )
 (:module
