@@ -1,5 +1,6 @@
 #include "extended_sketch.hpp"
 
+#include "module.hpp"
 #include "declarations.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
@@ -64,11 +65,12 @@ bool ExtendedSketchImpl::try_apply_call_rule(
     const ExtendedState& current_state,
     int step,
     ExtendedState& successor_state,
-    Module& callee) const {
+    Module& callee,
+    ExtendedState& callee_state) const {
     for (const auto& call_rule : m_call_rules) {
         if (call_rule->evaluate_conditions(current_state)) {
-            std::cout << step << ". Applied call rule" << std::endl;
-            call_rule->apply(current_state, successor_state, callee);
+            call_rule->apply(current_state, successor_state, callee, callee_state);
+            std::cout << step << ". Applied call rule " << callee->get_signature().compute_signature() << std::endl;
             return true;
         }
     }

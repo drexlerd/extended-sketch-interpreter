@@ -340,7 +340,7 @@ namespace mimir::planners
                         if (goal_test_result.is_goal)
                         {
                             search_space.set_plan(successor_context_index, plan);
-                            final_state = state_data.extended_state;
+                            final_state = successor_state_data.extended_state;
                             reason = goal_test_result.reason;
                             return true;
                         }

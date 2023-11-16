@@ -57,7 +57,8 @@ public:
         const ExtendedState& current_state,
         int step,
         ExtendedState& successor_state,
-        Module& callee) const;
+        Module& callee,
+        ExtendedState& callee_state) const;
 
     bool try_apply_search_rule(
         const mimir::formalism::ProblemDescription& problem,

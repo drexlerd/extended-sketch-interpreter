@@ -20,6 +20,12 @@ using namespace dlplan::core;
 
 namespace mimir::planners {
 
+
+struct StackEntry {
+    Module mod;
+    ExtendedState state;
+};
+
 SIWMSearch::SIWMSearch(
     const DomainDescription& domain,
     const ProblemDescription& problem,
@@ -41,25 +47,19 @@ SIWMSearch::SIWMSearch(
 }
 
 bool SIWMSearch::find_plan(ActionList& plan) {
-    std::deque<Module> stack;
-    auto entry_module = m_modules.front();
-    auto current_state = entry_module->get_extended_sketch()->create_initial_extended_state(m_problem, m_instance_info);
-    std::cout << "Push entry module on stack." << std::endl;
-    stack.push_back( entry_module );
+    std::deque<StackEntry> stack;
+    auto current_module = m_modules.front();
+    auto current_state = current_module->get_extended_sketch()->create_initial_extended_state(m_problem, m_instance_info);
+
+    std::cout << std::endl << "Start SIW_R*" << std::endl;
+    const auto time_start = std::chrono::high_resolution_clock::now();
 
     int step = 0;
     int num_iw_searches = 0;
     while (!literals_hold(m_problem->goal, current_state.mimir)) {
-        if (stack.empty()) {
-            std::cout << "Stack emptied without finding solution." << std::endl;
-            return false;
-        }
         ++step;
-        //if (step == 6) break;
 
-        auto current_module = stack.back();
         auto extended_sketch = current_module->get_extended_sketch();
-        // std::cout << extended_sketch->compute_signature() << std::endl;
 
         /* Internal memory */
         // Load rule
@@ -72,10 +72,12 @@ bool SIWMSearch::find_plan(ActionList& plan) {
 
         // Call rule
         Module callee;
-        applied = extended_sketch->try_apply_call_rule(current_state, step, successor_state, callee);
+        ExtendedState callee_state;
+        applied = extended_sketch->try_apply_call_rule(current_state, step, successor_state, callee, callee_state);
         if (applied) {
-            current_state = successor_state;
-            stack.push_back( callee );
+            stack.push_back(StackEntry{ current_module, successor_state });
+            current_state = callee_state;
+            current_module = callee;
             std::cout << "Push callee on stack." << std::endl;
             continue;
         }
@@ -96,10 +98,28 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             continue;
         }
 
-        // If no rule used then pop rule
-        std::cout << "Pop from stack." << std::endl;
-        stack.pop_back();
+        if (stack.empty()) {
+            std::cout << "Stack emptied without finding solution." << std::endl;
+            return false;
+        } else {
+            auto stack_entry = stack.back();
+            stack.pop_back();
+            current_module =  stack_entry.mod;
+            std::cout << "Pop from stack." << std::endl;
+            current_state.dlplan = std::make_shared<dlplan::core::State>(
+                current_state.dlplan->get_instance_info(),
+                current_state.dlplan->get_atom_indices(),
+                stack_entry.state.dlplan->get_register_contents(),
+                stack_entry.state.dlplan->get_argument_contents(),
+                current_state.dlplan->get_index());
+            current_state.memory = stack_entry.state.memory;
+            std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl;
+        }
     }
+    const auto time_end = std::chrono::high_resolution_clock::now();
+    statistics.time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
+    statistics.time_total_ns = statistics.time_grounding_ns + statistics.time_search_ns;
+    average_effective_arity /= static_cast<double>(num_iw_searches);
     return true;
 }
 

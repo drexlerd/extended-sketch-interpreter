@@ -103,7 +103,8 @@ public:
     void apply(
         const ExtendedState& current_state,
         ExtendedState& successor_state,
-        Module& callee);
+        Module& callee,
+        ExtendedState& callee_state);
 
     const ModuleCall& get_call() const;
     void set_callee(const Module& module);

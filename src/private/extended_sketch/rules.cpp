@@ -142,7 +142,11 @@ CallRuleImpl::~CallRuleImpl() = default;
 void CallRuleImpl::apply(
     const ExtendedState& current_state,
     ExtendedState& successor_state,
-    Module& callee) {
+    Module& callee,
+    ExtendedState& callee_state) {
+    // Only memory state of current state changes to m'
+    successor_state = current_state;
+    successor_state.memory = get_memory_state_effect();
     // Get a shared reference to the callee
     callee = m_callee.lock();
     // Initialize the registers with 0
@@ -152,7 +156,7 @@ void CallRuleImpl::apply(
     for (const auto& concept : m_call.get_arguments()) {
         argument_contents.push_back(concept->get_concept()->evaluate(*current_state.dlplan));
     } 
-    successor_state = ExtendedState {
+    callee_state = ExtendedState {
         callee->get_extended_sketch()->get_initial_memory_state(),
         current_state.mimir,
         std::make_shared<dlplan::core::State>(

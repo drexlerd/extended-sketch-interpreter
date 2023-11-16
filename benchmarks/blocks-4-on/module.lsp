@@ -32,5 +32,4 @@
         (:search_rule (:conditions (:memory m2) (:c_c_eq C))   (:effects (:memory m3)))
         (:search_rule (:conditions (:memory m3) (:c_b_pos On)) (:effects (:memory m3) (:e_b_neg On) ))
     )
-
 )

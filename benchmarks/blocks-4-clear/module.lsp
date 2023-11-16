@@ -28,7 +28,7 @@
             (D "c_diff(c_diff(c_argument(0),c_primitive(clear,0)),c_primitive(holding,0))")
         )
         (:load_rule   (:conditions (:memory m0) (:c_c_gt D))              (:effects (:memory m1) (:e_b_bot H) (:e_c_bot D) (:load (r0 D))))
-        (:search_rule (:conditions (:memory m0) (:c_b_neg H))             (:effects (:memory m0) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
+        (:search_rule (:conditions (:memory m0) (:c_b_neg H))             (:effects (:memory m2) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
 
         (:search_rule (:conditions (:memory m1) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_bot D)))
         (:search_rule (:conditions (:memory m1) (:c_b_neg H))             (:effects (:memory m1) (:e_b_pos H) (:e_n_bot n) (:e_c_dec D)))
