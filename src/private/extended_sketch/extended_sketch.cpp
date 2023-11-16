@@ -44,26 +44,35 @@ ExtendedSketchImpl::ExtendedSketchImpl(
 
 bool ExtendedSketchImpl::try_apply_load_rule(
     const ExtendedState& current_state,
-    int& step,
-    ExtendedState& successor_state) {
+    int step,
+    ExtendedState& successor_state) const {
     auto it1 = m_load_rules_by_memory_state.find(current_state.memory);
     if (it1 != m_load_rules_by_memory_state.end()) {
         for (const auto& load_rule : it1->second) {
-            bool all_conditions_satisfied = true;
-            for (const auto& condition : load_rule->get_feature_conditions()) {
-                if (!condition->evaluate(*current_state.dlplan)) {
-                    all_conditions_satisfied = false;
-                    break;
-                }
-            }
-            if (all_conditions_satisfied) {
+            if (load_rule->evaluate_conditions(current_state)) {
                 std::cout << step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
                 load_rule->apply(current_state, m_register_mapping, successor_state);
                 return true;
             }
         }
     }
-    //cout << "No applicable load rule in memory state " << current_state.memory->compute_signature() << endl;
+    // cout << "No applicable load rule in memory state " << current_state.memory->compute_signature() << endl;
+    return false;
+}
+
+bool ExtendedSketchImpl::try_apply_call_rule(
+    const ExtendedState& current_state,
+    int step,
+    ExtendedState& successor_state,
+    Module& callee) const {
+    for (const auto& call_rule : m_call_rules) {
+        if (call_rule->evaluate_conditions(current_state)) {
+            std::cout << step << ". Applied call rule" << std::endl;
+            call_rule->apply(current_state, successor_state, callee);
+            return true;
+        }
+    }
+    // cout << "No applicable call rule in memory state " << current_state.memory->compute_signature() << endl;
     return false;
 }
 
@@ -73,10 +82,10 @@ bool ExtendedSketchImpl::try_apply_search_rule(
     const mimir::planners::SuccessorGenerator& successor_generator,
     int max_arity,
     const ExtendedState& current_state,
-    int& step,
+    int step,
     ExtendedState& successor_state,
     mimir::formalism::ActionList& plan,
-    mimir::planners::IWSearchStatistics& statistics) {
+    mimir::planners::IWSearchStatistics& statistics) const {
 
     auto it2 = m_sketches_by_memory_state.find(current_state.memory);
     if (it2 != m_sketches_by_memory_state.end()) {
@@ -117,7 +126,6 @@ bool ExtendedSketchImpl::try_apply_search_rule(
 
         return true;
     }
-
     // cout << "No applicable search rule in memory state " << current_state.memory->compute_signature() << endl;
     return false;  // unsolved
 }
@@ -147,6 +155,14 @@ ExtendedState ExtendedSketchImpl::create_initial_extended_state(
 
 const CallRuleList& ExtendedSketchImpl::get_call_rules() const {
     return m_call_rules;
+}
+
+const MemoryState& ExtendedSketchImpl::get_initial_memory_state() const {
+    return m_initial_memory_state;
+}
+
+const std::unordered_map<Concept, int>& ExtendedSketchImpl::get_register_mapping() const {
+    return m_register_mapping;
 }
 
 

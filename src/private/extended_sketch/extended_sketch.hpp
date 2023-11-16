@@ -32,8 +32,6 @@ private:
     std::unordered_map<MemoryState, std::vector<LoadRule>> m_load_rules_by_memory_state;
     std::unordered_map<Concept, int> m_register_mapping;
 
-    friend class ModuleImpl;
-
 public:
     ExtendedSketchImpl(
         const MemoryStateMap& memory_states,
@@ -52,8 +50,14 @@ public:
 
     bool try_apply_load_rule(
         const ExtendedState& current_state,
-        int& step,
-        ExtendedState& successor_state);
+        int step,
+        ExtendedState& successor_state) const;
+
+    bool try_apply_call_rule(
+        const ExtendedState& current_state,
+        int step,
+        ExtendedState& successor_state,
+        Module& callee) const;
 
     bool try_apply_search_rule(
         const mimir::formalism::ProblemDescription& problem,
@@ -61,10 +65,10 @@ public:
         const mimir::planners::SuccessorGenerator& successor_generator,
         int max_arity,
         const ExtendedState& current_state,
-        int& step,
+        int step,
         ExtendedState& successor_state,
         mimir::formalism::ActionList& plan,
-        mimir::planners::IWSearchStatistics& statistics);
+        mimir::planners::IWSearchStatistics& statistics) const;
 
     ExtendedState create_initial_extended_state(
         const mimir::formalism::ProblemDescription& problem,
@@ -72,6 +76,8 @@ public:
 
 
     const CallRuleList& get_call_rules() const;
+    const MemoryState& get_initial_memory_state() const;
+    const std::unordered_map<Concept, int>& get_register_mapping() const;
 
     std::string compute_signature() const;
 };

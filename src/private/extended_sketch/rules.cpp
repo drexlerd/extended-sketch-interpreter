@@ -2,9 +2,12 @@
 
 #include <sstream>
 
+#include "extended_sketch.hpp"
+#include "module.hpp"
 #include "memory_state.hpp"
 #include "register.hpp"
 #include "../formalism/state.hpp"
+#include "../dlplan/include/dlplan/core.h"
 
 
 namespace mimir::extended_sketch {
@@ -43,6 +46,14 @@ const EffectSet& ExtendedRuleImpl::get_feature_effects() const {
     return m_feature_effects;
 }
 
+bool ExtendedRuleImpl::evaluate_conditions(const ExtendedState& state) const {
+    if (state.memory != m_memory_state_condition) return false;
+    for (const auto& feature_condition : m_feature_conditions) {
+        if (!feature_condition->evaluate(*state.dlplan)) return false;
+    }
+    return true;
+}
+
 
 LoadRuleImpl::LoadRuleImpl(
     const MemoryState& condition_memory_state,
@@ -60,7 +71,6 @@ void LoadRuleImpl::apply(
     const ExtendedState& current_state,
     const std::unordered_map<Concept, int>& register_mapping,
     ExtendedState& successor_state) {
-    std::cout << current_state.mimir << std::endl;
     const auto denotation = m_concept->get_concept()->evaluate(*current_state.dlplan);
     if (denotation.size() == 0) {
         throw std::runtime_error("Tried to load object from empty concept into register");
@@ -128,6 +138,31 @@ CallRuleImpl::CallRuleImpl(
       m_callee() { }
 
 CallRuleImpl::~CallRuleImpl() = default;
+
+void CallRuleImpl::apply(
+    const ExtendedState& current_state,
+    ExtendedState& successor_state,
+    Module& callee) {
+    // Get a shared reference to the callee
+    callee = m_callee.lock();
+    // Initialize the registers with 0
+    std::vector<int> register_contents(callee->get_extended_sketch()->get_register_mapping().size(), 0);
+    // Evaluate the arguments.
+    std::vector<dlplan::core::ConceptDenotation> argument_contents;
+    for (const auto& concept : m_call.get_arguments()) {
+        argument_contents.push_back(concept->get_concept()->evaluate(*current_state.dlplan));
+    } 
+    successor_state = ExtendedState {
+        callee->get_extended_sketch()->get_initial_memory_state(),
+        current_state.mimir,
+        std::make_shared<dlplan::core::State>(
+            current_state.dlplan->get_instance_info(),
+            current_state.dlplan->get_atom_indices(),
+            register_contents,
+            argument_contents,
+            current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
+    };
+}
 
 const ModuleCall& CallRuleImpl::get_call() const {
     return m_call;

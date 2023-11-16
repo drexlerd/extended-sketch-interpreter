@@ -20,11 +20,6 @@ using namespace dlplan::core;
 
 namespace mimir::planners {
 
-struct StackEntry {
-    Module mod;
-    ExtendedState initial_state;
-};
-
 SIWMSearch::SIWMSearch(
     const DomainDescription& domain,
     const ProblemDescription& problem,
@@ -46,10 +41,11 @@ SIWMSearch::SIWMSearch(
 }
 
 bool SIWMSearch::find_plan(ActionList& plan) {
-    std::deque<StackEntry> stack;
+    std::deque<Module> stack;
     auto entry_module = m_modules.front();
     auto current_state = entry_module->get_extended_sketch()->create_initial_extended_state(m_problem, m_instance_info);
-    stack.push_back(StackEntry{ entry_module, current_state });
+    std::cout << "Push entry module on stack." << std::endl;
+    stack.push_back( entry_module );
 
     int step = 0;
     int num_iw_searches = 0;
@@ -59,18 +55,36 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             return false;
         }
         ++step;
+        //if (step == 6) break;
 
-        auto entry = stack.back();
-        auto extended_sketch = entry.mod->get_extended_sketch();
+        auto current_module = stack.back();
+        auto extended_sketch = current_module->get_extended_sketch();
+        // std::cout << extended_sketch->compute_signature() << std::endl;
 
+        /* Internal memory */
+        // Load rule
         ExtendedState successor_state;
-
         bool applied = extended_sketch->try_apply_load_rule(current_state, step, successor_state);
         if (applied) {
             current_state = successor_state;
             continue;
         }
 
+        // Call rule
+        Module callee;
+        applied = extended_sketch->try_apply_call_rule(current_state, step, successor_state, callee);
+        if (applied) {
+            current_state = successor_state;
+            stack.push_back( callee );
+            std::cout << "Push callee on stack." << std::endl;
+            continue;
+        }
+
+
+        /* External memory */
+        // Action rule
+
+        // Search rule
         IWSearchStatistics iw_statistics;
         applied = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, successor_state, plan, iw_statistics);
         if (applied) {
@@ -82,15 +96,8 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             continue;
         }
 
-        /* Internal memory */
-        // Load rule
-        // Call rule
-
-        /* External memory */
-        // Search rule
-        // Action rule
-
         // If no rule used then pop rule
+        std::cout << "Pop from stack." << std::endl;
         stack.pop_back();
     }
     return true;

@@ -28,6 +28,8 @@ protected:
         const EffectSet& feature_effects);
     virtual ~ExtendedRuleImpl();
 
+    bool evaluate_conditions(const ExtendedState& state) const;
+
     std::string compute_signature() const;
     virtual void compute_signature(std::stringstream& out) const = 0;
 
@@ -41,6 +43,8 @@ class LoadRuleImpl : public ExtendedRuleImpl {
 public:
     Concept m_register;
     Concept m_concept;
+
+    using ExtendedRuleImpl::evaluate_conditions;
 
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
@@ -80,6 +84,8 @@ public:
 
     std::weak_ptr<ModuleImpl> m_callee;
 
+    using ExtendedRuleImpl::evaluate_conditions;
+
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
     using ExtendedRuleImpl::get_memory_state_effect;
@@ -93,6 +99,11 @@ public:
         const EffectSet& feature_effects,
         const ModuleCall& call);
     ~CallRuleImpl() override;
+
+    void apply(
+        const ExtendedState& current_state,
+        ExtendedState& successor_state,
+        Module& callee);
 
     const ModuleCall& get_call() const;
     void set_callee(const Module& module);
@@ -111,6 +122,8 @@ extern CallRule make_call_rule(
 class ActionRuleImpl : public ExtendedRuleImpl {
 public:
     ActionCall m_call;
+
+    using ExtendedRuleImpl::evaluate_conditions;
 
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
@@ -145,6 +158,8 @@ struct SearchRuleResult {
 
 class SearchRuleImpl : public ExtendedRuleImpl {
 public:
+    using ExtendedRuleImpl::evaluate_conditions;
+
     using ExtendedRuleImpl::compute_signature;
     using ExtendedRuleImpl::get_memory_state_condition;
     using ExtendedRuleImpl::get_memory_state_effect;
