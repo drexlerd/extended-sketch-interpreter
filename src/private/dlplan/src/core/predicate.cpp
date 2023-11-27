@@ -1,16 +1,12 @@
 #include "../../include/dlplan/core.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
 #include <sstream>
 
 
 namespace dlplan::core {
-Predicate::Predicate() : m_name(""), m_index(-1), m_arity(0), m_is_static(false) { }
 
-Predicate::Predicate(const std::string& name, PredicateIndex index, int arity, bool is_static)
-    : m_name(name), m_index(index), m_arity(arity), m_is_static(is_static) { }
+Predicate::Predicate(PredicateIndex index, const std::string& name, int arity, bool is_static)
+    : Base<Predicate>(index), m_name(name), m_arity(arity), m_is_static(is_static) { }
 
 Predicate::Predicate(const Predicate& other) = default;
 
@@ -22,40 +18,26 @@ Predicate& Predicate::operator=(Predicate&& other) = default;
 
 Predicate::~Predicate() = default;
 
-bool Predicate::operator==(const Predicate& other) const {
+bool Predicate::are_equal_impl(const Predicate& other) const {
+    // remove index comparison when we use factory.
     return (get_index() == other.get_index()) && (get_name() == other.get_name()) && (get_arity() == other.get_arity()) && (is_static() == other.is_static());
 }
 
-bool Predicate::operator!=(const Predicate& other) const {
-    return !(*this == other);
-}
-
-std::string Predicate::compute_repr() const {
-    std::stringstream ss;
-    ss << "Predicate("
+void Predicate::str_impl(std::stringstream& out) const {
+    out << "Predicate("
        << "index=" << m_index << ", "
        << "name=" << m_name << ", "
        << "arity=" << m_arity << ", "
        << "is_static=" << m_is_static
        << ")";
-    return ss.str();
 }
 
-std::ostream& operator<<(std::ostream& os, const Predicate& predicate) {
-    os << predicate.compute_repr();
-    return os;
-}
-
-std::string Predicate::str() const {
-    return compute_repr();
+size_t Predicate::hash_impl() const {
+    return hash_combine(m_name, m_index, m_arity, m_is_static);
 }
 
 const std::string& Predicate::get_name() const {
     return m_name;
-}
-
-PredicateIndex Predicate::get_index() const {
-    return m_index;
 }
 
 int Predicate::get_arity() const {
@@ -66,21 +48,4 @@ bool Predicate::is_static() const {
     return m_is_static;
 }
 
-}
-
-
-namespace boost::serialization {
-
-template<typename Archive>
-void serialize(Archive& ar, dlplan::core::Predicate& t, const unsigned int /* version */) {
-    ar & t.m_name;
-    ar & t.m_index;
-    ar & t.m_arity;
-    ar & t.m_is_static;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::core::Predicate& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::core::Predicate& t, const unsigned int version);
 }

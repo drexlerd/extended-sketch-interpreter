@@ -4,17 +4,13 @@
 #include "../../include/dlplan/utils/hash.h"
 #include "../../include/dlplan/utils/dynamic_bitset.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
 #include <sstream>
 
 
 namespace dlplan::core {
-RoleDenotation::RoleDenotation() : m_num_objects(0), m_data(utils::DynamicBitset(0)) { }
-
+// we assign index undefined since we do not care
 RoleDenotation::RoleDenotation(int num_objects)
-    : m_num_objects(num_objects), m_data(utils::DynamicBitset<unsigned>(num_objects * num_objects)) { }
+    : Base<RoleDenotation>(std::numeric_limits<int>::max()), m_num_objects(num_objects), m_data(DynamicBitset<unsigned>(num_objects * num_objects)) { }
 
 RoleDenotation::RoleDenotation(const RoleDenotation& other) = default;
 
@@ -26,15 +22,22 @@ RoleDenotation& RoleDenotation::operator=(RoleDenotation&& other) = default;
 
 RoleDenotation::~RoleDenotation() = default;
 
-bool RoleDenotation::operator==(const RoleDenotation& other) const {
+bool RoleDenotation::are_equal_impl(const RoleDenotation& other) const {
     if (this != &other) {
         return this->m_data == other.m_data;
     }
     return true;
 }
 
-bool RoleDenotation::operator!=(const RoleDenotation& other) const {
-    return !(*this == other);
+void RoleDenotation::str_impl(std::stringstream& out) const {
+    out << "RoleDenotation("
+       << "num_objects=" << m_num_objects << ", "
+       << "pairs_of_object_indices=" << to_sorted_vector()
+       << ")";
+}
+
+std::size_t RoleDenotation::hash_impl() const {
+    return m_data.hash();
 }
 
 RoleDenotation& RoleDenotation::operator&=(const RoleDenotation& other) {
@@ -89,24 +92,6 @@ bool RoleDenotation::is_subset_of(const RoleDenotation& other) const {
     return m_data.is_subset_of(other.m_data);
 }
 
-std::string RoleDenotation::compute_repr() const {
-    std::stringstream ss;
-    ss << "RoleDenotation("
-       << "num_objects=" << m_num_objects << ", "
-       << "pairs_of_object_indices=" << to_sorted_vector()
-       << ")";
-    return ss.str();
-}
-
-std::ostream& operator<<(std::ostream& os, const RoleDenotation& denotation) {
-    os << denotation.compute_repr();
-    return os;
-}
-
-std::string RoleDenotation::str() const {
-    return compute_repr();
-}
-
 PairsOfObjectIndices RoleDenotation::to_vector() const {
     // In the case of bitset, the to_sorted_vector has best runtime complexity.
     return to_sorted_vector();
@@ -127,27 +112,8 @@ PairsOfObjectIndices RoleDenotation::to_sorted_vector() const {
     return result;
 }
 
-std::size_t RoleDenotation::hash() const {
-    return m_data.hash();
-}
-
 int RoleDenotation::get_num_objects() const {
     return m_num_objects;
 }
-
-}
-
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::core::RoleDenotation& t, const unsigned int /* version */) {
-    ar & t.m_num_objects;
-    ar & t.m_data;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::core::RoleDenotation& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::core::RoleDenotation& t, const unsigned int version);
 
 }

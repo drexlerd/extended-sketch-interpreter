@@ -146,11 +146,12 @@ namespace mimir::planners
                     mimir::extended_sketch::ExtendedState{
                         initial_state.memory,
                         successor_state,
-                        std::make_shared<dlplan::core::State>(instance_info_,
+                        std::make_shared<dlplan::core::State>(
+                            successor_state_index,
+                            instance_info_,
                             atom_registry.convert_state(successor_state),
                             initial_state.dlplan->get_register_contents(),
-                            initial_state.dlplan->get_argument_contents(),
-                            successor_state_index)
+                            initial_state.dlplan->get_argument_contents())
                     }
                 };
 
@@ -265,11 +266,12 @@ namespace mimir::planners
                 mimir::extended_sketch::ExtendedState {
                     initial_state.memory,
                     state,
-                    std::make_shared<dlplan::core::State>(instance_info_,
+                    std::make_shared<dlplan::core::State>(
+                        state_index,
+                        instance_info_,
                         atom_registry.convert_state(state),
                         initial_state.dlplan->get_register_contents(),
-                        initial_state.dlplan->get_argument_contents(),
-                        state_index),
+                        initial_state.dlplan->get_argument_contents()),
                 }
             };
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
@@ -306,11 +308,12 @@ namespace mimir::planners
                         mimir::extended_sketch::ExtendedState {
                             initial_state.memory,
                             successor_state,
-                            std::make_shared<dlplan::core::State>(instance_info_,
+                            std::make_shared<dlplan::core::State>(
+                                successor_state_index,
+                                instance_info_,
                                 atom_registry.convert_state(successor_state),
                                 initial_state.dlplan->get_register_contents(),
-                                initial_state.dlplan->get_argument_contents(),
-                                successor_state_index)
+                                initial_state.dlplan->get_argument_contents())
                         }
                     };
                     if (test_prune(state_data.extended_state.dlplan->get_atom_indices(), successor_state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
@@ -374,11 +377,12 @@ namespace mimir::planners
             mimir::extended_sketch::ExtendedState {
                 initial_state.memory,
                 initial_state.mimir,
-                std::make_shared<dlplan::core::State>(instance_info_,
+                std::make_shared<dlplan::core::State>(
+                    initial_state_index,
+                    instance_info_,
                     atom_registry.convert_state(initial_state.mimir),
                     initial_state.dlplan->get_register_contents(),
-                    initial_state.dlplan->get_argument_contents(),
-                    initial_state_index)
+                    initial_state.dlplan->get_argument_contents())
         };
         ExtendedSketchGoalTest goal_test = ExtendedSketchGoalTest(problem_, instance_info_, sketch, initial_state_prime);
 

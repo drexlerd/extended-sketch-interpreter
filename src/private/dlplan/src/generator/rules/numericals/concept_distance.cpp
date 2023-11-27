@@ -13,7 +13,7 @@ void ConceptDistanceNumerical::generate_impl(const core::States& states, int tar
             // left role must evaluate to concept denotation that contains exactly one object.
             auto c1_denotations = c1->evaluate(states, caches);
             bool one = true;
-            for (const auto denot_ptr : *c1_denotations) {
+            for (const auto& denot_ptr : *c1_denotations) {
                 if (denot_ptr->size() != 1) {
                     one = false;
                     break;
@@ -24,18 +24,16 @@ void ConceptDistanceNumerical::generate_impl(const core::States& states, int tar
             }
             for (const auto& r : data.m_roles_by_iteration[j]) {
                 // middle role must be restriction
-                if (r->compute_repr().substr(0, 10) != "r_restrict") {
+                if (r->str().substr(0, 10) != "r_restrict") {
                     continue;
                 }
                 for (const auto& c2 : data.m_concepts_by_iteration[k]) {
                     auto element = factory.make_concept_distance_numerical(c1, r, c2);
                     auto denotations = element->evaluate(states, caches);
-                    if (data.m_boolean_and_numerical_hash_table.insert(denotations).second) {
-                        data.m_reprs.push_back(element->compute_repr());
+                    if (data.m_numerical_hash_table.insert(denotations).second) {
+                        data.m_reprs.push_back(element->str());
                         data.m_numericals_by_iteration[target_complexity].push_back(std::move(element));
                         increment_generated();
-                    } else {
-                        caches.numerical_denotations_cache.erase_denotation(element->get_index(), -1, -1);
                     }
                 }
             }
@@ -49,7 +47,7 @@ void ConceptDistanceNumerical::generate_impl(const core::States& states, int tar
             // left role must evaluate to concept denotation that contains exactly one object.
             auto c1_denotations = c1->evaluate(states, caches);
             bool one = true;
-            for (const auto denot_ptr : *c1_denotations) {
+            for (const auto& denot_ptr : *c1_denotations) {
                 if (denot_ptr->size() != 1) {
                     one = false;
                     break;
@@ -62,12 +60,10 @@ void ConceptDistanceNumerical::generate_impl(const core::States& states, int tar
                 for (const auto& c2 : data.m_concepts_by_iteration[k]) {
                     auto element = factory.make_concept_distance_numerical(c1, r, c2);
                     auto denotations = element->evaluate(states, caches);
-                    if (data.m_boolean_and_numerical_hash_table.insert(denotations).second) {
-                        data.m_reprs.push_back(element->compute_repr());
+                    if (data.m_numerical_hash_table.insert(denotations).second) {
+                        data.m_reprs.push_back(element->str());
                         data.m_numericals_by_iteration[target_complexity].push_back(std::move(element));
                         increment_generated();
-                    } else {
-                        caches.numerical_denotations_cache.erase_denotation(element->get_index(), -1, -1);
                     }
                 }
             }

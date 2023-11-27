@@ -313,7 +313,6 @@ std::shared_ptr<const BaseCondition> parse(
     return boost::apply_visitor(visitor, node);
 }
 
-
 std::shared_ptr<const BaseEffect> parse(
     const ast::FeatureEffect& node, const error_handler_type& error_handler, Context& context) {
     ParseVisitor<std::shared_ptr<const BaseEffect>> visitor(error_handler, context);

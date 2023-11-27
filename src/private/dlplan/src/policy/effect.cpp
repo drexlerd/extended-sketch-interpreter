@@ -1,879 +1,597 @@
-#include "effect.h"
+#include "../../include/dlplan/policy/effect.h"
 
-#include "../core/elements/utils.h"
+#include "../../include/dlplan/core/elements/utils.h"
 #include "../../include/dlplan/core.h"
+#include "../../include/dlplan/utils/hash.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 using namespace dlplan;
 
 
 namespace dlplan::policy {
 
-BooleanEffect::BooleanEffect(std::shared_ptr<const NamedBoolean> boolean, EffectIndex index)
-    : BaseEffect(index), m_boolean(boolean) { }
 
-int BooleanEffect::compute_evaluate_time_score() const {
-    return m_boolean->compute_evaluate_time_score();
+PositiveBooleanEffect::PositiveBooleanEffect(int identifier, std::shared_ptr<const NamedBoolean> boolean)
+    : NamedElementEffect<NamedBoolean>(identifier, boolean) {}
+
+bool PositiveBooleanEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const PositiveBooleanEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
 }
-
-std::shared_ptr<const NamedBoolean> BooleanEffect::get_boolean() const {
-    return m_boolean;
-}
-
-std::shared_ptr<const NamedNumerical> BooleanEffect::get_numerical() const {
-    return nullptr;
-}
-
-std::shared_ptr<const NamedConcept> BooleanEffect::get_concept() const {
-    return nullptr;
-}
-
-
-NumericalEffect::NumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : BaseEffect(index), m_numerical(numerical) { }
-
-int NumericalEffect::compute_evaluate_time_score() const {
-    return m_numerical->compute_evaluate_time_score();
-}
-
-std::shared_ptr<const NamedBoolean> NumericalEffect::get_boolean() const {
-    return nullptr;
-}
-
-std::shared_ptr<const NamedNumerical> NumericalEffect::get_numerical() const {
-    return m_numerical;
-}
-
-std::shared_ptr<const NamedConcept> NumericalEffect::get_concept() const {
-    return nullptr;
-}
-
-
-ConceptEffect::ConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : BaseEffect(index), m_concept(concept) { }
-
-int ConceptEffect::compute_evaluate_time_score() const {
-    return m_concept->compute_evaluate_time_score();
-}
-
-std::shared_ptr<const NamedBoolean> ConceptEffect::get_boolean() const {
-    return nullptr;
-}
-
-std::shared_ptr<const NamedNumerical> ConceptEffect::get_numerical() const {
-    return nullptr;
-}
-
-std::shared_ptr<const NamedConcept> ConceptEffect::get_concept() const {
-    return m_concept;
-}
-
-
-PositiveBooleanEffect::PositiveBooleanEffect(std::shared_ptr<const NamedBoolean> boolean, EffectIndex index)
-    : BooleanEffect(boolean, index) {}
 
 bool PositiveBooleanEffect::evaluate(const core::State&, const core::State& target_state) const {
-    return m_boolean->get_boolean()->evaluate(target_state);
+    return m_named_element->get_element()->evaluate(target_state);
 }
 
 bool PositiveBooleanEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
-    return m_boolean->get_boolean()->evaluate(target_state, caches);
+    return m_named_element->get_element()->evaluate(target_state, caches);
 }
 
-std::string PositiveBooleanEffect::compute_repr() const{
-    return "(:e_b_pos \"" + m_boolean->get_boolean()->compute_repr() + "\")";
+void PositiveBooleanEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_b_pos " + m_named_element->get_key() + ")";
 }
 
-std::string PositiveBooleanEffect::str() const {
-    return "(:e_b_pos " + m_boolean->get_key() + ")";
+void PositiveBooleanEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-NegativeBooleanEffect::NegativeBooleanEffect(std::shared_ptr<const NamedBoolean> boolean, EffectIndex index)
-    : BooleanEffect(boolean, index) {}
+NegativeBooleanEffect::NegativeBooleanEffect(int identifier, std::shared_ptr<const NamedBoolean> boolean)
+    : NamedElementEffect<NamedBoolean>(identifier, boolean) {}
+
+bool NegativeBooleanEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const NegativeBooleanEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool NegativeBooleanEffect::evaluate(const core::State&, const core::State& target_state) const {
-    return !m_boolean->get_boolean()->evaluate(target_state);
+    return !m_named_element->get_element()->evaluate(target_state);
 }
 
 bool NegativeBooleanEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
-    return !m_boolean->get_boolean()->evaluate(target_state, caches);
+    return !m_named_element->get_element()->evaluate(target_state, caches);
 }
 
-std::string NegativeBooleanEffect::compute_repr() const{
-    return "(:e_b_neg \"" + m_boolean->get_boolean()->compute_repr() + "\")";
+void NegativeBooleanEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_b_neg " + m_named_element->get_key() + ")";
 }
 
-std::string NegativeBooleanEffect::str() const {
-    return "(:e_b_neg " + m_boolean->get_key() + ")";
+void NegativeBooleanEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-UnchangedBooleanEffect::UnchangedBooleanEffect(std::shared_ptr<const NamedBoolean> boolean, EffectIndex index)
-    : BooleanEffect(boolean, index) {}
+UnchangedBooleanEffect::UnchangedBooleanEffect(int identifier, std::shared_ptr<const NamedBoolean> boolean)
+    : NamedElementEffect<NamedBoolean>(identifier, boolean) {}
+
+bool UnchangedBooleanEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const UnchangedBooleanEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool UnchangedBooleanEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_boolean->get_boolean()->evaluate(source_state) == m_boolean->get_boolean()->evaluate(target_state);
+    return m_named_element->get_element()->evaluate(source_state) == m_named_element->get_element()->evaluate(target_state);
 }
 
 bool UnchangedBooleanEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    return m_boolean->get_boolean()->evaluate(source_state, caches) == m_boolean->get_boolean()->evaluate(target_state, caches);
+    return m_named_element->get_element()->evaluate(source_state, caches) == m_named_element->get_element()->evaluate(target_state, caches);
 }
 
-std::string UnchangedBooleanEffect::compute_repr() const{
-    return "(:e_b_bot \"" + m_boolean->get_boolean()->compute_repr() + "\")";
+void UnchangedBooleanEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_b_bot " + m_named_element->get_key() + ")";
 }
 
-std::string UnchangedBooleanEffect::str() const {
-    return "(:e_b_bot " + m_boolean->get_key() + ")";
+void UnchangedBooleanEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-IncrementNumericalEffect::IncrementNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : NumericalEffect(numerical, index) {}
+IncrementNumericalEffect::IncrementNumericalEffect(int identifier, std::shared_ptr<const NamedNumerical> numerical)
+    : NamedElementEffect<NamedNumerical>(identifier, numerical) {}
+
+bool IncrementNumericalEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const IncrementNumericalEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool IncrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    int source_eval = m_numerical->get_numerical()->evaluate(source_state);
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    int source_eval = m_named_element->get_element()->evaluate(source_state);
+    int target_eval = m_named_element->get_element()->evaluate(target_state);
     if (source_eval == INF) return false;
     if (target_eval == INF) return false;
     return source_eval < target_eval;
 }
 
 bool IncrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_numerical->get_numerical()->evaluate(source_state, caches);
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches);
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches);
     if (source_eval == INF) return false;
     if (target_eval == INF) return false;
     return source_eval < target_eval;
 }
 
-std::string IncrementNumericalEffect::compute_repr() const{
-    return "(:e_n_inc \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+void IncrementNumericalEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_n_inc " + m_named_element->get_key() + ")";
 }
 
-std::string IncrementNumericalEffect::str() const {
-    return "(:e_n_inc " + m_numerical->get_key() + ")";
+void IncrementNumericalEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-DecrementNumericalEffect::DecrementNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : NumericalEffect(numerical, index) {}
+DecrementNumericalEffect::DecrementNumericalEffect(int identifier, std::shared_ptr<const NamedNumerical> numerical)
+    : NamedElementEffect<NamedNumerical>(identifier, numerical) {}
+
+bool DecrementNumericalEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const DecrementNumericalEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool DecrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    int source_eval = m_numerical->get_numerical()->evaluate(source_state);
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    int source_eval = m_named_element->get_element()->evaluate(source_state);
+    int target_eval = m_named_element->get_element()->evaluate(target_state);
     if (source_eval == INF) return false;
     if (target_eval == INF) return false;
     return source_eval > target_eval;
 }
 
 bool DecrementNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_numerical->get_numerical()->evaluate(source_state, caches);
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches);
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches);
     if (source_eval == INF) return false;
     if (target_eval == INF) return false;
     return source_eval > target_eval;
 }
 
-std::string DecrementNumericalEffect::compute_repr() const{
-    return "(:e_n_dec \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+void DecrementNumericalEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_n_dec " + m_named_element->get_key() + ")";
 }
 
-std::string DecrementNumericalEffect::str() const {
-    return "(:e_n_dec " + m_numerical->get_key() + ")";
+void DecrementNumericalEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-UnchangedNumericalEffect::UnchangedNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : NumericalEffect(numerical, index) {}
+UnchangedNumericalEffect::UnchangedNumericalEffect(int identifier, std::shared_ptr<const NamedNumerical> numerical)
+    : NamedElementEffect<NamedNumerical>(identifier, numerical) {}
+
+bool UnchangedNumericalEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const UnchangedNumericalEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool UnchangedNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_numerical->get_numerical()->evaluate(source_state) == m_numerical->get_numerical()->evaluate(target_state);
+    return m_named_element->get_element()->evaluate(source_state) == m_named_element->get_element()->evaluate(target_state);
 }
 
 bool UnchangedNumericalEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_numerical->get_numerical()->evaluate(source_state, caches);
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches);
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches);
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
     return source_eval == target_eval;
 }
 
-std::string UnchangedNumericalEffect::compute_repr() const{
-    return "(:e_n_bot \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+void UnchangedNumericalEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_n_bot " + m_named_element->get_key() + ")";
 }
 
-std::string UnchangedNumericalEffect::str() const {
-    return "(:e_n_bot " + m_numerical->get_key() + ")";
+void UnchangedNumericalEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-GreaterNumericalEffect::GreaterNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : NumericalEffect(numerical, index) {}
+GreaterNumericalEffect::GreaterNumericalEffect(int identifier, std::shared_ptr<const NamedNumerical> numerical)
+    : NamedElementEffect<NamedNumerical>(identifier, numerical) {}
+
+bool GreaterNumericalEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const GreaterNumericalEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool GreaterNumericalEffect::evaluate(const core::State&, const core::State& target_state) const {
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    int target_eval = m_named_element->get_element()->evaluate(target_state);
     if (target_eval == INF) return false;
     return target_eval > 0;
 }
 
 bool GreaterNumericalEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches);
     if (target_eval == INF) return false;
     return target_eval > 0;
 }
 
-std::string GreaterNumericalEffect::compute_repr() const{
-    return "(:e_n_gt \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+void GreaterNumericalEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_n_gt " + m_named_element->get_key() + ")";
 }
 
-std::string GreaterNumericalEffect::str() const {
-    return "(:e_n_gt " + m_numerical->get_key() + ")";
+void GreaterNumericalEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-EqualNumericalEffect::EqualNumericalEffect(std::shared_ptr<const NamedNumerical> numerical, EffectIndex index)
-    : NumericalEffect(numerical, index) {}
+EqualNumericalEffect::EqualNumericalEffect(int identifier, std::shared_ptr<const NamedNumerical> numerical)
+    : NamedElementEffect<NamedNumerical>(identifier, numerical) {}
+
+bool EqualNumericalEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const EqualNumericalEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool EqualNumericalEffect::evaluate(const core::State&, const core::State& target_state) const {
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state);
+    int target_eval = m_named_element->get_element()->evaluate(target_state);
     if (target_eval == INF) return false;
     return target_eval == 0;
 }
 
 bool EqualNumericalEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int target_eval = m_numerical->get_numerical()->evaluate(target_state, caches);
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches);
     if (target_eval == INF) return false;
     return target_eval == 0;
 }
 
-std::string EqualNumericalEffect::compute_repr() const{
-    return "(:e_n_eq \"" + m_numerical->get_numerical()->compute_repr() + "\")";
+void EqualNumericalEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_n_eq " + m_named_element->get_key() + ")";
 }
 
-std::string EqualNumericalEffect::str() const {
-    return "(:e_n_eq " + m_numerical->get_key() + ")";
+void EqualNumericalEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-IncrementConceptEffect::IncrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : ConceptEffect(concept, index) {}
+IncrementConceptEffect::IncrementConceptEffect(int identifier, std::shared_ptr<const NamedConcept> concept_)
+    : NamedElementEffect<NamedConcept>(identifier, concept_) {}
+
+bool IncrementConceptEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const IncrementConceptEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool IncrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_concept->get_concept()->evaluate(source_state).size() < m_concept->get_concept()->evaluate(target_state).size();
+    int source_eval = m_named_element->get_element()->evaluate(source_state).size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state).size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval < target_eval;
 }
 
 bool IncrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
-    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches)->size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches)->size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
     return source_eval < target_eval;
 }
 
-std::string IncrementConceptEffect::compute_repr() const{
-    return "(:e_c_inc \"" + m_concept->get_concept()->compute_repr() + "\")";
+void IncrementConceptEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_c_inc " + m_named_element->get_key() + ")";
 }
 
-std::string IncrementConceptEffect::str() const {
-    return "(:e_c_inc " + m_concept->get_key() + ")";
+void IncrementConceptEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-DecrementConceptEffect::DecrementConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : ConceptEffect(concept, index) {}
+DecrementConceptEffect::DecrementConceptEffect(int identifier, std::shared_ptr<const NamedConcept> concept_)
+    : NamedElementEffect<NamedConcept>(identifier, concept_) {}
+
+bool DecrementConceptEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const DecrementConceptEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool DecrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_concept->get_concept()->evaluate(source_state).size() > m_concept->get_concept()->evaluate(target_state).size();
-}
-
-bool DecrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
-    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    int source_eval = m_named_element->get_element()->evaluate(source_state).size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state).size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
     return source_eval > target_eval;
 }
 
-std::string DecrementConceptEffect::compute_repr() const{
-    return "(:e_c_dec \"" + m_concept->get_concept()->compute_repr() + "\")";
+bool DecrementConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches)->size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches)->size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval > target_eval;
 }
 
-std::string DecrementConceptEffect::str() const {
-    return "(:e_c_dec " + m_concept->get_key() + ")";
+void DecrementConceptEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_c_dec " + m_named_element->get_key() + ")";
+}
+
+void DecrementConceptEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-UnchangedConceptEffect::UnchangedConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : ConceptEffect(concept, index) {}
+UnchangedConceptEffect::UnchangedConceptEffect(int identifier, std::shared_ptr<const NamedConcept> concept_)
+    : NamedElementEffect<NamedConcept>(identifier, concept_) {}
+
+bool UnchangedConceptEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const UnchangedConceptEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
+}
 
 bool UnchangedConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_concept->get_concept()->evaluate(source_state).size() == m_concept->get_concept()->evaluate(target_state).size();
+    int source_eval = m_named_element->get_element()->evaluate(source_state).size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state).size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
+    return source_eval == target_eval;
 }
 
 bool UnchangedConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
-    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
+    int source_eval = m_named_element->get_element()->evaluate(source_state, caches)->size();
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches)->size();
+    if (source_eval == INF) return false;
+    if (target_eval == INF) return false;
     return source_eval == target_eval;
 }
 
-std::string UnchangedConceptEffect::compute_repr() const{
-    return "(:e_c_bot \"" + m_concept->get_concept()->compute_repr() + "\")";
+void UnchangedConceptEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_c_bot " + m_named_element->get_key() + ")";
 }
 
-std::string UnchangedConceptEffect::str() const {
-    return "(:e_c_bot " + m_concept->get_key() + ")";
-}
-
-
-GreaterConceptEffect::GreaterConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : ConceptEffect(concept, index) {}
-
-bool GreaterConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_concept->get_concept()->evaluate(source_state).size() < m_concept->get_concept()->evaluate(target_state).size();
-}
-
-bool GreaterConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
-    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
-    return source_eval < target_eval;
-}
-
-std::string GreaterConceptEffect::compute_repr() const{
-    return "(:e_c_gt \"" + m_concept->get_concept()->compute_repr() + "\")";
-}
-
-std::string GreaterConceptEffect::str() const {
-    return "(:e_c_gt " + m_concept->get_key() + ")";
+void UnchangedConceptEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-EqualConceptEffect::EqualConceptEffect(std::shared_ptr<const NamedConcept> concept, EffectIndex index)
-    : ConceptEffect(concept, index) {}
+GreaterConceptEffect::GreaterConceptEffect(int identifier, std::shared_ptr<const NamedConcept> concept_)
+    : NamedElementEffect<NamedConcept>(identifier, concept_) {}
 
-bool EqualConceptEffect::evaluate(const core::State& source_state, const core::State& target_state) const {
-    return m_concept->get_concept()->evaluate(source_state).size() == m_concept->get_concept()->evaluate(target_state).size();
+bool GreaterConceptEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const GreaterConceptEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
 }
 
-bool EqualConceptEffect::evaluate(const core::State& source_state, const core::State& target_state, core::DenotationsCaches& caches) const {
-    int source_eval = m_concept->get_concept()->evaluate(source_state, caches)->size();
-    int target_eval = m_concept->get_concept()->evaluate(target_state, caches)->size();
-    return source_eval == target_eval;
+bool GreaterConceptEffect::evaluate(const core::State&, const core::State& target_state) const {
+    int target_eval = m_named_element->get_element()->evaluate(target_state).size();
+    if (target_eval == INF) return false;
+    return target_eval > 0;
 }
 
-std::string EqualConceptEffect::compute_repr() const{
-    return "(:e_c_eq \"" + m_concept->get_concept()->compute_repr() + "\")";
+bool GreaterConceptEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches)->size();
+    if (target_eval == INF) return false;
+    return target_eval > 0;
 }
 
-std::string EqualConceptEffect::str() const {
-    return "(:e_c_eq " + m_concept->get_key() + ")";
+void GreaterConceptEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_c_gt " + m_named_element->get_key() + ")";
 }
 
-
-}
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::BooleanEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BaseEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& /* ar */ , const dlplan::policy::BooleanEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<class Archive>
-void load_construct_data(Archive& /* ar */ , dlplan::policy::BooleanEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::NumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BaseEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& /* ar */ , const dlplan::policy::NumericalEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<class Archive>
-void load_construct_data(Archive& /* ar */ , dlplan::policy::NumericalEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::ConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BaseEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& /* ar */ , const dlplan::policy::ConceptEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<class Archive>
-void load_construct_data(Archive& /* ar */ , dlplan::policy::ConceptEffect* /* t */ , const unsigned int /* version */ )
-{
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::PositiveBooleanEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BooleanEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::PositiveBooleanEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_boolean;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::PositiveBooleanEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedBoolean> boolean;
-    dlplan::policy::EffectIndex index;
-    ar >> boolean;
-    ar >> index;
-    ::new(t)dlplan::policy::PositiveBooleanEffect(boolean, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::NegativeBooleanEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BooleanEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::NegativeBooleanEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_boolean;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::NegativeBooleanEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedBoolean> boolean;
-    dlplan::policy::EffectIndex index;
-    ar >> boolean;
-    ar >> index;
-    ::new(t)dlplan::policy::NegativeBooleanEffect(boolean, index);
-}
-
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::UnchangedBooleanEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::BooleanEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::UnchangedBooleanEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_boolean;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::UnchangedBooleanEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedBoolean> boolean;
-    dlplan::policy::EffectIndex index;
-    ar >> boolean;
-    ar >> index;
-    ::new(t)dlplan::policy::UnchangedBooleanEffect(boolean, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::IncrementNumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::NumericalEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::IncrementNumericalEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_numerical;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::IncrementNumericalEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedNumerical> numerical;
-    dlplan::policy::EffectIndex index;
-    ar >> numerical;
-    ar >> index;
-    ::new(t)dlplan::policy::IncrementNumericalEffect(numerical, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::DecrementNumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::NumericalEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::DecrementNumericalEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_numerical;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::DecrementNumericalEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedNumerical> numerical;
-    dlplan::policy::EffectIndex index;
-    ar >> numerical;
-    ar >> index;
-    ::new(t)dlplan::policy::DecrementNumericalEffect(numerical, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::UnchangedNumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::NumericalEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::UnchangedNumericalEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_numerical;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::UnchangedNumericalEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedNumerical> numerical;
-    dlplan::policy::EffectIndex index;
-    ar >> numerical;
-    ar >> index;
-    ::new(t)dlplan::policy::UnchangedNumericalEffect(numerical, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::GreaterNumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::NumericalEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::GreaterNumericalEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_numerical;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::GreaterNumericalEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedNumerical> numerical;
-    dlplan::policy::EffectIndex index;
-    ar >> numerical;
-    ar >> index;
-    ::new(t)dlplan::policy::GreaterNumericalEffect(numerical, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::EqualNumericalEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::NumericalEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::EqualNumericalEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_numerical;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::EqualNumericalEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedNumerical> numerical;
-    dlplan::policy::EffectIndex index;
-    ar >> numerical;
-    ar >> index;
-    ::new(t)dlplan::policy::EqualNumericalEffect(numerical, index);
+void GreaterConceptEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
 
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::IncrementConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+EqualConceptEffect::EqualConceptEffect(int identifier, std::shared_ptr<const NamedConcept> concept_)
+    : NamedElementEffect<NamedConcept>(identifier, concept_) {}
+
+bool EqualConceptEffect::are_equal_impl(const BaseEffect& other) const {
+    if (typeid(*this) == typeid(other)) {
+        if (this == &other) return true;
+        const auto& other_derived = static_cast<const EqualConceptEffect&>(other);
+        return m_named_element == other_derived.m_named_element;
+    }
+    return false;
 }
 
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::IncrementConceptEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_concept;
-    ar << t->m_index;
+bool EqualConceptEffect::evaluate(const core::State&, const core::State& target_state) const {
+    int target_eval = m_named_element->get_element()->evaluate(target_state).size();
+    if (target_eval == INF) return false;
+    return target_eval == 0;
 }
 
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::IncrementConceptEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
-    dlplan::policy::EffectIndex index;
-    ar >> concept;
-    ar >> index;
-    ::new(t)dlplan::policy::IncrementConceptEffect(concept, index);
+bool EqualConceptEffect::evaluate(const core::State&, const core::State& target_state, core::DenotationsCaches& caches) const {
+    int target_eval = m_named_element->get_element()->evaluate(target_state, caches)->size();
+    if (target_eval == INF) return false;
+    return target_eval == 0;
 }
 
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::DecrementConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+void EqualConceptEffect::str_impl(std::stringstream& out) const {
+    out << "(:e_c_eq " + m_named_element->get_key() + ")";
 }
 
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::DecrementConceptEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_concept;
-    ar << t->m_index;
+void EqualConceptEffect::accept(BaseEffectVisitor& visitor) const {
+    visitor.visit(this->shared_from_this());
 }
 
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::DecrementConceptEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
-    dlplan::policy::EffectIndex index;
-    ar >> concept;
-    ar >> index;
-    ::new(t)dlplan::policy::DecrementConceptEffect(concept, index);
 }
 
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::UnchangedConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
+
+namespace std {
+    bool less<std::shared_ptr<const dlplan::policy::PositiveBooleanEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::PositiveBooleanEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::PositiveBooleanEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+
+    bool less<std::shared_ptr<const dlplan::policy::NegativeBooleanEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::NegativeBooleanEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::NegativeBooleanEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::UnchangedBooleanEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::UnchangedBooleanEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::UnchangedBooleanEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::IncrementNumericalEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::IncrementNumericalEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::IncrementNumericalEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::DecrementNumericalEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::DecrementNumericalEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::DecrementNumericalEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::UnchangedNumericalEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::UnchangedNumericalEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::UnchangedNumericalEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::GreaterNumericalEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::GreaterNumericalEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::GreaterNumericalEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::EqualNumericalEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::EqualNumericalEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::EqualNumericalEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::IncrementConceptEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::IncrementConceptEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::IncrementConceptEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::DecrementConceptEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::DecrementConceptEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::DecrementConceptEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::UnchangedConceptEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::UnchangedConceptEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::UnchangedConceptEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::GreaterConceptEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::GreaterConceptEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::GreaterConceptEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    bool less<std::shared_ptr<const dlplan::policy::EqualConceptEffect>>::operator()(
+        const std::shared_ptr<const dlplan::policy::EqualConceptEffect>& left_effect,
+        const std::shared_ptr<const dlplan::policy::EqualConceptEffect>& right_effect) const {
+        return *left_effect < *right_effect;
+    }
+
+    std::size_t hash<dlplan::policy::PositiveBooleanEffect>::operator()(
+        const dlplan::policy::PositiveBooleanEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::NegativeBooleanEffect>::operator()(
+        const dlplan::policy::NegativeBooleanEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::UnchangedBooleanEffect>::operator()(
+        const dlplan::policy::UnchangedBooleanEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::IncrementNumericalEffect>::operator()(
+        const dlplan::policy::IncrementNumericalEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::DecrementNumericalEffect>::operator()(
+        const dlplan::policy::DecrementNumericalEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::UnchangedNumericalEffect>::operator()(
+        const dlplan::policy::UnchangedNumericalEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::GreaterNumericalEffect>::operator()(
+        const dlplan::policy::GreaterNumericalEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::EqualNumericalEffect>::operator()(
+        const dlplan::policy::EqualNumericalEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::IncrementConceptEffect>::operator()(
+        const dlplan::policy::IncrementConceptEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::DecrementConceptEffect>::operator()(
+        const dlplan::policy::DecrementConceptEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::UnchangedConceptEffect>::operator()(
+        const dlplan::policy::UnchangedConceptEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::GreaterConceptEffect>::operator()(
+        const dlplan::policy::GreaterConceptEffect& effect) const {
+        return effect.hash();
+    }
+
+    std::size_t hash<dlplan::policy::EqualConceptEffect>::operator()(
+        const dlplan::policy::EqualConceptEffect& effect) const {
+        return effect.hash();
+    }
 }
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::UnchangedConceptEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_concept;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::UnchangedConceptEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
-    dlplan::policy::EffectIndex index;
-    ar >> concept;
-    ar >> index;
-    ::new(t)dlplan::policy::UnchangedConceptEffect(concept, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::GreaterConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::GreaterConceptEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_concept;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::GreaterConceptEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
-    dlplan::policy::EffectIndex index;
-    ar >> concept;
-    ar >> index;
-    ::new(t)dlplan::policy::GreaterConceptEffect(concept, index);
-}
-
-template<typename Archive>
-void serialize(Archive& /* ar */ , dlplan::policy::EqualConceptEffect& t, const unsigned int /* version */ )
-{
-    boost::serialization::base_object<dlplan::policy::ConceptEffect>(t);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const dlplan::policy::EqualConceptEffect* t, const unsigned int /* version */ )
-{
-    ar << t->m_concept;
-    ar << t->m_index;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, dlplan::policy::EqualConceptEffect* t, const unsigned int /* version */ )
-{
-    std::shared_ptr<const dlplan::policy::NamedConcept> concept;
-    dlplan::policy::EffectIndex index;
-    ar >> concept;
-    ar >> index;
-    ::new(t)dlplan::policy::EqualConceptEffect(concept, index);
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::BooleanEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::BooleanEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::BooleanEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::BooleanEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::PositiveBooleanEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::PositiveBooleanEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::PositiveBooleanEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::PositiveBooleanEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::NegativeBooleanEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::NegativeBooleanEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::NegativeBooleanEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::NegativeBooleanEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedBooleanEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::UnchangedBooleanEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::UnchangedBooleanEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedBooleanEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::NumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::NumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::NumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::NumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::IncrementNumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::IncrementNumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::IncrementNumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::IncrementNumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::DecrementNumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::DecrementNumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::DecrementNumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::DecrementNumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedNumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::UnchangedNumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedNumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::GreaterNumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::GreaterNumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::GreaterNumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::GreaterNumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::EqualNumericalEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::EqualNumericalEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::EqualNumericalEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::EqualNumericalEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::ConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::ConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::ConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::ConceptEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::IncrementConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::IncrementConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::IncrementConceptEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::DecrementConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::DecrementConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::DecrementConceptEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::UnchangedConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::UnchangedConceptEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::GreaterConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::GreaterConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::GreaterConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::GreaterConceptEffect* t, const unsigned int version);
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::EqualConceptEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::EqualConceptEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::EqualConceptEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::EqualConceptEffect* t, const unsigned int version);
-}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::PositiveBooleanEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::NegativeBooleanEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedBooleanEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::IncrementNumericalEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::DecrementNumericalEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedNumericalEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::GreaterNumericalEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::EqualNumericalEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::IncrementConceptEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::DecrementConceptEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::UnchangedConceptEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::GreaterConceptEffect)
-BOOST_CLASS_EXPORT_IMPLEMENT(dlplan::policy::EqualConceptEffect)

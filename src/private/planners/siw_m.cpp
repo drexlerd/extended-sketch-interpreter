@@ -107,7 +107,7 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             continue;
         }
 
-       
+
         if (stack.empty()) {
             std::cout << "Stack emptied without finding solution." << std::endl;
             for (const auto& action : plan) {
@@ -121,11 +121,11 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             current_module =  stack_entry.mod;
             current_state.memory = stack_entry.state.memory;
             current_state.dlplan = std::make_shared<dlplan::core::State>(
+                current_state.dlplan->get_index(),
                 current_state.dlplan->get_instance_info(),
                 current_state.dlplan->get_atom_indices(),
                 stack_entry.state.dlplan->get_register_contents(),
-                stack_entry.state.dlplan->get_argument_contents(),
-                current_state.dlplan->get_index());
+                stack_entry.state.dlplan->get_argument_contents());
             std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl;
         }
 

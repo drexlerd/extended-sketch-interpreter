@@ -74,10 +74,10 @@ public:
         DEBUG_CODE(
             std::cout << state_data.extended_state.dlplan->str() << std::endl;
             for (const auto& numerical : sketch_->get_numericals()) {
-                std::cout << numerical->get_numerical()->evaluate(*dlplan_initial_state_) << " " << numerical->get_numerical()->evaluate(*state_data.extended_state.dlplan) << " " << numerical->get_key() << std::endl;
+                std::cout << numerical->get_element()->evaluate(*dlplan_initial_state_) << " " << numerical->get_element()->evaluate(*state_data.extended_state.dlplan) << " " << numerical->get_key() << std::endl;
             }
             for (const auto& concept : sketch_->get_concepts()) {
-                std::cout << concept->get_concept()->evaluate(*dlplan_initial_state_).compute_repr() << " " << concept->get_concept()->evaluate(*state_data.extended_state.dlplan).compute_repr() << " " << concept->get_key() << std::endl;
+                std::cout << concept->get_element()->evaluate(*dlplan_initial_state_).str() << " " << concept->get_element()->evaluate(*state_data.extended_state.dlplan).str() << " " << concept->get_key() << std::endl;
             }
             std::cout << std::endl;
         );

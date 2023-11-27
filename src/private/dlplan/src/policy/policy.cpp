@@ -1,7 +1,5 @@
 #include "../../include/dlplan/policy.h"
 
-#include "condition.h"
-#include "effect.h"
 #include "policy_factory.h"
 
 #include <boost/archive/text_oarchive.hpp>
@@ -16,25 +14,15 @@ using namespace dlplan;
 namespace dlplan::policy {
 
 
-BaseCondition::BaseCondition(ConditionIndex index) : m_index(index) { }
+BaseCondition::BaseCondition(int identifier) : Base<BaseCondition>(identifier) { }
 
 BaseCondition::~BaseCondition() = default;
 
-ConditionIndex BaseCondition::get_index() const {
-    return m_index;
-}
 
-
-BaseEffect::BaseEffect(EffectIndex index) : m_index(index) { }
+BaseEffect::BaseEffect(int identifier) : Base<BaseEffect>(identifier) { }
 
 BaseEffect::~BaseEffect() = default;
 
-EffectIndex BaseEffect::get_index() const {
-    return m_index;
-}
-
-
-PolicyFactory::PolicyFactory() : m_pImpl(nullptr) { }
 
 PolicyFactory::PolicyFactory(std::shared_ptr<core::SyntacticElementFactory> element_factory)
     : m_pImpl(PolicyFactoryImpl(element_factory)) { }
@@ -105,12 +93,12 @@ std::shared_ptr<const BaseCondition> PolicyFactory::make_eq_condition(const std:
     return m_pImpl->make_eq_condition(numerical);
 }
 
-std::shared_ptr<const BaseCondition> PolicyFactory::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_gt_condition(concept);
+std::shared_ptr<const BaseCondition> PolicyFactory::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_gt_condition(concept_);
 }
 
-std::shared_ptr<const BaseCondition> PolicyFactory::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_eq_condition(concept);
+std::shared_ptr<const BaseCondition> PolicyFactory::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_eq_condition(concept_);
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactory::make_pos_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
@@ -145,24 +133,24 @@ std::shared_ptr<const BaseEffect> PolicyFactory::make_eq_effect(const std::share
     return m_pImpl->make_eq_effect(numerical);
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactory::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_inc_effect(concept);
+std::shared_ptr<const BaseEffect> PolicyFactory::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_inc_effect(concept_);
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactory::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_dec_effect(concept);
+std::shared_ptr<const BaseEffect> PolicyFactory::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_dec_effect(concept_);
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_bot_effect(concept);
+std::shared_ptr<const BaseEffect> PolicyFactory::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_bot_effect(concept_);
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactory::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_gt_effect(concept);
+std::shared_ptr<const BaseEffect> PolicyFactory::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_gt_effect(concept_);
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactory::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_pImpl->make_eq_effect(concept);
+std::shared_ptr<const BaseEffect> PolicyFactory::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_pImpl->make_eq_effect(concept_);
 }
 
 std::shared_ptr<const Rule> PolicyFactory::make_rule(
@@ -183,63 +171,65 @@ std::shared_ptr<core::SyntacticElementFactory> PolicyFactory::get_element_factor
 }
 
 
-namespace boost::serialization {
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::BaseCondition& /* t */ , const unsigned int /* version */ )
-{
-}
+namespace std {
+    bool less<std::shared_ptr<const dlplan::policy::NamedBoolean>>::operator()(
+        const std::shared_ptr<const dlplan::policy::NamedBoolean>& left_boolean,
+        const std::shared_ptr<const dlplan::policy::NamedBoolean>& right_boolean) const {
+        return *left_boolean < *right_boolean;
+    }
 
-template<class Archive>
-void save_construct_data(Archive& /* ar */ , const dlplan::policy::BaseCondition* /* t */ , const unsigned int /* version */ )
-{
-}
+    bool less<std::shared_ptr<const dlplan::policy::NamedNumerical>>::operator()(
+        const std::shared_ptr<const dlplan::policy::NamedNumerical>& left_numerical,
+        const std::shared_ptr<const dlplan::policy::NamedNumerical>& right_numerical) const {
+        return *left_numerical < *right_numerical;
+    }
 
-template<class Archive>
-void load_construct_data(Archive& /* ar */ , dlplan::policy::BaseCondition* /* t */ , const unsigned int /* version */ )
-{
-}
+    bool less<std::shared_ptr<const dlplan::policy::NamedConcept>>::operator()(
+        const std::shared_ptr<const dlplan::policy::NamedConcept>& left_concept,
+        const std::shared_ptr<const dlplan::policy::NamedConcept>& right_concept) const {
+        return *left_concept < *right_concept;
+    }
 
-template<typename Archive>
-void serialize( Archive& /* ar */ , dlplan::policy::BaseEffect& /* t */ , const unsigned int /* version */ )
-{
-}
+    bool less<std::shared_ptr<const dlplan::policy::NamedRole>>::operator()(
+        const std::shared_ptr<const dlplan::policy::NamedRole>& left_role,
+        const std::shared_ptr<const dlplan::policy::NamedRole>& right_role) const {
+        return *left_role < *right_role;
+    }
 
-template<class Archive>
-void save_construct_data(Archive& /* ar */ , const dlplan::policy::BaseEffect* /* t */ , const unsigned int /* version */ )
-{
-}
+    bool less<std::shared_ptr<const dlplan::policy::Rule>>::operator()(
+        const std::shared_ptr<const dlplan::policy::Rule>& left_rule,
+        const std::shared_ptr<const dlplan::policy::Rule>& right_rule) const {
+        return *left_rule < *right_rule;
+    }
 
-template<class Archive>
-void load_construct_data(Archive& /* ar */ , dlplan::policy::BaseEffect* /* t */ , const unsigned int /* version */ )
-{
-}
+    bool less<std::shared_ptr<const dlplan::policy::Policy>>::operator()(
+        const std::shared_ptr<const dlplan::policy::Policy>& left_policy,
+        const std::shared_ptr<const dlplan::policy::Policy>& right_policy) const {
+        return *left_policy < *right_policy;
+    }
 
-template<typename Archive>
-void serialize( Archive& ar, dlplan::policy::PolicyFactory& t, const unsigned int /* version */ )
-{
-    ar & t.m_pImpl;
-}
 
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::BaseCondition& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::BaseCondition& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::BaseCondition* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::BaseCondition* t, const unsigned int version);
+    std::size_t hash<dlplan::policy::NamedBoolean>::operator()(const dlplan::policy::NamedBoolean& boolean) const {
+        return boolean.hash();
+    }
 
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::BaseEffect& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::BaseEffect& t, const unsigned int version);
-template void save_construct_data(boost::archive::text_oarchive& ar,
-    const dlplan::policy::BaseEffect* t, const unsigned int version);
-template void load_construct_data(boost::archive::text_iarchive& ar,
-    dlplan::policy::BaseEffect* t, const unsigned int version);
+    std::size_t hash<dlplan::policy::NamedNumerical>::operator()(const dlplan::policy::NamedNumerical& numerical) const {
+        return numerical.hash();
+    }
 
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::PolicyFactory& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::PolicyFactory& t, const unsigned int version);
+    std::size_t hash<dlplan::policy::NamedConcept>::operator()(const dlplan::policy::NamedConcept& concept_) const {
+        return concept_.hash();
+    }
+
+    std::size_t hash<dlplan::policy::NamedRole>::operator()(const dlplan::policy::NamedRole& role) const {
+        return role.hash();
+    }
+
+    std::size_t hash<dlplan::policy::Rule>::operator()(const dlplan::policy::Rule& rule) const {
+        return rule.hash();
+    }
+
+    std::size_t hash<dlplan::policy::Policy>::operator()(const dlplan::policy::Policy& policy) const {
+        return policy.hash();
+    }
 }

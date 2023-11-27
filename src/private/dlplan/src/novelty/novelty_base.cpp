@@ -3,10 +3,6 @@
 #include "../utils/math.h"
 #include "../utils/logging.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-
 #include <cmath>
 #include <vector>
 #include <cassert>
@@ -15,7 +11,6 @@
 
 
 namespace dlplan::novelty {
-NoveltyBase::NoveltyBase() : m_factors(std::vector<int>()), m_num_atoms(0), m_arity(0) { }
 
 NoveltyBase::NoveltyBase(int num_atoms, int arity)
     : m_num_atoms(num_atoms), m_arity(arity) {
@@ -74,20 +69,4 @@ int NoveltyBase::get_arity() const {
     return m_arity;
 }
 
-}
-
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::novelty::NoveltyBase& t, const unsigned int /* version */ )
-{
-    ar & t.m_factors;
-    ar & t.m_num_atoms;
-    ar & t.m_arity;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::novelty::NoveltyBase& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::novelty::NoveltyBase& t, const unsigned int version);
 }

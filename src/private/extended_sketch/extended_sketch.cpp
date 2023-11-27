@@ -162,11 +162,12 @@ ExtendedState ExtendedSketchImpl::create_initial_extended_state(
     {
         mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);
         current_dlplan_state = std::make_shared<dlplan::core::State>(
+            0,
             instance_info,
             atom_registry.convert_state(current_state),
             register_contents,
-            std::vector<dlplan::core::ConceptDenotation>{},  // no arguments since it is not wrapped into a module
-            0);
+            std::vector<dlplan::core::ConceptDenotation>{}  // no arguments since it is not wrapped into a module
+        );
     }
     return ExtendedState{
         m_initial_memory_state,
@@ -205,17 +206,17 @@ std::string ExtendedSketchImpl::compute_signature() const {
     ss << ")\n";  // register
     ss << "(:booleans ";
     for (const auto& pair : m_booleans) {
-        ss << "(" << pair.first << " \"" << pair.second->get_boolean()->compute_repr() << "\") ";
+        ss << "(" << pair.first << " \"" << pair.second->get_element()->str() << "\") ";
     }
     ss << ")\n";  // booleans
     ss << "(:numericals ";
     for (const auto& pair : m_numericals) {
-        ss << "(" << pair.first << " \"" << pair.second->get_numerical()->compute_repr() << "\") ";
+        ss << "(" << pair.first << " \"" << pair.second->get_element()->str() << "\") ";
     }
     ss << ")\n";  // numericals
     ss << "(:concepts ";
     for (const auto& pair : m_concepts) {
-        ss << "(" << pair.first << " \"" << pair.second->get_concept()->compute_repr() << "\") ";
+        ss << "(" << pair.first << " \"" << pair.second->get_element()->str() << "\") ";
     }
     ss << ")\n";  // concepts
     for (const auto& load_rule : m_load_rules) {

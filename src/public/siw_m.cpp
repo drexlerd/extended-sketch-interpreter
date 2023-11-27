@@ -43,7 +43,7 @@ shared_ptr<InstanceInfo>
 construct_instance_info(
     shared_ptr<VocabularyInfo> vocabulary_info,
     const ProblemDescription& problem_description) {
-    shared_ptr<InstanceInfo> instance_info = make_shared<InstanceInfo>(vocabulary_info);
+    shared_ptr<InstanceInfo> instance_info = make_shared<InstanceInfo>(0, vocabulary_info);
     for (const auto& object : problem_description->objects) {
         instance_info->add_object(object->name);
     }

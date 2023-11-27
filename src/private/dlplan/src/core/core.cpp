@@ -3,54 +3,41 @@
 #include "element_factory.h"
 #include "../../include/dlplan/utils/hash.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 
+namespace std {
+    std::size_t hash<dlplan::core::Constant>::operator()(const dlplan::core::Constant& constant) const {
+        return constant.hash();
+    }
+    std::size_t hash<dlplan::core::Predicate>::operator()(const dlplan::core::Predicate& predicate) const {
+        return predicate.hash();
+    }
+    std::size_t hash<dlplan::core::Object>::operator()(const dlplan::core::Object& object) const {
+        return object.hash();
+    }
+    std::size_t hash<dlplan::core::Atom>::operator()(const dlplan::core::Atom& atom) const {
+        return atom.hash();
+    }
+    size_t hash<dlplan::core::State>::operator()(const dlplan::core::State& state) const {
+        return state.hash();
+    }
+    size_t hash<dlplan::core::ConceptDenotation>::operator()(const dlplan::core::ConceptDenotation& denotation) const {
+        return denotation.hash();
+    }
+    size_t hash<dlplan::core::RoleDenotation>::operator()(const dlplan::core::RoleDenotation& denotation) const {
+        return denotation.hash();
+    }
+    size_t hash<dlplan::core::ConceptDenotations>::operator()(const dlplan::core::ConceptDenotations& denotations) const {
+        return dlplan::hash_vector(denotations);
+    }
+    size_t hash<dlplan::core::RoleDenotations>::operator()(const dlplan::core::RoleDenotations& denotations) const {
+        return dlplan::hash_vector(denotations);
+    }
+    size_t hash<dlplan::core::DenotationsCacheKey>::operator()(const dlplan::core::DenotationsCacheKey& key) const {
+        return key.hash();
+    }
+}
 
 namespace dlplan::core {
-size_t hash_impl<State>::operator()(const State& state) const {
-    return state.hash();
-}
-size_t hash_impl<ConceptDenotation>::operator()(const ConceptDenotation& denotation) const {
-    return denotation.hash();
-}
-size_t hash_impl<RoleDenotation>::operator()(const RoleDenotation& denotation) const {
-    return denotation.hash();
-}
-size_t hash_impl<ConceptDenotations>::operator()(const ConceptDenotations& denotations) const {
-    size_t seed = 0;
-    for (const auto denot_ptr : denotations) {
-        dlplan::utils::hash_combine(seed, denot_ptr);
-    }
-    return seed;
-}
-size_t hash_impl<RoleDenotations>::operator()(const RoleDenotations& denotations) const {
-    size_t seed = 0;
-    for (const auto denot_ptr : denotations) {
-        dlplan::utils::hash_combine(seed, denot_ptr);
-    }
-    return seed;
-}
-size_t hash_impl<bool>::operator()(const bool& value) const {
-    return std::hash<bool>()(value);
-}
-size_t hash_impl<int>::operator()(const int& value) const {
-    return std::hash<int>()(value);
-}
-size_t hash_impl<std::vector<bool>>::operator()(const std::vector<bool>& data) const {
-    return std::hash<std::vector<bool>>()(data);
-}
-size_t hash_impl<std::vector<unsigned>>::operator()(const std::vector<unsigned>& data) const {
-    return dlplan::utils::hash<std::vector<unsigned>>()(data);
-}
-size_t hash_impl<std::vector<int>>::operator()(const std::vector<int>& data) const {
-    return dlplan::utils::hash<std::vector<int>>()(data);
-}
-
-SyntacticElementFactory::SyntacticElementFactory()
-    : m_pImpl(nullptr) { }
-
 SyntacticElementFactory::SyntacticElementFactory(std::shared_ptr<VocabularyInfo> vocabulary_info)
     : m_pImpl(SyntacticElementFactoryImpl(vocabulary_info)) { }
 
@@ -272,19 +259,21 @@ std::shared_ptr<const Role>SyntacticElementFactory::make_transitive_reflexive_cl
     return m_pImpl->make_transitive_reflexive_closure(role);
 }
 
+// Explicit template instantiations
+template class Element<ConceptDenotation, ConceptDenotations>;
+template class Element<RoleDenotation, RoleDenotations>;
+template class ElementLight<bool, BooleanDenotations>;
+template class ElementLight<int, NumericalDenotations>;
 }
 
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::core::SyntacticElementFactory& t, const unsigned int /* version */ )
-{
-    ar & t.m_pImpl;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::core::SyntacticElementFactory& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::core::SyntacticElementFactory& t, const unsigned int version);
-
+namespace dlplan {
+template class SharedObjectCache<core::DenotationsCacheKey,
+    core::ConceptDenotation,
+    core::RoleDenotation,
+    bool,
+    int,
+    core::ConceptDenotations,
+    core::RoleDenotations,
+    core::BooleanDenotations,
+    core::NumericalDenotations>;
 }

@@ -52,19 +52,19 @@ TEST(DLPTests, GeneratorDeliveryTest) {
         }
     }
     DenotationsCaches caches;
-    std::vector<const BooleanDenotations*> generated_boolean_denotations;
+    std::vector<std::shared_ptr<const BooleanDenotations>> generated_boolean_denotations;
     for (const auto& boolean : generated_boolean_features) {
         generated_boolean_denotations.push_back(boolean->evaluate(states, caches));
     }
-    std::vector<const NumericalDenotations*> generated_numerical_denotations;
+    std::vector<std::shared_ptr<const NumericalDenotations>> generated_numerical_denotations;
     for (const auto& numerical : generated_numerical_features) {
         generated_numerical_denotations.push_back(numerical->evaluate(states, caches));
     }
-    std::vector<const ConceptDenotations*> generated_concept_denotations;
+    std::vector<std::shared_ptr<const ConceptDenotations>> generated_concept_denotations;
     for (const auto& concept_ : generated_concept_features) {
         generated_concept_denotations.push_back(concept_->evaluate(states, caches));
     }
-    std::vector<const RoleDenotations*> generated_role_denotations;
+    std::vector<std::shared_ptr<const RoleDenotations>> generated_role_denotations;
     for (const auto& role : generated_role_features) {
         generated_role_denotations.push_back(role->evaluate(states, caches));
     }
@@ -84,19 +84,19 @@ TEST(DLPTests, GeneratorDeliveryTest) {
     std::vector<std::shared_ptr<const Role>> required_role_features = {
 
     };
-    std::vector<const BooleanDenotations*> required_boolean_denotations;
+    std::vector<std::shared_ptr<const BooleanDenotations>> required_boolean_denotations;
     for (const auto& boolean : required_boolean_features) {
         required_boolean_denotations.push_back(boolean->evaluate(states, caches));
     }
-    std::vector<const NumericalDenotations*> required_numerical_denotations;
+    std::vector<std::shared_ptr<const NumericalDenotations>> required_numerical_denotations;
     for (const auto& numerical : required_numerical_features) {
         required_numerical_denotations.push_back(numerical->evaluate(states, caches));
     }
-    std::vector<const ConceptDenotations*> required_concept_denotations;
+    std::vector<std::shared_ptr<const ConceptDenotations>> required_concept_denotations;
     for (const auto& concept_ : required_concept_features) {
         required_concept_denotations.push_back(concept_->evaluate(states, caches));
     }
-    std::vector<const RoleDenotations*> required_role_denotations;
+    std::vector<std::shared_ptr<const RoleDenotations>> required_role_denotations;
     for (const auto& role : required_role_features) {
         required_role_denotations.push_back(role->evaluate(states, caches));
     }
@@ -108,8 +108,8 @@ TEST(DLPTests, GeneratorDeliveryTest) {
             const auto& generated_denotations = generated_boolean_denotations[j];
             if (required_denotations == generated_denotations) {
                 found = true;
-                std::cout << "required: " << required_boolean_features[i]->compute_repr() << "\n"
-                          << "generated: " << generated_boolean_features[j]->compute_repr() << "\n";
+                std::cout << "required: " << required_boolean_features[i]->str() << "\n"
+                          << "generated: " << generated_boolean_features[j]->str() << "\n";
             }
         }
         EXPECT_EQ(found, true);
@@ -121,8 +121,8 @@ TEST(DLPTests, GeneratorDeliveryTest) {
             const auto& generated_denotations = generated_numerical_denotations[j];
             if (required_denotations == generated_denotations) {
                 found = true;
-                std::cout << "required: " << required_numerical_features[i]->compute_repr() << "\n"
-                          << "generated: " << generated_numerical_features[j]->compute_repr() << "\n";
+                std::cout << "required: " << required_numerical_features[i]->str() << "\n"
+                          << "generated: " << generated_numerical_features[j]->str() << "\n";
             }
         }
         EXPECT_EQ(found, true);
@@ -134,8 +134,8 @@ TEST(DLPTests, GeneratorDeliveryTest) {
             const auto& generated_denotations = generated_concept_denotations[j];
             if (required_denotations == generated_denotations) {
                 found = true;
-                std::cout << "required: " << required_concept_features[i]->compute_repr() << "\n"
-                          << "generated: " << generated_concept_features[j]->compute_repr() << "\n";
+                std::cout << "required: " << required_concept_features[i]->str() << "\n"
+                          << "generated: " << generated_concept_features[j]->str() << "\n";
             }
         }
         EXPECT_EQ(found, true);
@@ -147,8 +147,8 @@ TEST(DLPTests, GeneratorDeliveryTest) {
             const auto& generated_denotations = generated_role_denotations[j];
             if (required_denotations == generated_denotations) {
                 found = true;
-                std::cout << "required: " << required_role_features[i]->compute_repr() << "\n"
-                          << "generated: " << generated_role_features[j]->compute_repr() << "\n";
+                std::cout << "required: " << required_role_features[i]->str() << "\n"
+                          << "generated: " << generated_role_features[j]->str() << "\n";
             }
         }
         EXPECT_EQ(found, true);

@@ -2,20 +2,46 @@ add_library(dlplancore STATIC)
 target_sources(dlplancore
     PRIVATE
         atom.cpp
-        base_element.cpp
-        boolean.cpp
         concept_denotation.cpp
-        concept.cpp
         role_denotation.cpp
-        role.cpp
         state.cpp
         constant.cpp
         core.cpp
         denotations_caches.cpp
         element_factory.cpp
+        elements/booleans/nullary.cpp
+        elements/concepts/all.cpp
+        elements/concepts/and.cpp
+        elements/concepts/argument.cpp
+        elements/concepts/bot.cpp
+        elements/concepts/diff.cpp
+        elements/concepts/equal.cpp
+        elements/concepts/not.cpp
+        elements/concepts/one_of.cpp
+        elements/concepts/or.cpp
+        elements/concepts/primitive.cpp
+        elements/concepts/projection.cpp
+        elements/concepts/register.cpp
+        elements/concepts/some.cpp
+        elements/concepts/subset.cpp
+        elements/concepts/top.cpp
+        elements/numericals/concept_distance.cpp
+        elements/numericals/role_distance.cpp
+        elements/numericals/sum_concept_distance.cpp
+        elements/numericals/sum_role_distance.cpp
+        elements/roles/and.cpp
+        elements/roles/compose.cpp
+        elements/roles/diff.cpp
+        elements/roles/identity.cpp
+        elements/roles/inverse.cpp
+        elements/roles/not.cpp
+        elements/roles/or.cpp
         elements/roles/primitive.cpp
+        elements/roles/restrict.cpp
+        elements/roles/top.cpp
+        elements/roles/transitive_closure.cpp
+        elements/roles/transitive_reflexive_closure.cpp
         instance_info.cpp
-        numerical.cpp
         vocabulary_info.cpp
         predicate.cpp
         object.cpp
@@ -26,12 +52,8 @@ target_sources(dlplancore
         ../utils/MurmurHash3.cpp
         ../utils/system.cpp
         ../utils/timer.cpp
-        ../utils/hash.cpp
         ../common/parsers/utility.cpp
         ../common/parsers/filesystem.cpp)
-target_link_libraries(dlplancore
-    PRIVATE
-        Boost::serialization)
 
 # Create an alias for simpler reference
 add_library(dlplan::core ALIAS dlplancore)

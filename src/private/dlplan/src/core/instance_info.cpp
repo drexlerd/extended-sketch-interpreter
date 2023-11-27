@@ -3,12 +3,6 @@
 #include "../utils/collections.h"
 #include "../utils/logging.h"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -30,10 +24,8 @@ static std::string compute_atom_name(const Predicate& predicate, const std::vect
     return ss.str();
 }
 
-InstanceInfo::InstanceInfo() : m_vocabulary_info(nullptr), m_index(-1) { }
-
-InstanceInfo::InstanceInfo(std::shared_ptr<VocabularyInfo> vocabulary_info, InstanceIndex index)
-    : m_vocabulary_info(vocabulary_info), m_index(index) {
+InstanceInfo::InstanceInfo(InstanceIndex index, std::shared_ptr<VocabularyInfo> vocabulary_info)
+    : Base<InstanceInfo>(index), m_vocabulary_info(vocabulary_info) {
 }
 
 InstanceInfo::InstanceInfo(const InstanceInfo& other) = default;
@@ -45,6 +37,31 @@ InstanceInfo::InstanceInfo(InstanceInfo&& other) = default;
 InstanceInfo& InstanceInfo::operator=(InstanceInfo&& other) = default;
 
 InstanceInfo::~InstanceInfo() = default;
+
+bool InstanceInfo::are_equal_impl(const InstanceInfo& other) const {
+    if (this != &other) {
+        return (m_atoms == other.m_atoms)
+            && (m_objects == other.m_objects)
+            && (m_vocabulary_info == other.m_vocabulary_info);
+    }
+    return true;
+}
+
+void InstanceInfo::str_impl(std::stringstream& out) const {
+    out << "InstanceInfo("
+       << "index=" << m_index << ", "
+       << "objects=" << m_objects << ", "
+       << "atoms=" << m_atoms << ", "
+       << "static_atoms=" << m_static_atoms
+       << ")";
+}
+
+size_t InstanceInfo::hash_impl() const {
+    return hash_combine(
+        hash_vector(m_atoms),
+        hash_vector(m_objects),
+        m_vocabulary_info);
+}
 
 const Atom& InstanceInfo::add_atom(PredicateIndex predicate_idx, const ObjectIndices& object_idxs, bool is_static) {
     // predicate related
@@ -65,7 +82,7 @@ const Atom& InstanceInfo::add_atom(const Predicate& predicate, const std::vector
     std::vector<int> object_idxs;
     std::for_each(objects.begin(), objects.end(), [&](const auto& object){ object_idxs.push_back(object.get_index()); });
     if (is_static) {
-        Atom atom = Atom(name, m_static_atoms.size(), predicate.get_index(), object_idxs, is_static);
+        Atom atom = Atom(m_static_atoms.size(), name, predicate.get_index(), object_idxs, is_static);
         auto result = m_static_atom_name_to_index.emplace(atom.get_name(), m_static_atoms.size());
         bool newly_inserted = result.second;
         if (!newly_inserted) {
@@ -74,7 +91,7 @@ const Atom& InstanceInfo::add_atom(const Predicate& predicate, const std::vector
         m_static_atoms.push_back(std::move(atom));
         return m_static_atoms.back();
     } else {
-        Atom atom = Atom(name, m_atoms.size(), predicate.get_index(), object_idxs, is_static);
+        Atom atom = Atom(m_atoms.size(), name, predicate.get_index(), object_idxs, is_static);
         auto result = m_atom_name_to_index.emplace(atom.get_name(), m_atoms.size());
         bool newly_inserted = result.second;
         if (!newly_inserted) {
@@ -96,7 +113,7 @@ const Atom& InstanceInfo::add_atom(const std::string &predicate_name, const std:
         int object_idx = result.first->second;
         bool newly_inserted = result.second;
         if (newly_inserted) {
-            m_objects.push_back(Object(object_name, object_idx));
+            m_objects.push_back(Object(object_idx, object_name));
         }
         object_idxs.push_back(object_idx);
     }
@@ -105,7 +122,7 @@ const Atom& InstanceInfo::add_atom(const std::string &predicate_name, const std:
 
 
 const Object& InstanceInfo::add_object(const std::string& object_name) {
-    Object object = Object(object_name, m_objects.size());
+    Object object = Object(m_objects.size(), object_name);
     auto result = m_object_name_to_index.emplace(object.get_name(), m_objects.size());
     if (!result.second) {
         throw std::runtime_error("InstanceInfo::add_object - object with name ("s + object.get_name() + ") already exists.");
@@ -138,29 +155,6 @@ const Atom& InstanceInfo::add_static_atom(const std::string& predicate_name, con
     return add_atom(predicate_name, object_names, true);
 }
 
-std::string InstanceInfo::compute_repr() const {
-    std::stringstream ss;
-    ss << "InstanceInfo("
-       << "index=" << m_index << ", "
-       << "objects=" << m_objects << ", "
-       << "atoms=" << m_atoms << ", "
-       << "static_atoms=" << m_static_atoms
-       << ")";
-    return ss.str();
-}
-
-std::ostream& operator<<(std::ostream& os, const InstanceInfo& instance) {
-    os << instance.compute_repr();
-    return os;
-}
-
-std::string InstanceInfo::str() const {
-    return compute_repr();
-}
-
-InstanceIndex InstanceInfo::get_index() const {
-    return m_index;
-}
 
 const std::vector<Atom>& InstanceInfo::get_atoms() const {
     return m_atoms;
@@ -202,24 +196,4 @@ void InstanceInfo::clear_static_atoms() {
     m_static_atom_name_to_index.clear();
 }
 
-}
-
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::core::InstanceInfo& t, const unsigned int /* version */) {
-    ar & t.m_vocabulary_info;
-    ar & t.m_index;
-    ar & t.m_objects;
-    ar & t.m_object_name_to_index;
-    ar & t.m_atoms;
-    ar & t.m_atom_name_to_index;
-    ar & t.m_static_atoms;
-    ar & t.m_static_atom_name_to_index;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::core::InstanceInfo& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::core::InstanceInfo& t, const unsigned int version);
 }

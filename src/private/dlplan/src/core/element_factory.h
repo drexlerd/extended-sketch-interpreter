@@ -1,23 +1,47 @@
 #ifndef DLPLAN_SRC_CORE_ELEMENT_FACTORY_H_
 #define DLPLAN_SRC_CORE_ELEMENT_FACTORY_H_
 
-#include "cache.h"
+#include "../../include/dlplan/core/elements/booleans/empty.h"
+#include "../../include/dlplan/core/elements/booleans/inclusion.h"
+#include "../../include/dlplan/core/elements/booleans/nullary.h"
+#include "../../include/dlplan/core/elements/concepts/all.h"
+#include "../../include/dlplan/core/elements/concepts/and.h"
+#include "../../include/dlplan/core/elements/concepts/argument.h"
+#include "../../include/dlplan/core/elements/concepts/bot.h"
+#include "../../include/dlplan/core/elements/concepts/diff.h"
+#include "../../include/dlplan/core/elements/concepts/equal.h"
+#include "../../include/dlplan/core/elements/concepts/not.h"
+#include "../../include/dlplan/core/elements/concepts/one_of.h"
+#include "../../include/dlplan/core/elements/concepts/or.h"
+#include "../../include/dlplan/core/elements/concepts/projection.h"
+#include "../../include/dlplan/core/elements/concepts/primitive.h"
+#include "../../include/dlplan/core/elements/concepts/register.h"
+#include "../../include/dlplan/core/elements/concepts/some.h"
+#include "../../include/dlplan/core/elements/concepts/subset.h"
+#include "../../include/dlplan/core/elements/concepts/top.h"
+#include "../../include/dlplan/core/elements/numericals/concept_distance.h"
+#include "../../include/dlplan/core/elements/numericals/count.h"
+#include "../../include/dlplan/core/elements/numericals/role_distance.h"
+#include "../../include/dlplan/core/elements/numericals/sum_concept_distance.h"
+#include "../../include/dlplan/core/elements/numericals/sum_role_distance.h"
+#include "../../include/dlplan/core/elements/roles/and.h"
+#include "../../include/dlplan/core/elements/roles/compose.h"
+#include "../../include/dlplan/core/elements/roles/diff.h"
+#include "../../include/dlplan/core/elements/roles/identity.h"
+#include "../../include/dlplan/core/elements/roles/inverse.h"
+#include "../../include/dlplan/core/elements/roles/not.h"
+#include "../../include/dlplan/core/elements/roles/or.h"
+#include "../../include/dlplan/core/elements/roles/primitive.h"
+#include "../../include/dlplan/core/elements/roles/restrict.h"
+#include "../../include/dlplan/core/elements/roles/top.h"
+#include "../../include/dlplan/core/elements/roles/transitive_closure.h"
+#include "../../include/dlplan/core/elements/roles/transitive_reflexive_closure.h"
+
 #include "../../include/dlplan/core.h"
+#include "../../include/dlplan/utils/factory.h"
 
 #include <memory>
 #include <string>
-
-
-namespace dlplan::core {
-class SyntacticElementFactoryImpl;
-}
-
-namespace boost::serialization {
-    class access;
-
-    template<typename Archive>
-    void serialize(Archive& ar, dlplan::core::SyntacticElementFactoryImpl& factory, const unsigned int version);
-}
 
 
 namespace dlplan::core {
@@ -25,14 +49,44 @@ class SyntacticElementFactoryImpl {
 private:
     std::shared_ptr<VocabularyInfo> m_vocabulary_info;
 
-    Caches m_caches;
-
-    /// @brief Constructor for serialization.
-    SyntacticElementFactoryImpl();
-
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, SyntacticElementFactoryImpl& factory, const unsigned int version);
+    ReferenceCountedObjectFactory<EmptyBoolean<Concept>
+        , EmptyBoolean<Role>
+        , InclusionBoolean<Concept>
+        , InclusionBoolean<Role>
+        , NullaryBoolean
+        , AllConcept
+        , AndConcept
+        , ArgumentConcept
+        , BotConcept
+        , DiffConcept
+        , EqualConcept
+        , NotConcept
+        , OneOfConcept
+        , OrConcept
+        , PrimitiveConcept
+        , ProjectionConcept
+        , RegisterConcept
+        , SomeConcept
+        , SubsetConcept
+        , TopConcept
+        , ConceptDistanceNumerical
+        , CountNumerical<Concept>
+        , CountNumerical<Role>
+        , RoleDistanceNumerical
+        , SumConceptDistanceNumerical
+        , SumRoleDistanceNumerical
+        , AndRole
+        , ComposeRole
+        , DiffRole
+        , IdentityRole
+        , InverseRole
+        , NotRole
+        , OrRole
+        , PrimitiveRole
+        , RestrictRole
+        , TopRole
+        , TransitiveClosureRole
+        , TransitiveReflexiveClosureRole> m_cache;
 
 public:
     SyntacticElementFactoryImpl(std::shared_ptr<VocabularyInfo> vocabulary_info);

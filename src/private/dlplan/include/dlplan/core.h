@@ -11,9 +11,11 @@
 #include <vector>
 #include <iostream>
 
+#include "common/base.h"
 #include "common/parsers/config.hpp"
 #include "utils/pimpl.h"
 #include "utils/dynamic_bitset.h"
+#include "utils/cache.h"
 
 
 // Forward declarations of this header
@@ -21,6 +23,7 @@ namespace dlplan::core {
 class ConceptDenotation;
 class RoleDenotation;
 class DenotationsCaches;
+struct DenotationsCacheKey;
 class Constant;
 class Predicate;
 class VocabularyInfo;
@@ -28,101 +31,11 @@ class Object;
 class Atom;
 class InstanceInfo;
 class State;
-class BaseElement;
-class Concept;
-class Role;
-class Boolean;
-class Numerical;
 class SyntacticElementFactory;
 class SyntacticElementFactoryImpl;
-}
 
-
-
-// Forward declarations of template spezializations for serialization
-namespace boost::serialization {
-    class access;
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::ConceptDenotation& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::RoleDenotation& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::DenotationsCaches& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Constant& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Predicate& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Object& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Atom& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::State& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, std::pair<const int, dlplan::core::State>& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const std::pair<const int, dlplan::core::State>* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, std::pair<const int, dlplan::core::State>* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::VocabularyInfo& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::InstanceInfo& t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::BaseElement& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const dlplan::core::BaseElement* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, dlplan::core::BaseElement* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Concept& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const dlplan::core::Concept* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, dlplan::core::Concept* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Role& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const dlplan::core::Role* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, dlplan::core::Role* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Boolean& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const dlplan::core::Boolean* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, dlplan::core::Boolean* t, const unsigned int version);
-
-    template <typename Archive>
-    void serialize(Archive& ar, dlplan::core::Numerical& t, const unsigned int version);
-    template<class Archive>
-    void save_construct_data(Archive& ar, const dlplan::core::Numerical* t, const unsigned int version);
-    template<class Archive>
-    void load_construct_data(Archive& ar, dlplan::core::Numerical* t, const unsigned int version);
-
-    template<typename Archive>
-    void serialize(Archive& ar, dlplan::core::SyntacticElementFactory& t, const unsigned int version);
-}
-
-
-namespace dlplan::core {
-using ConceptDenotations = std::vector<const ConceptDenotation*>;
-using RoleDenotations = std::vector<const RoleDenotation*>;
+using ConceptDenotations = std::vector<std::shared_ptr<const ConceptDenotation>>;
+using RoleDenotations = std::vector<std::shared_ptr<const RoleDenotation>>;
 using BooleanDenotations = std::vector<bool>;
 using NumericalDenotations = std::vector<int>;
 
@@ -145,62 +58,53 @@ using ElementIndex = int;
 using InstanceIndex = int;
 
 using StateIndex = int;
+}
 
 
-template<typename T>
-struct hash_impl {
-    std::size_t operator()(const T&) const {
-        throw std::runtime_error("hash::operator() - not implemented.");
-    }
-};
-template<typename T>
-struct hash {
-    std::size_t operator()(const T& value) const {
-        return hash_impl<typename std::remove_const<T>::type>()(value);
-    }
-};
-template<>
-struct hash_impl<State> {
-    size_t operator()(const State& state) const;
-};
-template<>
-struct hash_impl<ConceptDenotation> {
-    size_t operator()(const ConceptDenotation& denotation) const;
-};
-template<>
-struct hash_impl<RoleDenotation> {
-    size_t operator()(const RoleDenotation& denotation) const;
-};
-template<>
-struct hash_impl<ConceptDenotations> {
-    size_t operator()(const ConceptDenotations& denotations) const;
-};
-template<>
-struct hash_impl<RoleDenotations> {
-    size_t operator()(const RoleDenotations& denotations) const;
-};
-template<>
-struct hash_impl<bool> {
-    size_t operator()(const bool& value) const;
-};
-template<>
-struct hash_impl<int> {
-    size_t operator()(const int& value) const;
-};
-template<>
-struct hash_impl<std::vector<bool>> {
-    size_t operator()(const std::vector<bool>& data) const;
-};
-template<>
-struct hash_impl<std::vector<unsigned>> {
-    size_t operator()(const std::vector<unsigned>& data) const;
-};
-template<>
-struct hash_impl<std::vector<int>> {
-    size_t operator()(const std::vector<int>& data) const;
-};
+namespace std {
+    template<>
+    struct hash<dlplan::core::Constant> {
+        std::size_t operator()(const dlplan::core::Constant& constant) const;
+    };
+    template<>
+    struct hash<dlplan::core::Predicate> {
+        std::size_t operator()(const dlplan::core::Predicate& predicate) const;
+    };
+    template<>
+    struct hash<dlplan::core::Object> {
+        std::size_t operator()(const dlplan::core::Object& object) const;
+    };
+    template<>
+    struct hash<dlplan::core::Atom> {
+        std::size_t operator()(const dlplan::core::Atom& atom) const;
+    };
+    template<>
+    struct hash<dlplan::core::State> {
+        size_t operator()(const dlplan::core::State& state) const;
+    };
+    template<>
+    struct hash<dlplan::core::ConceptDenotation> {
+        size_t operator()(const dlplan::core::ConceptDenotation& denotation) const;
+    };
+    template<>
+    struct hash<dlplan::core::RoleDenotation> {
+        size_t operator()(const dlplan::core::RoleDenotation& denotation) const;
+    };
+    template<>
+    struct hash<dlplan::core::ConceptDenotations> {
+        size_t operator()(const dlplan::core::ConceptDenotations& denotations) const;
+    };
+    template<>
+    struct hash<dlplan::core::RoleDenotations> {
+        size_t operator()(const dlplan::core::RoleDenotations& denotations) const;
+    };
+    template<>
+    struct hash<dlplan::core::DenotationsCacheKey> {
+        std::size_t operator()(const dlplan::core::DenotationsCacheKey& key) const;
+    };
+}
 
-
+namespace dlplan::core {
 /// @brief Encapsulates the result of the evaluation of a concept on a state
 ///        and provides functionality to access and modify it.
 ///
@@ -208,28 +112,22 @@ struct hash_impl<std::vector<int>> {
 /// set of object indices represent the elements in the unary relation of the
 /// concept that are true in a given state. Each object index refers to an
 /// object of a common instance info.
-class ConceptDenotation {
+class ConceptDenotation : public Base<ConceptDenotation> {
 private:
     int m_num_objects;
-    dlplan::utils::DynamicBitset<unsigned> m_data;
-
-    /// @brief Constructor for serialization.
-    ConceptDenotation();
-
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, ConceptDenotation& t, const unsigned int version);
+    DynamicBitset<unsigned> m_data;
 
 public:
-    explicit ConceptDenotation(int num_objects);
+    ConceptDenotation(int num_objects);
     ConceptDenotation(const ConceptDenotation& other);
     ConceptDenotation& operator=(const ConceptDenotation& other);
     ConceptDenotation(ConceptDenotation&& other);
     ConceptDenotation& operator=(ConceptDenotation&& other);
     ~ConceptDenotation();
 
-    bool operator==(const ConceptDenotation& other) const ;
-    bool operator!=(const ConceptDenotation& other) const;
+    bool are_equal_impl(const ConceptDenotation& other) const;
+    void str_impl(std::stringstream& out) const;
+    std::size_t hash_impl() const;
 
     ConceptDenotation& operator&=(const ConceptDenotation& other);
     ConceptDenotation& operator|=(const ConceptDenotation& other);
@@ -246,21 +144,6 @@ public:
     bool intersects(const ConceptDenotation& other) const;
     bool is_subset_of(const ConceptDenotation& other) const;
 
-    /// @brief Compute the canonical string representation of this concept denotation.
-    /// @return The canonical string representation of this concept denotation.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the ConceptDenotation class.
-    ///        Outputs a string representation of a ConceptDenotation object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The ConceptDenotation to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const ConceptDenotation& denotation);
-
-    /// @brief Compute a string representation of this concept denotation.
-    /// @return A string representation of this concept denotation.
-    std::string str() const;
-
     /// @brief Compute a vector representation of this concept denotation.
     /// @return A vector of object indices.
     ObjectIndices to_vector() const;
@@ -269,7 +152,6 @@ public:
     /// @return A vector of object indices in ascending order.
     ObjectIndices to_sorted_vector() const;
 
-    std::size_t hash() const;
     int get_num_objects() const;
 };
 
@@ -281,17 +163,10 @@ public:
 /// The set of pairs of object indices represent the elements in the binary
 /// relation of the role that are true in a given state. Each object index
 /// refers to an object of a common instance info.
-class RoleDenotation {
+class RoleDenotation : public Base<RoleDenotation> {
 private:
     int m_num_objects;
-    dlplan::utils::DynamicBitset<unsigned> m_data;
-
-    /// @brief Constructor for serialization.
-    RoleDenotation();
-
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, RoleDenotation& t, const unsigned int version);
+    DynamicBitset<unsigned> m_data;
 
 public:
     explicit RoleDenotation(int num_objects);
@@ -301,8 +176,9 @@ public:
     RoleDenotation& operator=(RoleDenotation&& other);
     ~RoleDenotation();
 
-    bool operator==(const RoleDenotation& other) const ;
-    bool operator!=(const RoleDenotation& other) const;
+    bool are_equal_impl(const RoleDenotation& other) const ;
+    void str_impl(std::stringstream& out) const;
+    std::size_t hash_impl() const;
 
     RoleDenotation& operator&=(const RoleDenotation& other);
     RoleDenotation& operator|=(const RoleDenotation& other);
@@ -319,21 +195,6 @@ public:
     bool intersects(const RoleDenotation& other) const;
     bool is_subset_of(const RoleDenotation& other) const;
 
-    /// @brief Compute the canonical string representation of this role denotation.
-    /// @return The canonical string representation of this role denotation.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the RoleDenotation class.
-    ///        Outputs a string representation of a RoleDenotation object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The RoleDenotation to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const RoleDenotation& denotation);
-
-    /// @brief Compute a string representation of this role denotation.
-    /// @return A string representation of this role denotation.
-    std::string str() const;
-
     /// @brief Compute a vector representation of this role denotation.
     /// @return A vector of pairs of object indices.
     PairsOfObjectIndices to_vector() const;
@@ -342,8 +203,18 @@ public:
     /// @return A vector of pairs of object indices in ascending order by first then second element.
     PairsOfObjectIndices to_sorted_vector() const;
 
-    std::size_t hash() const;
     int get_num_objects() const;
+};
+
+/// @brief Encapsulates a key to store and retrieve denotations from the cache.
+struct DenotationsCacheKey {
+    ElementIndex element;
+    InstanceIndex instance;
+    StateIndex state;
+
+    bool operator==(const DenotationsCacheKey& other) const;
+
+    size_t hash() const;
 };
 
 
@@ -351,71 +222,6 @@ public:
 ///        insert and retrieve denotations into and respectively from the cache.
 class DenotationsCaches {
 public:
-    // We would prefer to keep this private but non-intrusive serialization
-    // with private members requires a forward declaration which we were not able to add.
-    struct Key {
-        ElementIndex element;
-        InstanceIndex instance;
-        StateIndex state;
-
-        bool operator==(const Key& other) const;
-        bool operator!=(const Key& other) const;
-    };
-
-    struct KeyHash  {
-        std::size_t operator()(const Key& key) const;
-    };
-
-    template<typename T>
-    struct Cache {
-        struct UniquePtrHash {
-            std::size_t operator()(const std::unique_ptr<const T>& ptr) const {
-                return dlplan::core::hash<T>()(*ptr);
-            }
-        };
-
-        struct UniquePtrEqual {
-            bool operator()(const std::unique_ptr<const T>& left, const std::unique_ptr<const T>& right) const {
-                return *left == *right;
-            }
-        };
-
-        // We use unique_ptr such that other raw pointers do not become invalid.
-        std::unordered_set<std::unique_ptr<const T>, UniquePtrHash, UniquePtrEqual> uniqueness;
-        std::unordered_map<Key, const T*, KeyHash> per_element_instance_state_mapping;
-
-        /// @brief Inserts denotation uniquely and returns it raw pointer.
-        /// @param denotation
-        /// @return
-        const T* insert_denotation(T&& denotation) {
-            return uniqueness.insert(std::make_unique<T>(std::move(denotation))).first->get();
-        }
-
-        /// @brief Inserts raw pointer of denotation into mapping from element, instance, and state.
-        /// @param element_index
-        /// @param instance_index
-        /// @param state_index
-        /// @param denotation
-        void insert_denotation(ElementIndex element, InstanceIndex instance, StateIndex state, const T* denotation) {
-            Key key{element, instance, state};
-            per_element_instance_state_mapping.emplace(key, denotation);
-        }
-
-        const T* get_denotation(ElementIndex element, InstanceIndex instance, StateIndex state) const {
-            Key key{element, instance, state};
-            auto iter = per_element_instance_state_mapping.find(key);
-            if (iter != per_element_instance_state_mapping.end()) {
-                return iter->second;
-            }
-            return nullptr;
-        }
-
-        void erase_denotation(ElementIndex element, InstanceIndex instance, StateIndex state) {
-            Key key{element, instance, state};
-            per_element_instance_state_mapping.erase(key);
-        }
-
-    };
 
     DenotationsCaches();
     ~DenotationsCaches();
@@ -424,17 +230,16 @@ public:
     DenotationsCaches(DenotationsCaches&& other);
     DenotationsCaches& operator=(DenotationsCaches&& other);
 
-    /// @brief Cache single denotations
-    Cache<ConceptDenotation> concept_denotation_cache;
-    Cache<RoleDenotation> role_denotation_cache;
-    Cache<bool> boolean_denotation_cache;
-    Cache<int> numerical_denotation_cache;
-
-    /// @brief Cache collection of denotations
-    Cache<ConceptDenotations> concept_denotations_cache;
-    Cache<RoleDenotations> role_denotations_cache;
-    Cache<BooleanDenotations> boolean_denotations_cache;
-    Cache<NumericalDenotations> numerical_denotations_cache;
+    // Caches denotations by key, same denotations are shared.
+    SharedObjectCache<DenotationsCacheKey,
+        ConceptDenotation,
+        RoleDenotation,
+        bool,
+        int,
+        ConceptDenotations,
+        RoleDenotations,
+        BooleanDenotations,
+        NumericalDenotations> data;
 };
 
 
@@ -449,23 +254,14 @@ public:
 /// set of natural numbers from 0 to n. Declaring 0 as constant allows us to
 /// define a concept `c_one_of(0)` that always evaluates to 0 for any given
 /// state.
-class Constant {
+class Constant : public Base<Constant> {
 private:
     ///< The name of the constant.
     std::string m_name;
-    ///< The index of the constant.
-    ConstantIndex m_index;
 
-    /// @brief Constructor for serialization.
-    Constant();
-
-    Constant(const std::string& name, ConstantIndex index);
+    Constant(ConstantIndex index, const std::string& name);
 
     friend class VocabularyInfo;
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Constant& t, const unsigned int version);
-
 public:
     Constant(const Constant& other);
     Constant& operator=(const Constant& other);
@@ -473,34 +269,9 @@ public:
     Constant& operator=(Constant&& other);
     ~Constant();
 
-    /// @brief Compute the canonical string representation of this constant.
-    /// @return The canonical string representation of this constant.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the Constant class.
-    ///        Outputs a string representation of a Constant object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The Constant to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const Constant& constant);
-
-    /// @brief Compute a string representation of this constant.
-    /// @return A string representation of this constant.
-    std::string str() const;
-
-    /// @brief Checks if this constant is equal to another constant.
-    /// @param other The constant to compare against.
-    /// @return True if the constants are equal, false otherwise.
-    bool operator==(const Constant& other) const;
-
-    /// @brief Checks if this constant is not equal to another constant.
-    /// @param other The constant to compare against.
-    /// @return True if the constants are not equal, false otherwise.
-    bool operator!=(const Constant& other) const;
-
-    /// @brief Retrieves the index of the constant.
-    /// @return The index of the constant.
-    ConstantIndex get_index() const;
+    bool are_equal_impl(const Constant& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
     /// @brief Retrieves the name of the constant.
     /// @return The name of the constant.
@@ -515,22 +286,15 @@ public:
 /// a relation with variable-sized arity. A predicate can also be defined as
 /// static with meaning that the ground atoms in all instances over the
 /// the common planning domain will also be static.
-class Predicate {
+class Predicate : public Base<Predicate> {
 private:
     std::string m_name;
-    PredicateIndex m_index;
     int m_arity;
     bool m_is_static;
 
-    /// @brief Constructor for serialization.
-    Predicate();
-
-    Predicate(const std::string& name, PredicateIndex index, int arity, bool is_static=false);
+    Predicate(PredicateIndex index, const std::string& name, int arity, bool is_static=false);
 
     friend class VocabularyInfo;
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Predicate& t, const unsigned int version);
 
 public:
     Predicate(const Predicate& other);
@@ -539,25 +303,10 @@ public:
     Predicate& operator=(Predicate&& other);
     ~Predicate();
 
-    bool operator==(const Predicate& other) const;
-    bool operator!=(const Predicate& other) const;
+    bool are_equal_impl(const Predicate& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
-    /// @brief Compute the canonical string representation of this predicate.
-    /// @return The canonical string representation of this predicate.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the Predicate class.
-    ///        Outputs a string representation of a Predicate object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The Predicate to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const Predicate& predicate);
-
-    /// @brief Compute a string representation of this predicate.
-    /// @return A string representation of this predicate.
-    std::string str() const;
-
-    PredicateIndex get_index() const;
     const std::string& get_name() const;
     int get_arity() const;
     bool is_static() const;
@@ -572,7 +321,7 @@ public:
 /// goal versions of predicates with an additional suffix _g. This allows us
 /// to add static atoms for the atoms that are true in the goal and refer to
 /// the goal during the evaluation of elements.
-class VocabularyInfo {
+class VocabularyInfo : public Base<VocabularyInfo> {
 private:
     // we store static and dynamic predicates together.
     std::unordered_map<std::string, PredicateIndex> m_predicate_name_to_index;
@@ -581,9 +330,6 @@ private:
     std::unordered_map<std::string, ConstantIndex> m_constant_name_to_index;
     std::vector<Constant> m_constants;
 
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, VocabularyInfo& t, const unsigned int version);
-
 public:
     VocabularyInfo();
     VocabularyInfo(const VocabularyInfo& other);
@@ -591,6 +337,10 @@ public:
     VocabularyInfo(VocabularyInfo&& other);
     VocabularyInfo& operator=(VocabularyInfo&& other);
     ~VocabularyInfo();
+
+    bool are_equal_impl(const VocabularyInfo& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
     const Predicate& add_predicate(const std::string &name, int arity, bool is_static=false);
     const Constant& add_constant(const std::string& name);
@@ -603,40 +353,18 @@ public:
 
     const Predicate& get_predicate(const std::string& name) const;
     const Constant& get_constant(const std::string& name) const;
-
-    /// @brief Compute the canonical string representation of this vocabulary.
-    /// @return The canonical string representation of this vocabulary.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the VocabularyInfo class.
-    ///        Outputs a string representation of a VocabularyInfo object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The VocabularyInfo to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const VocabularyInfo& vocabulary);
-
-    /// @brief Compute a string representation of this vocabulary.
-    /// @return A string representation of this vocabulary.
-    std::string str() const;
 };
 
 
 /// @brief Encapsulates the representation of an object and provides
 ///        functionality to access it.
-class Object {
+class Object : public Base<Object> {
 private:
     std::string m_name;
-    ObjectIndex m_index;
 
-    /// @brief Constructor for serialization.
-    Object();
-
-    Object(const std::string& name, int index);
+    Object(ObjectIndex index, const std::string& name);
 
     friend class InstanceInfo;
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Object& t, const unsigned int version);
 
 public:
     Object(const Object& other);
@@ -645,52 +373,30 @@ public:
     Object& operator=(Object&& other);
     ~Object();
 
-    bool operator==(const Object& other) const;
-    bool operator!=(const Object& other) const;
+    bool are_equal_impl(const Object& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
-    /// @brief Compute the canonical string representation of this object.
-    /// @return The canonical string representation of this object.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the Object class.
-    ///        Outputs a string representation of a Object object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The Object to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const Object& object);
-
-    /// @brief Compute a string representation of this object.
-    /// @return A string representation of this object.
-    std::string str() const;
-
-    ObjectIndex get_index() const;
     const std::string& get_name() const;
 };
 
 
 /// @brief Encapsulates the representation of an element in the relation
 ///        of a predicate and provides functionality to access it.
-class Atom {
+class Atom : public Base<Atom> {
 private:
     std::string m_name;
-    AtomIndex m_index;
     PredicateIndex m_predicate_index;
     ObjectIndices m_object_indices;
     bool m_is_static;
 
-    /// @brief Constructor for serialization.
-    Atom();
-
-    Atom(const std::string& name,
-        AtomIndex index,
+    Atom(AtomIndex index,
+        const std::string& name,
         PredicateIndex predicate_index,
         const ObjectIndices &object_indices,
         bool is_static=false);
 
     friend class InstanceInfo;
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Atom& t, const unsigned int version);
 
 public:
     Atom(const Atom& other);
@@ -699,26 +405,11 @@ public:
     Atom& operator=(Atom&& other);
     ~Atom();
 
-    bool operator==(const Atom& other) const;
-    bool operator!=(const Atom& other) const;
-
-    /// @brief Compute the canonical string representation of this atom.
-    /// @return The canonical string representation of this atom.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the Atom class.
-    ///        Outputs a string representation of a Atom object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The Atom to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const Atom& atom);
-
-    /// @brief Compute a string representation of this atom.
-    /// @return A string representation of this atom.
-    std::string str() const;
+    bool are_equal_impl(const Atom& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
     const std::string& get_name() const;
-    AtomIndex get_index() const;
     PredicateIndex get_predicate_index() const;
     const ObjectIndices& get_object_indices() const;
     bool is_static() const;
@@ -727,10 +418,9 @@ public:
 
 /// @brief Encapsulates instance specific data and provides functionality
 ///        to access it.
-class InstanceInfo {
+class InstanceInfo : public Base<InstanceInfo> {
 private:
     std::shared_ptr<VocabularyInfo> m_vocabulary_info;
-    InstanceIndex m_index;
 
     std::unordered_map<std::string, AtomIndex> m_atom_name_to_index;
     std::vector<Atom> m_atoms;
@@ -741,24 +431,21 @@ private:
     std::unordered_map<std::string, ObjectIndex> m_object_name_to_index;
     std::vector<Object> m_objects;
 
-    /// @brief Constructor for serialization.
-    InstanceInfo();
-
     const Atom& add_atom(PredicateIndex predicate_index, const ObjectIndices& object_indices, bool is_static);
     const Atom& add_atom(const Predicate& predicate, const std::vector<Object>& objects, bool is_static);
     const Atom& add_atom(const std::string& predicate_name, const std::vector<std::string>& object_names, bool is_static);
 
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, InstanceInfo& t, const unsigned int version);
-
 public:
-    InstanceInfo(std::shared_ptr<VocabularyInfo> vocabulary_info, InstanceIndex index=-1);
+    InstanceInfo(InstanceIndex index, std::shared_ptr<VocabularyInfo> vocabulary_info);
     InstanceInfo(const InstanceInfo& other);
     InstanceInfo& operator=(const InstanceInfo& other);
     InstanceInfo(InstanceInfo&& other);
     InstanceInfo& operator=(InstanceInfo&& other);
     ~InstanceInfo();
+
+    bool are_equal_impl(const InstanceInfo& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
     const Object& add_object(const std::string& object_name);
 
@@ -778,34 +465,12 @@ public:
     const Atom& add_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
     const Atom& add_static_atom(const std::string& predicate_name, const std::vector<std::string>& object_names);
 
-    /// @brief Compute the canonical string representation of this instance.
-    /// @return The canonical string representation of this instance.
-    ///
-    /// @note This representation does not include the recursive conversion of shared resources.
-    ///       Users are responsible for handling shared resources separately if desired.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the InstanceInfo class.
-    ///        Outputs a string representation of a InstanceInfo object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The InstanceInfo to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    ///
-    /// @note This representation does not include the recursive conversion of shared resources.
-    ///       Users are responsible for handling shared resources separately if desired.
-    friend std::ostream& operator<<(std::ostream& os, const InstanceInfo& instance);
-
-    /// @brief Compute a string representation of this instance.
-    /// @return A string representation of this instance.
-    std::string str() const;
-
     /// @brief Removes all atoms from the instance.
     void clear_atoms();
     /// @brief Removes all static atoms from the instance.
     void clear_static_atoms();
 
     std::shared_ptr<VocabularyInfo> get_vocabulary_info() const;
-    InstanceIndex get_index() const;
     const std::vector<Atom>& get_atoms() const;
     const std::vector<Atom>& get_static_atoms() const;
     const std::vector<Object>& get_objects() const;
@@ -816,259 +481,183 @@ public:
 
 /// @brief Encapsulates the atoms that are considered to be true in the
 ///        current situation and provides functionality to access it.
-class State {
+class State : public Base<State> {
 private:
     std::shared_ptr<InstanceInfo> m_instance_info;
     AtomIndices m_atom_indices;
-    // TODO: we could use a shared_ptr here to save some time to copy this
     ObjectIndices m_register_contents;
     std::vector<ConceptDenotation> m_argument_contents;
-    int m_index;
-
-    /// @brief Constructor for serialization.
-    State();
-
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, State& t, const unsigned int version);
 
 public:
-    State(std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms, StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices, StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices, StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info,
+    State(StateIndex index, std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms);
+    State(StateIndex index, std::shared_ptr<InstanceInfo> instance_info, const AtomIndices& atom_indices);
+    State(StateIndex index, std::shared_ptr<InstanceInfo> instance_info, AtomIndices&& atom_indices);
+    State(StateIndex index,
+        std::shared_ptr<InstanceInfo> instance_info,
         const AtomIndices& atom_indices,
         const ObjectIndices& register_contents,
-        const std::vector<ConceptDenotation>& argument_contents,
-        StateIndex index=-1);
-    State(std::shared_ptr<InstanceInfo> instance_info,
+        const std::vector<ConceptDenotation>& argument_contents);
+    State(StateIndex index,
+        std::shared_ptr<InstanceInfo> instance_info,
         AtomIndices&& atom_indices,
         ObjectIndices&& register_contents,
-        std::vector<ConceptDenotation>&& argument_contents,
-        StateIndex index=-1);
+        std::vector<ConceptDenotation>&& argument_contents);
     State(const State& other);
     State& operator=(const State& other);
     State(State&& other);
     State& operator=(State&& other);
     ~State();
 
-    bool operator==(const State& other) const;
-    bool operator!=(const State& other) const;
+    bool are_equal_impl(const State& other) const;
+    void str_impl(std::stringstream& out) const;
+    size_t hash_impl() const;
 
-    /// @brief Compute the canonical string representation of this state.
-    /// @return The canonical string representation of this state.
-    ///
-    /// @note This representation does not include the recursive conversion of shared resources.
-    ///       Users are responsible for handling shared resources separately if desired.
-    std::string compute_repr() const;
-
-    /// @brief Overload of the output stream insertion operator (operator<<) for the State class.
-    ///        Outputs a string representation of a State object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The State to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    ///
-    /// @note This representation does not include the recursive conversion of shared resources.
-    ///       Users are responsible for handling shared resources separately if desired.
-    friend std::ostream& operator<<(std::ostream& os, const State& state);
-
-    /// @brief Compute a string representation of this state.
-    /// @return A string representation of this state.
-    std::string str() const;
-
-    size_t hash() const;
     std::shared_ptr<InstanceInfo> get_instance_info() const;
     const AtomIndices& get_atom_indices() const;
     const ObjectIndices& get_register_contents() const;
     const std::vector<ConceptDenotation>& get_argument_contents() const;
-    StateIndex get_index() const;
 };
 
 
-/// @brief Represents the abstract base class of an element with functionality
-///        for computing string representations and its complexity.
-class BaseElement {
+/// @brief Represents the abstract base class of an element
+///        with functionality for computing some metric scores.
+template<typename Derived>
+class BaseElement : public Base<Derived> {
 protected:
     std::shared_ptr<VocabularyInfo> m_vocabulary_info;
-    ElementIndex m_index;
-    /**
-     * if true then element is evaluated per instance rather than per state.
-     */
     bool m_is_static;
 
-    template <typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, BaseElement& t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::save_construct_data(Archive & ar, const BaseElement* t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::load_construct_data(Archive & ar, BaseElement* t, const unsigned int version);
-
-protected:
-    BaseElement(std::shared_ptr<VocabularyInfo> vocabulary_info, ElementIndex index, bool is_static);
-
 public:
-    virtual ~BaseElement();
+    BaseElement(int index, std::shared_ptr<VocabularyInfo> vocabulary_info, bool is_static)
+        : Base<Derived>(index), m_vocabulary_info(vocabulary_info), m_is_static(is_static) { }
 
-    /**
-     * Returns the complexity of the element
-     * measured in the size of the abstract syntax tree.
-     */
-    virtual int compute_complexity() const = 0;
+    ~BaseElement() { }
 
-    /// @brief Compute the canonical string representation of this element.
-    /// @return The canonical string representation of this element.
-    std::string compute_repr() const;
-    virtual void compute_repr(std::stringstream& ) const = 0;
+    /// @brief Returns the complexity of the element
+    ///        measured in the size of the abstract syntax tree.
+    int compute_complexity() const {
+        return static_cast<const Derived*>(this)->compute_complexity_impl();
+    }
 
     /// @brief Computes a time score for evaluating this element relative to other elements.
     ///        The scoring assumes evaluation that uses caching.
-    /// @return An integer that represents the score.
-    virtual int compute_evaluate_time_score() const = 0;
+    int compute_evaluate_time_score() const {
+        return static_cast<const Derived*>(this)->compute_evaluate_time_score_impl();
+    }
 
-    /// @brief Overload of the output stream insertion operator (operator<<) for the BaseElement class.
-    ///        Outputs a string representation of a BaseElement object to the specified output stream.
-    /// @param os The output stream to write the string representation to.
-    /// @param denotation The BaseElement to be represented as a string.
-    /// @return A reference to the output stream after writing the string representation.
-    friend std::ostream& operator<<(std::ostream& os, const BaseElement& element);
+    /* Getters. */
+    std::shared_ptr<VocabularyInfo> get_vocabulary_info() const { return m_vocabulary_info; }
+    bool is_static() const { return m_is_static; }
+};
 
-    /// @brief Compute a string representation of this element.
-    /// @return A string representation of this element.
-    std::string str() const;
 
-    ElementIndex get_index() const;
-    std::shared_ptr<VocabularyInfo> get_vocabulary_info() const;
-    bool is_static() const;
+
+template<typename Denotation, typename DenotationList>
+class Element : public BaseElement<Element<Denotation, DenotationList>> {
+protected:
+    Element(ElementIndex index, std::shared_ptr<VocabularyInfo> vocabulary_info, bool is_static)
+       : BaseElement<Element<Denotation, DenotationList>>(index, vocabulary_info, is_static) { }
+
+    virtual Denotation evaluate_impl(const State& , DenotationsCaches& ) const = 0;
+    virtual DenotationList evaluate_impl(const States& , DenotationsCaches& ) const = 0;
+
+public:
+    Element(const Element& other) = default;
+    Element& operator=(const Element& other) = default;
+    Element(Element&& other) = default;
+    Element& operator=(Element&& other) = default;
+    ~Element() = default;
+
+    virtual bool are_equal_impl(const Element& other) const = 0;
+    virtual size_t hash_impl() const = 0;
+    virtual void str_impl(std::stringstream& out) const = 0;
+    virtual int compute_complexity_impl() const = 0;
+    virtual int compute_evaluate_time_score_impl() const = 0;
+
+    virtual Denotation evaluate(const State& ) const = 0;
+    std::shared_ptr<const Denotation> evaluate(const State& state, DenotationsCaches& caches) const {
+        auto key = DenotationsCacheKey{ Base<Element<Denotation, DenotationList>>::get_index(), state.get_instance_info()->get_index(), BaseElement<Element<Denotation, DenotationList>>::is_static() ? -1 : state.get_index() };
+        auto cached = caches.data.get<Denotation>(key);
+        if (cached) return cached;
+        auto denotation = caches.data.insert_unique(evaluate_impl(state, caches));
+        caches.data.insert_mapping(key, denotation);
+        return denotation;
+    }
+    std::shared_ptr<const DenotationList> evaluate(const States& states, DenotationsCaches& caches) const {
+        auto key = DenotationsCacheKey{ Base<Element<Denotation, DenotationList>>::get_index(), -1, -1 };
+        auto cached = caches.data.get<DenotationList>(key);
+        if (cached) return cached;
+        auto result_denotations = caches.data.insert_unique(evaluate_impl(states, caches));
+        caches.data.insert_mapping(key, result_denotations);
+        return result_denotations;
+    }
+};
+
+template<typename Denotation, typename DenotationList>
+class ElementLight : public BaseElement<ElementLight<Denotation, DenotationList>> {
+protected:
+    ElementLight(ElementIndex index, std::shared_ptr<VocabularyInfo> vocabulary_info, bool is_static)
+       : BaseElement<ElementLight<Denotation, DenotationList>>(index, vocabulary_info, is_static) { }
+
+    virtual Denotation evaluate_impl(const State& , DenotationsCaches& ) const = 0;
+    virtual DenotationList evaluate_impl(const States& , DenotationsCaches& ) const = 0;
+
+public:
+    ElementLight(const ElementLight& other) = default;
+    ElementLight& operator=(const ElementLight& other) = default;
+    ElementLight(ElementLight&& other) = default;
+    ElementLight& operator=(ElementLight&& other) = default;
+    ~ElementLight() = default;
+
+    virtual bool are_equal_impl(const ElementLight& other) const = 0;
+    virtual size_t hash_impl() const = 0;
+    virtual void str_impl(std::stringstream& out) const = 0;
+    virtual int compute_complexity_impl() const = 0;
+    virtual int compute_evaluate_time_score_impl() const = 0;
+
+    virtual Denotation evaluate(const State& ) const = 0;
+    Denotation evaluate(const State& state, DenotationsCaches& caches) const {
+        auto key = DenotationsCacheKey{ Base<ElementLight<Denotation, DenotationList>>::get_index(), state.get_instance_info()->get_index(), BaseElement<ElementLight<Denotation, DenotationList>>::is_static() ? -1 : state.get_index() };
+        auto cached = caches.data.get<Denotation>(key);
+        // ElementLight dereferences the denotation because it is cheap to copy,
+        // e.g. std::shared_ptr<const int> -> int
+        if (cached) return *cached;  // dereference the cached value
+        auto denotation = caches.data.insert_unique(evaluate_impl(state, caches));
+        caches.data.insert_mapping(key, denotation);
+        return *denotation;  // dereference the newly inserted denoation
+    }
+    std::shared_ptr<const DenotationList> evaluate(const States& states, DenotationsCaches& caches) const {
+        auto key = DenotationsCacheKey{ Base<ElementLight<Denotation, DenotationList>>::get_index(), -1, -1 };
+        auto cached = caches.data.get<DenotationList>(key);
+        if (cached) return cached;
+        auto result_denotations = caches.data.insert_unique(evaluate_impl(states, caches));
+        caches.data.insert_mapping(key, result_denotations);
+        return result_denotations;
+    }
 };
 
 
 /// @brief Represents a concept element that evaluates to a concept denotation
 ///        on a given state. It can also make use of a cache during evaluation.
-class Concept : public BaseElement {
-protected:
-    Concept(std::shared_ptr<VocabularyInfo> vocabulary_info, ElementIndex index, bool is_static);
-
-    virtual ConceptDenotation evaluate_impl(const State& , DenotationsCaches& ) const = 0;
-    virtual ConceptDenotations evaluate_impl(const States& , DenotationsCaches& ) const = 0;
-
-    template <typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Concept& t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::save_construct_data(Archive & ar, const Concept* t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::load_construct_data(Archive & ar, Concept* t, const unsigned int version);
-
-public:
-    Concept(const Concept& other);
-    Concept& operator=(const Concept& other);
-    Concept(Concept&& other);
-    Concept& operator=(Concept&& other);
-    ~Concept() override;
-
-    virtual ConceptDenotation evaluate(const State& ) const = 0;
-    const ConceptDenotation* evaluate(const State& state, DenotationsCaches& caches) const;
-    const ConceptDenotations* evaluate(const States& states, DenotationsCaches& caches) const;
-};
-
+using Concept = Element<ConceptDenotation, ConceptDenotations>;
 
 /// @brief Represents a role element that evaluates to a role denotation
 ///        on a given state. It can also make use of a cache during evaluation.
-class Role : public BaseElement {
-protected:
-    Role(std::shared_ptr<VocabularyInfo> vocabulary_info, ElementIndex index, bool is_static);
-
-    virtual RoleDenotation evaluate_impl(const State& , DenotationsCaches& ) const = 0;
-    virtual RoleDenotations evaluate_impl(const States& , DenotationsCaches& ) const = 0;
-
-    template <typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Role& t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::save_construct_data(Archive & ar, const Role* t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::load_construct_data(Archive & ar, Role* t, const unsigned int version);
-
-public:
-    Role(const Role& other);
-    Role& operator=(const Role& other);
-    Role(Role&& other);
-    Role& operator=(Role&& other);
-    ~Role() override;
-
-    virtual RoleDenotation evaluate(const State& ) const = 0;
-    const RoleDenotation* evaluate(const State& state, DenotationsCaches& caches) const;
-    const RoleDenotations* evaluate(const States& states, DenotationsCaches& caches) const;
-};
-
-
-/// @brief Represents a numerical element that evaluates to an natural number
-///        on a given state. It can also make use of a cache during evaluation.
-class Numerical : public BaseElement {
-protected:
-    Numerical(std::shared_ptr<VocabularyInfo> vocabulary_info, ElementIndex index, bool is_static);
-
-    virtual int evaluate_impl(const State& , DenotationsCaches& ) const = 0;
-    virtual NumericalDenotations evaluate_impl(const States& , DenotationsCaches& ) const = 0;
-
-    template <typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Numerical& t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::save_construct_data(Archive & ar, const Numerical* t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::load_construct_data(Archive & ar, Numerical* t, const unsigned int version);
-
-public:
-    Numerical(const Numerical& other);
-    Numerical& operator=(const Numerical& other);
-    Numerical(Numerical&& other);
-    Numerical& operator=(Numerical&& other);
-    ~Numerical() override;
-
-    virtual int evaluate(const State& ) const = 0;
-    int evaluate(const State& state, DenotationsCaches& caches) const;
-    const NumericalDenotations* evaluate(const States& states, DenotationsCaches& caches) const;
-};
-
+using Role = Element<RoleDenotation, RoleDenotations>;
 
 /// @brief Represents a Boolean element that evaluates to either true or false
 ///        on a given state. It can also make use of a cache during evaluation.
-class Boolean : public BaseElement {
-protected:
-    Boolean(std::shared_ptr<VocabularyInfo> vocabulary_info, ElementIndex index, bool is_static);
+using Boolean = ElementLight<bool, BooleanDenotations>;
 
-    virtual bool evaluate_impl(const State& , DenotationsCaches& ) const = 0;
-    virtual BooleanDenotations evaluate_impl(const States& , DenotationsCaches& ) const = 0;
-
-    template <typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, Boolean& t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::save_construct_data(Archive & ar, const Boolean* t, const unsigned int version);
-    template<class Archive>
-    friend void boost::serialization::load_construct_data(Archive & ar, Boolean* t, const unsigned int version);
-
-public:
-    Boolean(const Boolean& other);
-    Boolean& operator=(const Boolean& other);
-    Boolean(Boolean&& other);
-    Boolean& operator=(Boolean&& other);
-    ~Boolean() override;
-
-    virtual bool evaluate(const State& ) const = 0;
-    bool evaluate(const State& state, DenotationsCaches& caches) const;
-    const BooleanDenotations* evaluate(const States& states, DenotationsCaches& caches) const;
-};
+/// @brief Represents a numerical element that evaluates to an natural number
+///        on a given state. It can also make use of a cache during evaluation.
+using Numerical = ElementLight<int, NumericalDenotations>;
 
 
 /// @brief Provides functionality for the syntactically unique creation of elements.
 class SyntacticElementFactory {
 private:
-    dlplan::utils::pimpl<SyntacticElementFactoryImpl> m_pImpl;
-
-    /// @brief Constructor for serialization
-    SyntacticElementFactory();
-
-    friend class boost::serialization::access;
-    template<typename Archive>
-    friend void boost::serialization::serialize(Archive& ar, SyntacticElementFactory& t, const unsigned int version);
+    pimpl<SyntacticElementFactoryImpl> m_pImpl;
 
 public:
     SyntacticElementFactory(std::shared_ptr<VocabularyInfo> vocabulary_info);

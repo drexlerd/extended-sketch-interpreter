@@ -1,13 +1,9 @@
 #include "../../include/dlplan/policy.h"
 
-#include "condition.h"
-#include "effect.h"
 #include "../../include/dlplan/core.h"
-
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/set.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "../../include/dlplan/utils/hash.h"
+#include "../../include/dlplan/policy/condition.h"
+#include "../../include/dlplan/policy/effect.h"
 
 #include <algorithm>
 #include <sstream>
@@ -15,44 +11,113 @@
 
 namespace dlplan::policy {
 
-Policy::Policy()
-    : m_booleans(Booleans()),
-      m_numericals(Numericals()),
-      m_concepts(Concepts()),
-      m_rules(Rules()),
-      m_index(-1) { }
+struct InsertNamedElementFromCondition : public BaseConditionVisitor {
+    Booleans& booleans;
+    Numericals& numericals;
+    Concepts& concepts;
 
-Policy::Policy(const Rules& rules, PolicyIndex index)
-    : m_rules(rules), m_index(index) {
+    InsertNamedElementFromCondition(Booleans& booleans_, Numericals& numericals_, Concepts& concepts_)
+        : booleans(booleans_), numericals(numericals_), concepts(concepts_) { }
+
+    void visit(const std::shared_ptr<const PositiveBooleanCondition>& condition) override {
+        booleans.insert(condition->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const NegativeBooleanCondition>& condition) override {
+        booleans.insert(condition->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const GreaterNumericalCondition>& condition) override {
+        numericals.insert(condition->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const EqualNumericalCondition>& condition) override {
+        numericals.insert(condition->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const GreaterConceptCondition>& condition) override {
+        concepts.insert(condition->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const EqualConceptCondition>& condition) override {
+        concepts.insert(condition->get_named_element());
+    }
+};
+
+
+struct InsertNamedElementFromEffect : public BaseEffectVisitor {
+    Booleans& booleans;
+    Numericals& numericals;
+    Concepts& concepts;
+
+    InsertNamedElementFromEffect(Booleans& booleans_, Numericals& numericals_, Concepts& concepts_)
+        : booleans(booleans_), numericals(numericals_), concepts(concepts_) { }
+
+    void visit(const std::shared_ptr<const PositiveBooleanEffect>& effect) override {
+        booleans.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const NegativeBooleanEffect>& effect) override {
+        booleans.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const UnchangedBooleanEffect>& effect) override {
+        booleans.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const IncrementNumericalEffect>& effect) override {
+        numericals.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const DecrementNumericalEffect>& effect) override {
+        numericals.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const UnchangedNumericalEffect>& effect) override {
+        numericals.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const GreaterNumericalEffect>& effect) override {
+        numericals.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const EqualNumericalEffect>& effect) override {
+        numericals.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const IncrementConceptEffect>& effect) override {
+        concepts.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const DecrementConceptEffect>& effect) override {
+        concepts.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const UnchangedConceptEffect>& effect) override {
+        concepts.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const GreaterConceptEffect>& effect) override {
+        concepts.insert(effect->get_named_element());
+    }
+
+    void visit(const std::shared_ptr<const EqualConceptEffect>& effect) override {
+        concepts.insert(effect->get_named_element());
+    }
+};
+
+
+Policy::Policy(int identifier, const Rules& rules)
+    : Base<Policy>(identifier), m_rules(rules) {
     // Retrieve boolean and numericals from the rules.
+    InsertNamedElementFromCondition condition_visitor(m_booleans, m_numericals, m_concepts);
+    InsertNamedElementFromEffect effect_visitor(m_booleans, m_numericals, m_concepts);
     for (const auto& rule : m_rules) {
         for (const auto& condition : rule->get_conditions()) {
-            const auto boolean = condition->get_boolean();
-            if (boolean) {
-                m_booleans.insert(boolean);
-            }
-            const auto numerical = condition->get_numerical();
-            if (numerical) {
-                m_numericals.insert(numerical);
-            }
-            const auto concept = condition->get_concept();
-            if (concept) {
-                m_concepts.insert(concept);
-            }
+            condition->accept(condition_visitor);
         }
         for (const auto& effect : rule->get_effects()) {
-            const auto boolean = effect->get_boolean();
-            if (boolean) {
-                m_booleans.insert(boolean);
-            }
-            const auto numerical = effect->get_numerical();
-            if (numerical) {
-                m_numericals.insert(numerical);
-            }
-            const auto concept = effect->get_concept();
-            if (concept) {
-                m_concepts.insert(concept);
-            }
+            effect->accept(effect_visitor);
         }
     }
 }
@@ -66,6 +131,22 @@ Policy::Policy(Policy&& other) = default;
 Policy& Policy::operator=(Policy&& other) = default;
 
 Policy::~Policy() = default;
+
+bool Policy::are_equal_impl(const Policy& other) const {
+    if (this != &other) {
+        return m_booleans == other.m_booleans
+            && m_numericals == other.m_numericals
+            && m_rules == other.m_rules;
+    }
+    return true;
+}
+
+size_t Policy::hash_impl() const {
+    return hash_combine(
+        hash_set(m_booleans),
+        hash_set(m_numericals),
+        hash_set(m_rules));
+}
 
 std::shared_ptr<const Rule> Policy::evaluate(const core::State& source_state, const core::State& target_state) const {
     for (const auto& r : m_rules) {
@@ -123,40 +204,24 @@ std::shared_ptr<const Rule> Policy::evaluate_effects(const core::State& source_s
     return nullptr;
 }
 
-
-std::string Policy::compute_repr() const {
-    // Canonical representation
-    std::stringstream ss;
-    ss << "(:policy\n";
-    std::vector<std::shared_ptr<const Rule>> sorted_rules(m_rules.begin(), m_rules.end());
-    std::sort(sorted_rules.begin(), sorted_rules.end(), [](const auto& r1, const auto& r2){ return r1->compute_repr() < r2->compute_repr(); });
-    for (const auto& r : sorted_rules) {
-        ss << r->compute_repr() << "\n";
-    }
-    ss << ")";
-    return ss.str();
-}
-
-std::string Policy::str() const {
-    std::stringstream ss;
-    ss << "(:policy\n";
-    ss << "(:booleans ";
+void Policy::str_impl(std::stringstream& out) const {
+    out << "(:policy\n";
+    out << "(:booleans ";
     for (const auto& boolean : m_booleans) {
-        ss << "(" << boolean->get_key() << " \"" << boolean->get_boolean()->compute_repr() << "\")";
-        if (boolean != *m_booleans.rbegin()) ss << " ";
+        out << "(" << boolean->get_key() << " \"" << boolean->get_element()->str() << "\")";
+        if (boolean != *m_booleans.rbegin()) out << " ";
     }
-    ss << ")\n";
-    ss << "(:numericals ";
+    out << ")\n";
+    out << "(:numericals ";
     for (const auto& numerical : m_numericals) {
-        ss << "(" << numerical->get_key() << " \"" << numerical->get_numerical()->compute_repr() << "\")";
-        if (numerical != *m_numericals.rbegin()) ss << " ";
+        out << "(" << numerical->get_key() << " \"" << numerical->get_element()->str() << "\")";
+        if (numerical != *m_numericals.rbegin()) out << " ";
     }
-    ss << ")\n";
+    out << ")\n";
     for (const auto& rule : m_rules) {
-        ss << rule->str() << "\n";
+        out << rule->str() << "\n";
     }
-    ss << ")";
-    return ss.str();
+    out << ")";
 }
 
 int Policy::compute_evaluate_time_score() const {
@@ -165,10 +230,6 @@ int Policy::compute_evaluate_time_score() const {
         score += rule->compute_evaluate_time_score();
     }
     return score;
-}
-
-PolicyIndex Policy::get_index() const {
-    return m_index;
 }
 
 const Booleans& Policy::get_booleans() const {
@@ -187,21 +248,4 @@ const Rules& Policy::get_rules() const {
     return m_rules;
 }
 
-}
-
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::policy::Policy& t, const unsigned int /* version */ )
-{
-    ar & t.m_index;
-    ar & t.m_booleans;
-    ar & t.m_numericals;
-    ar & t.m_rules;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::Policy& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::Policy& t, const unsigned int version);
 }

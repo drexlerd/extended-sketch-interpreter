@@ -74,7 +74,7 @@ void LoadRuleImpl::apply(
     const ExtendedState& current_state,
     const std::unordered_map<Concept, int>& register_mapping,
     ExtendedState& successor_state) {
-    const auto denotation = m_concept->get_concept()->evaluate(*current_state.dlplan);
+    const auto denotation = m_concept->get_element()->evaluate(*current_state.dlplan);
     if (denotation.size() == 0) {
         throw std::runtime_error("Tried to load object from empty concept into register");
     }
@@ -86,11 +86,11 @@ void LoadRuleImpl::apply(
         get_memory_state_effect(),
         current_state.mimir,
         std::make_shared<dlplan::core::State>(
+            current_state.dlplan->get_index(),
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
             register_contents,
-            current_state.dlplan->get_argument_contents(),
-            current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
+            current_state.dlplan->get_argument_contents())  // We keep the state the same, hence we cannot use caching
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
@@ -160,20 +160,20 @@ void CallRuleImpl::apply(
     std::cout << "    Arguments: ";
     std::vector<dlplan::core::ConceptDenotation> argument_contents;
     for (const auto& concept : m_call.get_arguments()) {
-        auto denotation = concept->get_concept()->evaluate(*current_state.dlplan);
+        auto denotation = concept->get_element()->evaluate(*current_state.dlplan);
         std::cout << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
         argument_contents.push_back(denotation);
-    } 
+    }
     std::cout << std::endl;
     callee_state = ExtendedState {
         callee->get_extended_sketch()->get_initial_memory_state(),
         current_state.mimir,
         std::make_shared<dlplan::core::State>(
+            current_state.dlplan->get_index(),
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
             register_contents,
-            argument_contents,
-            current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
+            argument_contents)  // We keep the state the same, hence we cannot use caching
     };
     std::cout << "    Initial memory state in callee: " << callee->get_extended_sketch()->get_initial_memory_state()->compute_signature() << std::endl;
 }
@@ -235,7 +235,7 @@ void ActionRuleImpl::apply(
     std::cout << current_state.dlplan->str() << std::endl;
     std::cout << "    Denotations: ";
     for (const auto& concept : m_call.get_arguments()) {
-        dlplan::core::ConceptDenotation denotation = concept->get_concept()->evaluate(*current_state.dlplan);
+        dlplan::core::ConceptDenotation denotation = concept->get_element()->evaluate(*current_state.dlplan);
         denotations.push_back(denotation);
         std::cout << concept->get_key() << "=" << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
     }
@@ -261,11 +261,11 @@ void ActionRuleImpl::apply(
     successor_state.memory = get_memory_state_effect();
     successor_state.mimir = successor_state_mimir;
     successor_state.dlplan = std::make_shared<dlplan::core::State>(
+        current_state.dlplan->get_index(),
         current_state.dlplan->get_instance_info(),
         atom_registry.convert_state(successor_state_mimir),
         current_state.dlplan->get_register_contents(),
-        current_state.dlplan->get_argument_contents(),
-        current_state.dlplan->get_index());
+        current_state.dlplan->get_argument_contents());
     std::cout << "    Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 }
 

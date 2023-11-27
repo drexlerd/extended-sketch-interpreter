@@ -11,10 +11,9 @@
 
 
 namespace dlplan::core {
-ConceptDenotation::ConceptDenotation() : m_num_objects(0), m_data(utils::DynamicBitset(0)) { }
-
+// we assign index undefined since we do not care
 ConceptDenotation::ConceptDenotation(int num_objects)
-    : m_num_objects(num_objects), m_data(utils::DynamicBitset<unsigned>(num_objects)) { }
+    : Base<ConceptDenotation>(std::numeric_limits<int>::max()), m_num_objects(num_objects), m_data(DynamicBitset<unsigned>(num_objects)) { }
 
 ConceptDenotation::ConceptDenotation(const ConceptDenotation& other) = default;
 
@@ -26,15 +25,22 @@ ConceptDenotation& ConceptDenotation::operator=(ConceptDenotation&& other) = def
 
 ConceptDenotation::~ConceptDenotation() = default;
 
-bool ConceptDenotation::operator==(const ConceptDenotation& other) const {
+bool ConceptDenotation::are_equal_impl(const ConceptDenotation& other) const {
     if (this != &other) {
         return this->m_data == other.m_data;
     }
     return true;
 }
 
-bool ConceptDenotation::operator!=(const ConceptDenotation& other) const {
-    return !(*this == other);
+void ConceptDenotation::str_impl(std::stringstream& out) const {
+    out << "ConceptDenotation("
+       << "num_objects=" << m_num_objects << ", "
+       << "object_indices=" << to_sorted_vector()
+       << ")";
+}
+
+std::size_t ConceptDenotation::hash_impl() const {
+    return m_data.hash();
 }
 
 ConceptDenotation& ConceptDenotation::operator&=(const ConceptDenotation& other) {
@@ -92,24 +98,6 @@ bool ConceptDenotation::is_subset_of(const ConceptDenotation& other) const {
     return m_data.is_subset_of(other.m_data);
 }
 
-std::string ConceptDenotation::compute_repr() const {
-    std::stringstream ss;
-    ss << "ConceptDenotation("
-       << "num_objects=" << m_num_objects << ", "
-       << "object_indices=" << to_sorted_vector()
-       << ")";
-    return ss.str();
-}
-
-std::ostream& operator<<(std::ostream& os, const ConceptDenotation& denotation) {
-    os << denotation.compute_repr();
-    return os;
-}
-
-std::string ConceptDenotation::str() const {
-    return compute_repr();
-}
-
 ObjectIndices ConceptDenotation::to_vector() const {
     // In the case of bitset, the to_sorted_vector has best runtime complexity.
     return to_sorted_vector();
@@ -127,27 +115,8 @@ ObjectIndices ConceptDenotation::to_sorted_vector() const {
     return result;
 }
 
-std::size_t ConceptDenotation::hash() const {
-    return m_data.hash();
-}
-
 int ConceptDenotation::get_num_objects() const {
     return m_num_objects;
 }
 
 }
-
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize(Archive& ar, dlplan::core::ConceptDenotation& t, const unsigned int /* version */) {
-    ar & t.m_num_objects;
-    ar & t.m_data;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::core::ConceptDenotation& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::core::ConceptDenotation& t, const unsigned int version);
-}
-

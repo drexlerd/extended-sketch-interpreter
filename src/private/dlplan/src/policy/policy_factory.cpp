@@ -1,7 +1,5 @@
 #include "policy_factory.h"
 
-#include "condition.h"
-#include "effect.h"
 #include "parsers/syntactic/parser.hpp"
 
 #include "../../include/dlplan/policy.h"
@@ -9,8 +7,6 @@
 #include "../../include/dlplan/policy/parsers/semantic/context.hpp"
 #include "../../include/dlplan/policy/parsers/semantic/parser.hpp"
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 #include <stdexcept>
 
@@ -19,9 +15,6 @@ using namespace dlplan;
 
 
 namespace dlplan::policy {
-
-PolicyFactoryImpl::PolicyFactoryImpl() : m_element_factory(nullptr) { }
-
 PolicyFactoryImpl::PolicyFactoryImpl(std::shared_ptr<core::SyntacticElementFactory> element_factory)
     : m_element_factory(element_factory) { }
 
@@ -69,139 +62,143 @@ std::shared_ptr<const Policy> PolicyFactoryImpl::parse_policy(
 }
 
 std::shared_ptr<const NamedBoolean> PolicyFactoryImpl::make_boolean(const std::string& key, const std::shared_ptr<const core::Boolean>& boolean) {
-    auto it = m_caches.m_boolean_cache->insert(std::make_unique<NamedBoolean>(key, boolean));
-    if (!it.second && (it.first->get_boolean() != boolean)) {
+    auto result = m_cache.get_or_create<NamedBoolean>(key, boolean);
+    if (!result.created && (result.object->get_element() != boolean)) {
         throw std::runtime_error("Failed to make boolean because a different boolean with the same key already exists.");
     }
-    return it.first;
+    return result.object;
 }
 
 std::shared_ptr<const NamedNumerical> PolicyFactoryImpl::make_numerical(const std::string& key, const std::shared_ptr<const core::Numerical>& numerical) {
-    auto it = m_caches.m_numerical_cache->insert(std::make_unique<NamedNumerical>(key, numerical));
-    if (!it.second && (it.first->get_numerical() != numerical)) {
+    auto result = m_cache.get_or_create<NamedNumerical>(key, numerical);
+    if (!result.created && (result.object->get_element() != numerical)) {
         throw std::runtime_error("Failed to make numerical because a different numerical with the same key already exists.");
     }
-    return it.first;
+    return result.object;
 }
 
 std::shared_ptr<const NamedConcept> PolicyFactoryImpl::make_concept(const std::string& key, const std::shared_ptr<const core::Concept>& concept_) {
-    auto it = m_caches.m_concept_cache->insert(std::make_unique<NamedConcept>(key, concept_));
-    if (!it.second && (it.first->get_concept() != concept_)) {
+    auto result = m_cache.get_or_create<NamedConcept>(key, concept_);
+    if (!result.created && (result.object->get_element() != concept_)) {
         throw std::runtime_error("Failed to make concept because a different concept with the same key already exists.");
     }
-    return it.first;
+    return result.object;
 }
 
 std::shared_ptr<const NamedRole> PolicyFactoryImpl::make_role(const std::string& key, const std::shared_ptr<const core::Role>& role) {
-    auto it = m_caches.m_role_cache->insert(std::make_unique<NamedRole>(key, role));
-    if (!it.second && (it.first->get_role() != role)) {
+    auto result = m_cache.get_or_create<NamedRole>(key, role);
+    if (!result.created && (result.object->get_element() != role)) {
         throw std::runtime_error("Failed to make role because a different role with the same key already exists.");
     }
-    return it.first;
+    return result.object;
 }
 
 std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_pos_condition(const std::shared_ptr<const NamedBoolean>& boolean) {
-    return m_caches.m_condition_cache->insert(std::make_unique<PositiveBooleanCondition>(boolean, m_caches.m_condition_cache->size())).first;
+    return m_cache.get_or_create<PositiveBooleanCondition>(boolean).object;
 }
 
 std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_neg_condition(const std::shared_ptr<const NamedBoolean>& boolean) {
-    return m_caches.m_condition_cache->insert(std::make_unique<NegativeBooleanCondition>(boolean, m_caches.m_condition_cache->size())).first;
+    return m_cache.get_or_create<NegativeBooleanCondition>(boolean).object;
 }
 
 std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_gt_condition(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_condition_cache->insert(std::make_unique<GreaterNumericalCondition>(numerical, m_caches.m_condition_cache->size())).first;
+    return m_cache.get_or_create<GreaterNumericalCondition>(numerical).object;
 }
 
 std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_eq_condition(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_condition_cache->insert(std::make_unique<EqualNumericalCondition>(numerical, m_caches.m_condition_cache->size())).first;
+    return m_cache.get_or_create<EqualNumericalCondition>(numerical).object;
 }
 
-std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_condition_cache->insert(std::make_unique<GreaterConceptCondition>(concept, m_caches.m_condition_cache->size())).first;
+std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_gt_condition(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<GreaterConceptCondition>(concept_).object;
 }
 
-std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_condition_cache->insert(std::make_unique<EqualConceptCondition>(concept, m_caches.m_condition_cache->size())).first;
+std::shared_ptr<const BaseCondition> PolicyFactoryImpl::make_eq_condition(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<EqualConceptCondition>(concept_).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_pos_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
-    return m_caches.m_effect_cache->insert(std::make_unique<PositiveBooleanEffect>(boolean, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<PositiveBooleanEffect>(boolean).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_neg_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
-    return m_caches.m_effect_cache->insert(std::make_unique<NegativeBooleanEffect>(boolean, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<NegativeBooleanEffect>(boolean).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedBoolean>& boolean) {
-    return m_caches.m_effect_cache->insert(std::make_unique<UnchangedBooleanEffect>(boolean, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<UnchangedBooleanEffect>(boolean).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_inc_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_effect_cache->insert(std::make_unique<IncrementNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<IncrementNumericalEffect>(numerical).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_effect_cache->insert(std::make_unique<DecrementNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<DecrementNumericalEffect>(numerical).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_effect_cache->insert(std::make_unique<UnchangedNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<UnchangedNumericalEffect>(numerical).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_gt_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_effect_cache->insert(std::make_unique<GreaterNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<GreaterNumericalEffect>(numerical).object;
 }
 
 std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_eq_effect(const std::shared_ptr<const NamedNumerical>& numerical) {
-    return m_caches.m_effect_cache->insert(std::make_unique<EqualNumericalEffect>(numerical, m_caches.m_effect_cache->size())).first;
+    return m_cache.get_or_create<EqualNumericalEffect>(numerical).object;
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_effect_cache->insert(std::make_unique<IncrementConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_inc_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<IncrementConceptEffect>(concept_).object;
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_effect_cache->insert(std::make_unique<DecrementConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_dec_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<DecrementConceptEffect>(concept_).object;
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_effect_cache->insert(std::make_unique<UnchangedConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_bot_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<UnchangedConceptEffect>(concept_).object;
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_effect_cache->insert(std::make_unique<GreaterConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_gt_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<GreaterConceptEffect>(concept_).object;
 }
 
-std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept) {
-    return m_caches.m_effect_cache->insert(std::make_unique<EqualConceptEffect>(concept, m_caches.m_effect_cache->size())).first;
+std::shared_ptr<const BaseEffect> PolicyFactoryImpl::make_eq_effect(const std::shared_ptr<const NamedConcept>& concept_) {
+    return m_cache.get_or_create<EqualConceptEffect>(concept_).object;
 }
 
 std::shared_ptr<const Rule> PolicyFactoryImpl::make_rule(const Conditions& conditions, const Effects& effects) {
-    return m_caches.m_rule_cache->insert(std::unique_ptr<Rule>(new Rule(conditions, effects, m_caches.m_rule_cache->size()))).first;
+    return m_cache.get_or_create<Rule>(conditions, effects).object;
 }
 
-std::shared_ptr<const Policy> PolicyFactoryImpl::make_policy(
-    const Rules& rules) {
-    return m_caches.m_policy_cache->insert(std::unique_ptr<Policy>(new Policy(rules, m_caches.m_policy_cache->size()))).first;
+std::shared_ptr<const Policy> PolicyFactoryImpl::make_policy(const Rules& rules) {
+    return m_cache.get_or_create<Policy>(rules).object;
 }
 
 std::shared_ptr<core::SyntacticElementFactory> PolicyFactoryImpl::get_element_factory() const {
     return m_element_factory;
 }
 
+// Explicit template instantiations
 }
 
-
-namespace boost::serialization {
-template<typename Archive>
-void serialize( Archive& ar, dlplan::policy::PolicyFactoryImpl& t, const unsigned int /* version */ )
-{
-    ar & t.m_caches;
-}
-
-template void serialize(boost::archive::text_iarchive& ar,
-    dlplan::policy::PolicyFactoryImpl& t, const unsigned int version);
-template void serialize(boost::archive::text_oarchive& ar,
-    dlplan::policy::PolicyFactoryImpl& t, const unsigned int version);
-
+namespace dlplan {
+template class ReferenceCountedObjectFactory<policy::NamedBoolean
+        , policy::NamedNumerical
+        , policy::NamedConcept
+        , policy::NamedRole
+        , policy::PositiveBooleanCondition
+        , policy::NegativeBooleanCondition
+        , policy::GreaterNumericalCondition
+        , policy::EqualNumericalCondition
+        , policy::PositiveBooleanEffect
+        , policy::NegativeBooleanEffect
+        , policy::UnchangedBooleanEffect
+        , policy::IncrementNumericalEffect
+        , policy::DecrementNumericalEffect
+        , policy::UnchangedNumericalEffect
+        , policy::Rule
+        , policy::Policy>;
 }
