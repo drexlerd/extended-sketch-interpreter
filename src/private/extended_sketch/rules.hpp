@@ -140,6 +140,12 @@ public:
         const ActionCall& call);
     ~ActionRuleImpl() override;
 
+    void apply(
+        const mimir::formalism::ProblemDescription& problem,
+        const ExtendedState& current_state,
+        ExtendedState& successor_state,
+        mimir::formalism::Action& action);
+
     void compute_signature(std::stringstream& out) const override;
 };
 

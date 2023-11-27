@@ -8,6 +8,9 @@
 #include "register.hpp"
 #include "../formalism/state.hpp"
 #include "../dlplan/include/dlplan/core.h"
+#include "../generators/lifted_successor_generator.hpp"
+#include "../planners/atom_registry.hpp"
+#include "../planners/dlplan_utils.hpp"
 
 
 namespace mimir::extended_sketch {
@@ -91,8 +94,8 @@ void LoadRuleImpl::apply(
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
-    std::cout << "  Set content of register " << m_register->get_key() << " to object " << object_name << std::endl;
-    std::cout << "  Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
+    std::cout << "    Set content of register " << m_register->get_key() << " to object " << object_name << std::endl;
+    std::cout << "    Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
 }
 
 void LoadRuleImpl::compute_signature(std::stringstream& out) const {
@@ -146,16 +149,22 @@ void CallRuleImpl::apply(
     ExtendedState& callee_state) {
     // Only memory state of current state changes to m'
     successor_state = current_state;
+    std::cout << "    Set memory state in caller: " << get_memory_state_effect()->compute_signature() << std::endl;
     successor_state.memory = get_memory_state_effect();
     // Get a shared reference to the callee
     callee = m_callee.lock();
+    std::cout << "    Callee: " << callee->get_signature().compute_signature() << std::endl;
     // Initialize the registers with 0
     std::vector<int> register_contents(callee->get_extended_sketch()->get_register_mapping().size(), 0);
     // Evaluate the arguments.
+    std::cout << "    Arguments: ";
     std::vector<dlplan::core::ConceptDenotation> argument_contents;
     for (const auto& concept : m_call.get_arguments()) {
-        argument_contents.push_back(concept->get_concept()->evaluate(*current_state.dlplan));
+        auto denotation = concept->get_concept()->evaluate(*current_state.dlplan);
+        std::cout << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
+        argument_contents.push_back(denotation);
     } 
+    std::cout << std::endl;
     callee_state = ExtendedState {
         callee->get_extended_sketch()->get_initial_memory_state(),
         current_state.mimir,
@@ -166,6 +175,7 @@ void CallRuleImpl::apply(
             argument_contents,
             current_state.dlplan->get_index())  // We keep the state the same, hence we cannot use caching
     };
+    std::cout << "    Initial memory state in callee: " << callee->get_extended_sketch()->get_initial_memory_state()->compute_signature() << std::endl;
 }
 
 const ModuleCall& CallRuleImpl::get_call() const {
@@ -214,6 +224,50 @@ ActionRuleImpl::ActionRuleImpl(
       m_call(call) { }
 
 ActionRuleImpl::~ActionRuleImpl() = default;
+
+void ActionRuleImpl::apply(
+    const mimir::formalism::ProblemDescription& problem,
+    const ExtendedState& current_state,
+    ExtendedState& successor_state,
+    mimir::formalism::Action& action) {
+    mimir::planners::LiftedSchemaSuccessorGenerator schema_successor_generator(m_call.get_action_schema(), problem);
+    std::vector<dlplan::core::ConceptDenotation> denotations;
+    std::cout << current_state.dlplan->str() << std::endl;
+    std::cout << "    Denotations: ";
+    for (const auto& concept : m_call.get_arguments()) {
+        dlplan::core::ConceptDenotation denotation = concept->get_concept()->evaluate(*current_state.dlplan);
+        denotations.push_back(denotation);
+        std::cout << concept->get_key() << "=" << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "    Arguments: ";
+    mimir::formalism::ObjectList object_list;
+    for (size_t i = 0; i < denotations.size(); ++i) {
+        const auto& denotation = denotations[i];
+        if (denotation.empty()) {
+            throw std::runtime_error("Cannot apply action " + m_call.get_action_schema()->name + " because of empty denotation.");
+        }
+        auto object = problem->get_object(denotation.to_sorted_vector().front());
+        std::cout << m_call.get_arguments()[i]->get_key() << "=" << object << " ";
+        object_list.push_back(object);
+    }
+    std::cout << std::endl;
+    action = schema_successor_generator.create_action(std::move(object_list));
+    std::cout << "    Action: " << action << std::endl;
+    auto successor_state_mimir = mimir::formalism::apply(action, current_state.mimir);
+    auto instance_info = current_state.dlplan->get_instance_info();
+    mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);
+
+    successor_state.memory = get_memory_state_effect();
+    successor_state.mimir = successor_state_mimir;
+    successor_state.dlplan = std::make_shared<dlplan::core::State>(
+        current_state.dlplan->get_instance_info(),
+        atom_registry.convert_state(successor_state_mimir),
+        current_state.dlplan->get_register_contents(),
+        current_state.dlplan->get_argument_contents(),
+        current_state.dlplan->get_index());
+    std::cout << "    Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
+}
 
 void ActionRuleImpl::compute_signature(std::stringstream& out) const {
     out << "(:action_rule "

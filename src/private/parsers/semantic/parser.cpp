@@ -137,6 +137,7 @@ static mimir::formalism::ActionSchema parse(const ast::ActionReference& node, co
     auto it = context.action_schema_map.find(action_name);
     if (it == context.action_schema_map.end()) {
         error_handler(node.reference, "undefined action schema " + action_name);
+        throw std::runtime_error("Failed parse.");
     }
     return it->second;
 }
@@ -146,6 +147,10 @@ static ActionCall parse(const ast::ActionCall& node, const error_handler_type& e
     ConceptList arguments;
     for (const auto& child_node : node.arguments) {
         arguments.push_back(dlplan::policy::parse(child_node, error_handler, context.dlplan_context));
+    }
+    if (action_schema->arity != arguments.size()) {
+        error_handler(node, "mismatched number of arguments in action call.");
+        throw std::runtime_error("Failed parse.");
     }
     return ActionCall(action_schema, arguments);
 }

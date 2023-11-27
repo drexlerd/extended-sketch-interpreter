@@ -1,0 +1,38 @@
+(:module
+    (:signature hanoi_entry())
+    (:extended_sketch
+        (:memory_states (m0 m1))
+        (:initial_memory_state m0)
+        (:registers ())
+        (:booleans )
+        (:numericals )
+        (:concepts
+            (P1 "c_one_of(peg1)")
+            (P2 "c_one_of(peg2)")
+            (P3 "c_one_of(peg3)")
+            (L "c_some(r_primitive(next,0,1),c_one_of(peg1))")
+        )
+        (:call_rule (:conditions (:memory m0)) (:effects (:memory m1) (:call hanoi_rec(L, P1, P3, P2))))
+    )
+)
+(:module
+    (:signature hanoi_rec(N, Source, Target, Temp))
+    (:extended_sketch
+        (:memory_states (m0 m1 m2 m3 m4))
+        (:initial_memory_state m0)
+        (:registers (r0))
+        (:booleans )
+        (:numericals )
+        (:concepts
+            (S "c_some(r_primitive(next,0,1),c_argument(0))")
+            (BelowN "c_some(r_primitive(on,1,0),c_argument(0))")
+            (HighestOnTarget "c_or(c_and(c_some(r_transitive_closure(r_primitive(on,0,1)),c_argument(2)),c_primitive(clear,0)),c_and(c_argument(2),c_primitive(clear,0)))")
+        )
+        (:load_rule   (:conditions (:memory m0) (:c_c_gt S)) (:effects (:memory m1) (:load (r0 S))))
+        (:search_rule (:conditions (:memory m0) (:c_c_eq S)) (:effects (:memory m2)))
+        (:call_rule   (:conditions (:memory m1))             (:effects (:memory m2) (:call hanoi_rec(r0, Source, Temp, Target))))
+        (:action_rule (:conditions (:memory m2))             (:effects (:memory m3) (:action move(N, BelowN, HighestOnTarget))))
+        (:call_rule   (:conditions (:memory m3) (:c_c_gt S)) (:effects (:memory m4) (:call hanoi_rec(r0, Temp, Target, Source))))
+        (:search_rule (:conditions (:memory m3) (:c_c_eq S)) (:effects (:memory m4)))
+    )
+)

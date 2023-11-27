@@ -69,12 +69,29 @@ bool ExtendedSketchImpl::try_apply_call_rule(
     ExtendedState& callee_state) const {
     for (const auto& call_rule : m_call_rules) {
         if (call_rule->evaluate_conditions(current_state)) {
+            std::cout << step << ". Apply call rule " << call_rule->compute_signature() << std::endl;
             call_rule->apply(current_state, successor_state, callee, callee_state);
-            std::cout << step << ". Applied call rule " << callee->get_signature().compute_signature() << std::endl;
             return true;
         }
     }
     // cout << "No applicable call rule in memory state " << current_state.memory->compute_signature() << endl;
+    return false;
+}
+
+bool ExtendedSketchImpl::try_apply_action_rule(
+    const mimir::formalism::ProblemDescription& problem,
+    const ExtendedState& current_state,
+    int step,
+    ExtendedState& successor_state,
+    mimir::formalism::Action& action) {
+    for (const auto& action_rule : m_action_rules) {
+        if (action_rule->evaluate_conditions(current_state)) {
+            std::cout << step << ". Apply action rule " << action_rule->compute_signature() << std::endl;
+            action_rule->apply(problem, current_state, successor_state, action);
+            return true;
+        }
+    }
+    // cout << "No applicable action rule in memory state " << current_state.memory->compute_signature() << endl;
     return false;
 }
 

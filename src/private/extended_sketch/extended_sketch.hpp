@@ -60,6 +60,13 @@ public:
         Module& callee,
         ExtendedState& callee_state) const;
 
+    bool try_apply_action_rule(
+        const mimir::formalism::ProblemDescription& problem,
+        const ExtendedState& current_state,
+        int step,
+        ExtendedState& successor_state,
+        mimir::formalism::Action& action);
+
     bool try_apply_search_rule(
         const mimir::formalism::ProblemDescription& problem,
         const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,

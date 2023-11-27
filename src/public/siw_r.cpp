@@ -43,6 +43,16 @@ construct_instance_info(
     shared_ptr<VocabularyInfo> vocabulary_info,
     const ProblemDescription& problem_description) {
     shared_ptr<InstanceInfo> instance_info = make_shared<InstanceInfo>(vocabulary_info);
+    for (const auto& object : problem_description->objects) {
+        instance_info->add_object(object->name);
+    }
+    for (const auto& static_atom : problem_description->get_static_atoms()) {
+        std::vector<std::string> object_names;
+        for (const auto& argument : static_atom->arguments) {
+            object_names.push_back(argument->name);
+        }
+        instance_info->add_static_atom(static_atom->predicate->name, object_names);
+    }
     for (const auto& atom : problem_description->goal) {
         std::vector<std::string> object_names;
         for (const auto& argument : atom->atom->arguments) {

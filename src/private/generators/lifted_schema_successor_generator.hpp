@@ -65,8 +65,6 @@ namespace mimir::planners
 
         formalism::Literal ground_literal(const FlatLiteral& literal, const formalism::ObjectList& terms) const;
 
-        formalism::Action create_action(formalism::ObjectList&& terms) const;
-
         bool nullary_preconditions_hold(const formalism::State& state) const;
 
         bool has_consistent_effect(const formalism::Action& action) const;
@@ -99,6 +97,8 @@ namespace mimir::planners
         bool get_applicable_actions(const std::chrono::high_resolution_clock::time_point end_time,
                                     const formalism::State& state,
                                     formalism::ActionList& out_actions) const;
+
+        formalism::Action create_action(formalism::ObjectList&& terms) const;
     };
 }  // namespace planners
 

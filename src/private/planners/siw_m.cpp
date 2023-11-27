@@ -48,17 +48,16 @@ SIWMSearch::SIWMSearch(
 
 bool SIWMSearch::find_plan(ActionList& plan) {
     std::deque<StackEntry> stack;
+
     auto current_module = m_modules.front();
     auto current_state = current_module->get_extended_sketch()->create_initial_extended_state(m_problem, m_instance_info);
 
-    std::cout << std::endl << "Start SIW_R*" << std::endl;
+    std::cout << std::endl << "Start SIW_M" << std::endl;
     const auto time_start = std::chrono::high_resolution_clock::now();
-
     int step = 0;
     int num_iw_searches = 0;
     while (!literals_hold(m_problem->goal, current_state.mimir)) {
         ++step;
-
         auto extended_sketch = current_module->get_extended_sketch();
 
         /* Internal memory */
@@ -75,22 +74,32 @@ bool SIWMSearch::find_plan(ActionList& plan) {
         ExtendedState callee_state;
         applied = extended_sketch->try_apply_call_rule(current_state, step, successor_state, callee, callee_state);
         if (applied) {
+            std::cout << "Push callee on stack." << std::endl;
             stack.push_back(StackEntry{ current_module, successor_state });
             current_state = callee_state;
             current_module = callee;
-            std::cout << "Push callee on stack." << std::endl;
             continue;
         }
 
 
         /* External memory */
         // Action rule
+        Action action;
+        applied = extended_sketch->try_apply_action_rule(m_problem, current_state, step, successor_state, action);
+        if (applied) {
+            plan.push_back(action);
+            current_state = successor_state;
+            ++statistics.generated;
+            continue;
+        }
 
         // Search rule
         IWSearchStatistics iw_statistics;
-        applied = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, successor_state, plan, iw_statistics);
+        ActionList partial_plan;
+        applied = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, successor_state, partial_plan, iw_statistics);
         if (applied) {
             ++num_iw_searches;
+            plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
             current_state = successor_state;
             statistics += iw_statistics;
             average_effective_arity += iw_statistics.effective_arity;
@@ -98,23 +107,29 @@ bool SIWMSearch::find_plan(ActionList& plan) {
             continue;
         }
 
+       
         if (stack.empty()) {
             std::cout << "Stack emptied without finding solution." << std::endl;
+            for (const auto& action : plan) {
+                std::cout << action << std::endl;
+            }
             return false;
         } else {
+            std::cout << "Pop from stack." << std::endl;
             auto stack_entry = stack.back();
             stack.pop_back();
             current_module =  stack_entry.mod;
-            std::cout << "Pop from stack." << std::endl;
+            current_state.memory = stack_entry.state.memory;
             current_state.dlplan = std::make_shared<dlplan::core::State>(
                 current_state.dlplan->get_instance_info(),
                 current_state.dlplan->get_atom_indices(),
                 stack_entry.state.dlplan->get_register_contents(),
                 stack_entry.state.dlplan->get_argument_contents(),
                 current_state.dlplan->get_index());
-            current_state.memory = stack_entry.state.memory;
             std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl;
         }
+
+        std::cout << std::endl;
     }
     const auto time_end = std::chrono::high_resolution_clock::now();
     statistics.time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
