@@ -296,7 +296,7 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
         concepts = dlplan::policy::parse(node.concepts.value(), error_handler, context.dlplan_context);
     }
     RoleMap roles;
-    if (node.concepts.has_value()) {
+    if (node.roles.has_value()) {
         roles = dlplan::policy::parse(node.roles.value(), error_handler, context.dlplan_context);
     }
 

@@ -114,7 +114,7 @@ namespace mimir::extended_sketch { namespace parser
             > lit(')')
         > lit(')');
 
-    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> dlplan::policy::concept_reference() % lit(',') > lit(')') > lit(')');
+    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> (((lit(":concept") > dlplan::policy::concept_reference()) | (lit(":role") > dlplan::policy::role_reference())) % lit(',')) > lit(')') > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
@@ -129,7 +129,7 @@ namespace mimir::extended_sketch { namespace parser
         > lit(')');
 
     const auto action_reference_def = name;
-    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> ((lit(":concept") > dlplan::policy::concept_reference()) | (lit(":role") > dlplan::policy::role_reference)) % lit(',') > lit(')') > lit(')');
+    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> (dlplan::policy::concept_reference() % lit(',')) > lit(')') > lit(')');
     const auto action_rule_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
@@ -171,10 +171,11 @@ namespace mimir::extended_sketch { namespace parser
         > lit(')');
     const auto extended_sketch_root_def = extended_sketch;
 
+
     const auto signature_def = lit('(') >> lit(":signature")
         > name
             > lit('(')
-                >> -(((lit(":concept") > dlplan::policy::concept_definition()) | (lit(":role") > dlplan::policy::role_definition)) % lit(','))
+                >> (((lit(":concept") > dlplan::policy::concept_definition()) | (lit(":role") > dlplan::policy::role_definition())) % lit(','))
             > lit(')')
         > lit(')');
 

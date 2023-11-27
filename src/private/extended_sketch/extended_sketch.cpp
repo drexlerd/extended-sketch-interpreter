@@ -167,8 +167,10 @@ ExtendedState ExtendedSketchImpl::create_initial_extended_state(
             0,
             instance_info,
             atom_registry.convert_state(current_state),
-            register_contents,
-            std::vector<dlplan::core::ConceptDenotation>{}  // no arguments since it is not wrapped into a module
+            std::make_shared<dlplan::core::StateExtension>(
+                register_contents,
+                std::vector<dlplan::core::ConceptDenotation>{},  // no arguments since it is not wrapped into a module
+                std::vector<dlplan::core::RoleDenotation>{})
         );
     }
     return ExtendedState{

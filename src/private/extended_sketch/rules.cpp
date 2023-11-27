@@ -79,7 +79,7 @@ void LoadRuleImpl::apply(
         throw std::runtime_error("Tried to load object from empty concept into register");
     }
     int object_index = denotation.to_sorted_vector().front();
-    std::vector<int> register_contents = current_state.dlplan->get_register_contents();
+    std::vector<int> register_contents = current_state.dlplan->get_state_extension()->get_register_contents();
     register_contents[register_mapping.at(m_register)] = object_index;
 
     successor_state = ExtendedState {
@@ -89,8 +89,10 @@ void LoadRuleImpl::apply(
             current_state.dlplan->get_index(),
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
-            register_contents,
-            current_state.dlplan->get_concept_argument_contents())  // We keep the state the same, hence we cannot use caching
+            std::make_shared<dlplan::core::StateExtension>(
+                register_contents,
+                current_state.dlplan->get_state_extension()->get_concept_argument_contents(),
+                std::vector<dlplan::core::RoleDenotation>{}))  // We keep the state the same, hence we cannot use caching
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
@@ -172,8 +174,7 @@ void CallRuleImpl::apply(
             current_state.dlplan->get_index(),
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
-            register_contents,
-            argument_contents)  // We keep the state the same, hence we cannot use caching
+            std::make_shared<dlplan::core::StateExtension>(register_contents, argument_contents, std::vector<dlplan::core::RoleDenotation>{}))  // We keep the state the same, hence we cannot use caching
     };
     std::cout << "    Initial memory state in callee: " << callee->get_extended_sketch()->get_initial_memory_state()->compute_signature() << std::endl;
 }
@@ -264,8 +265,7 @@ void ActionRuleImpl::apply(
         current_state.dlplan->get_index(),
         current_state.dlplan->get_instance_info(),
         atom_registry.convert_state(successor_state_mimir),
-        current_state.dlplan->get_register_contents(),
-        current_state.dlplan->get_concept_argument_contents());
+        current_state.dlplan->get_state_extension());
     std::cout << "    Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 }
 

@@ -16,6 +16,10 @@ const ConceptList& ModuleCall::get_concept_arguments() const {
     return m_concept_arguments;
 }
 
+const RoleList& ModuleCall::get_role_arguments() const {
+    return m_role_arguments;
+}
+
 std::string ModuleCall::compute_signature() const {
     std::stringstream ss;
     ss << m_name
