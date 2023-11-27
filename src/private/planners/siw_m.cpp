@@ -126,10 +126,10 @@ bool SIWMSearch::find_plan(ActionList& plan) {
                 current_state.dlplan->get_atom_indices(),
                 stack_entry.state.dlplan->get_register_contents(),
                 stack_entry.state.dlplan->get_argument_contents());
-            std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl;
+            std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl << std::endl;
+            continue;
         }
-
-        std::cout << std::endl;
+        return false;
     }
     const auto time_end = std::chrono::high_resolution_clock::now();
     statistics.time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();

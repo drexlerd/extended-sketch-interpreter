@@ -67,6 +67,7 @@ bool SIWRSearch::find_plan(ActionList& plan) {
             maximum_effective_arity = std::max(maximum_effective_arity, iw_statistics.effective_arity);
             continue;
         }
+        return false;
     }
     const auto time_end = std::chrono::high_resolution_clock::now();
     statistics.time_search_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_start).count();
