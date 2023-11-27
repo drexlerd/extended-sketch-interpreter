@@ -215,6 +215,10 @@ std::shared_ptr<const Role>SyntacticElementFactory::make_and_role(const std::sha
     return m_pImpl->make_and_role(role_left, role_right);
 }
 
+std::shared_ptr<const Role> SyntacticElementFactory::make_argument_role(int pos) {
+    return m_pImpl->make_argument_role(pos);
+}
+
 std::shared_ptr<const Role>SyntacticElementFactory::make_compose_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right) {
     return m_pImpl->make_compose_role(role_left, role_right);
 }

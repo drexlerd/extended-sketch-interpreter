@@ -4,7 +4,7 @@
 namespace dlplan::core {
 
 void RegisterConcept::compute_result(const State& state, ConceptDenotation& result) const {
-    const auto& register_content = state.get_register_contents();
+    const auto& register_content = state.get_state_extension()->get_register_contents();
     if (m_pos < 0 || m_pos >= static_cast<int>(register_content.size())) {
         throw std::runtime_error("RegisterConcept::compute_result - register index out of bounds.");
     }

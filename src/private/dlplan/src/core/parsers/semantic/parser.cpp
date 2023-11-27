@@ -353,6 +353,12 @@ parse(const ast::AndRole& node, const error_handler_type& error_handler, Syntact
 }
 
 std::shared_ptr<const core::Role>
+parse(const ast::ArgumentRole& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context) {
+    return context.make_argument_role(
+        parse(node.pos, error_handler, context));
+}
+
+std::shared_ptr<const core::Role>
 parse(const ast::ComposeRole& node, const error_handler_type& error_handler, SyntacticElementFactory& context) {
     return context.make_compose_role(
         parse(node.role_left, error_handler, context),

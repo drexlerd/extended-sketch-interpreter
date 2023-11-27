@@ -42,6 +42,7 @@ namespace dlplan::core::ast
     struct SumConceptDistanceNumerical;
     struct SumRoleDistanceNumerical;
     struct AndRole;
+    struct ArgumentRole;
     struct ComposeRole;
     struct DiffRole;
     struct IdentityRole;
@@ -117,6 +118,7 @@ namespace dlplan::core::ast
     struct Role : x3::position_tagged, x3::variant<
         x3::forward_ast<PrimitiveRole>,
         x3::forward_ast<AndRole>,
+        x3::forward_ast<ArgumentRole>,
         x3::forward_ast<ComposeRole>,
         x3::forward_ast<DiffRole>,
         x3::forward_ast<IdentityRole>,
@@ -260,6 +262,10 @@ namespace dlplan::core::ast
     struct AndRole : x3::position_tagged {
         Role role_left;
         Role role_right;
+    };
+
+    struct ArgumentRole : x3::position_tagged {
+        Position pos;
     };
 
     struct ComposeRole : x3::position_tagged {

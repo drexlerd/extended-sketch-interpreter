@@ -479,14 +479,30 @@ public:
 };
 
 
+class StateExtension {
+private:
+    ObjectIndices m_register_contents;
+    std::vector<ConceptDenotation> m_concept_argument_contents;
+    std::vector<RoleDenotation> m_role_argument_contents;
+
+public:
+    StateExtension(
+        const ObjectIndices& register_contents,
+        const std::vector<ConceptDenotation>& concept_argument_contents,
+        const std::vector<RoleDenotation>& role_argument_contents);
+
+    const ObjectIndices& get_register_contents() const;
+    const std::vector<ConceptDenotation>& get_concept_argument_contents() const;
+    const std::vector<RoleDenotation>& get_role_argument_contents() const;
+};
+
 /// @brief Encapsulates the atoms that are considered to be true in the
 ///        current situation and provides functionality to access it.
 class State : public Base<State> {
 private:
     std::shared_ptr<InstanceInfo> m_instance_info;
     AtomIndices m_atom_indices;
-    ObjectIndices m_register_contents;
-    std::vector<ConceptDenotation> m_argument_contents;
+    std::shared_ptr<const StateExtension> m_state_extension;
 
 public:
     State(StateIndex index, std::shared_ptr<InstanceInfo> instance_info, const std::vector<Atom>& atoms);
@@ -495,13 +511,11 @@ public:
     State(StateIndex index,
         std::shared_ptr<InstanceInfo> instance_info,
         const AtomIndices& atom_indices,
-        const ObjectIndices& register_contents,
-        const std::vector<ConceptDenotation>& argument_contents);
+        const std::shared_ptr<const StateExtension>& state_extension);
     State(StateIndex index,
         std::shared_ptr<InstanceInfo> instance_info,
         AtomIndices&& atom_indices,
-        ObjectIndices&& register_contents,
-        std::vector<ConceptDenotation>&& argument_contents);
+        std::shared_ptr<const StateExtension> state_extension);
     State(const State& other);
     State& operator=(const State& other);
     State(State&& other);
@@ -514,8 +528,7 @@ public:
 
     std::shared_ptr<InstanceInfo> get_instance_info() const;
     const AtomIndices& get_atom_indices() const;
-    const ObjectIndices& get_register_contents() const;
-    const std::vector<ConceptDenotation>& get_argument_contents() const;
+    const std::shared_ptr<const StateExtension>& get_state_extension() const;
 };
 
 
@@ -739,6 +752,7 @@ public:
     std::shared_ptr<const Numerical> make_sum_role_distance_numerical(const std::shared_ptr<const Role>& role_from, const std::shared_ptr<const Role>& role, const std::shared_ptr<const Role>& role_to);
 
     std::shared_ptr<const Role> make_and_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
+    std::shared_ptr<const Role> make_argument_role(int pos);
     std::shared_ptr<const Role> make_compose_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Role> make_diff_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Role> make_identity_role(const std::shared_ptr<const Concept>& concept_);

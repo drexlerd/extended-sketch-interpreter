@@ -277,6 +277,10 @@ std::shared_ptr<const Role> SyntacticElementFactoryImpl::make_and_role(const std
     return m_cache.get_or_create<AndRole>(m_vocabulary_info, role_left, role_right).object;
 }
 
+std::shared_ptr<const Role> SyntacticElementFactoryImpl::make_argument_role(int pos) {
+    return m_cache.get_or_create<ArgumentRole>(m_vocabulary_info, pos).object;
+}
+
 std::shared_ptr<const Role> SyntacticElementFactoryImpl::make_compose_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right) {
     return m_cache.get_or_create<ComposeRole>(m_vocabulary_info, role_left, role_right).object;
 }

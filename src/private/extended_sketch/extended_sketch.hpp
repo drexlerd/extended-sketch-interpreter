@@ -19,7 +19,8 @@ private:
 
     BooleanMap m_booleans;
     NumericalMap m_numericals;
-    ConceptMap m_concepts;  // TODO: add registers to concepts
+    ConceptMap m_concepts;
+    RoleMap m_roles;
 
     LoadRuleList m_load_rules;
     CallRuleList m_call_rules;
@@ -39,6 +40,7 @@ public:
         const BooleanMap& booleans,
         const NumericalMap& numericals,
         const ConceptMap& concepts,
+        const RoleMap& roles,
         const LoadRuleList& load_rules,
         const CallRuleList& call_rules,
         const ActionRuleList& action_rules,
@@ -96,6 +98,7 @@ extern ExtendedSketch make_extended_sketch(
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
+    const RoleMap& roles,
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,

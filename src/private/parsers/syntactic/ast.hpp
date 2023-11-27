@@ -6,6 +6,7 @@
 
 #include <boost/spirit/home/x3/support/ast/position_tagged.hpp>
 #include <boost/spirit/home/x3/support/ast/variant.hpp>
+#include <boost/optional.hpp>
 
 #include "../../dlplan/include/dlplan/policy/parsers/syntactic/ast.hpp"
 
@@ -96,7 +97,7 @@ namespace mimir::extended_sketch::ast
 
     struct ModuleCall : x3::position_tagged {
         Name name;
-        std::vector<dlplan::policy::ast::ConceptReference> arguments;
+        std::vector<boost::variant<dlplan::policy::ast::ConceptReference, dlplan::policy::ast::RoleReference>> arguments;
     };
 
     struct CallRule : x3::position_tagged {
@@ -150,9 +151,10 @@ namespace mimir::extended_sketch::ast
         MemoryStates memory_states;
         InitialMemoryState initial_memory_state;
         Registers registers;
-        dlplan::policy::ast::Booleans booleans;
-        dlplan::policy::ast::Numericals numericals;
-        dlplan::policy::ast::Concepts concepts;
+        boost::optional<dlplan::policy::ast::Booleans> booleans;
+        boost::optional<dlplan::policy::ast::Numericals> numericals;
+        boost::optional<dlplan::policy::ast::Concepts> concepts;
+        boost::optional<dlplan::policy::ast::Roles> roles;
         Rules rules;
     };
 
@@ -160,7 +162,7 @@ namespace mimir::extended_sketch::ast
     /* Signature entry */
     struct Signature : x3::position_tagged {
         Name name;
-        std::vector<dlplan::policy::ast::ConceptDefinition> parameters;
+        std::vector<boost::variant<dlplan::policy::ast::ConceptDefinition, dlplan::policy::ast::RoleDefinition>> parameters;
     };
 
     struct Module : x3::position_tagged {

@@ -20,6 +20,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
+    const RoleMap& roles,
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
@@ -33,6 +34,7 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_booleans(booleans),
       m_numericals(numericals),
       m_concepts(concepts),
+      m_roles(roles),
       m_load_rules(load_rules),
       m_call_rules(call_rules),
       m_action_rules(action_rules),
@@ -219,6 +221,11 @@ std::string ExtendedSketchImpl::compute_signature() const {
         ss << "(" << pair.first << " \"" << pair.second->get_element()->str() << "\") ";
     }
     ss << ")\n";  // concepts
+    ss << "(:roles ";
+    for (const auto& pair : m_roles) {
+        ss << "(" << pair.first << " \"" << pair.second->get_element()->str() << "\") ";
+    }
+    ss << ")\n";  // roles
     for (const auto& load_rule : m_load_rules) {
         ss << load_rule->compute_signature() << "\n";
     }
@@ -241,6 +248,7 @@ ExtendedSketch make_extended_sketch(
     const BooleanMap& booleans,
     const NumericalMap& numericals,
     const ConceptMap& concepts,
+    const RoleMap& roles,
     const LoadRuleList& load_rules,
     const CallRuleList& call_rules,
     const ActionRuleList& action_rules,
@@ -251,7 +259,7 @@ ExtendedSketch make_extended_sketch(
     const std::unordered_map<Concept, int>& register_mapping) {
     return std::make_shared<ExtendedSketchImpl>(
         memory_states, initial_memory_state,
-        booleans, numericals, concepts,
+        booleans, numericals, concepts, roles,
         load_rules, call_rules, action_rules, search_rules,
         sketches_by_memory_state, search_rule_by_rule_by_memory_state,
         load_rules_by_memory_state, register_mapping);

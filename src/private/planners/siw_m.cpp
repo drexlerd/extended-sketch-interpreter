@@ -125,7 +125,7 @@ bool SIWMSearch::find_plan(ActionList& plan) {
                 current_state.dlplan->get_instance_info(),
                 current_state.dlplan->get_atom_indices(),
                 stack_entry.state.dlplan->get_register_contents(),
-                stack_entry.state.dlplan->get_argument_contents());
+                stack_entry.state.dlplan->get_concept_argument_contents());
             std::cout << "Execution back to parent module and memory state " << current_state.memory->compute_signature() << std::endl << std::endl;
             continue;
         }

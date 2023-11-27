@@ -70,6 +70,8 @@ extern std::shared_ptr<const core::Numerical> parse(const ast::SumRoleDistanceNu
 
 extern std::shared_ptr<const core::Role> parse(const ast::AndRole& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 
+extern std::shared_ptr<const core::Role> parse(const ast::ArgumentRole& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
+
 extern std::shared_ptr<const core::Role> parse(const ast::ComposeRole& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);
 
 extern std::shared_ptr<const core::Role> parse(const ast::DiffRole& node, const dlplan::error_handler_type& error_handler, SyntacticElementFactory& context);

@@ -3,7 +3,7 @@
 
 namespace dlplan::core {
 void ArgumentConcept::compute_result(const State& state, ConceptDenotation& result) const {
-    const auto& argument_concents = state.get_argument_contents();
+    const auto& argument_concents = state.get_state_extension()->get_concept_argument_contents();
     if (m_pos < 0 || m_pos >= static_cast<int>(argument_concents.size())) {
         throw std::runtime_error("ArgumentConcept::compute_result - register index out of bounds.");
     }

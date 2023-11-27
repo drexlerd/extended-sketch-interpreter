@@ -25,6 +25,7 @@
 #include "../../include/dlplan/core/elements/numericals/sum_concept_distance.h"
 #include "../../include/dlplan/core/elements/numericals/sum_role_distance.h"
 #include "../../include/dlplan/core/elements/roles/and.h"
+#include "../../include/dlplan/core/elements/roles/argument.h"
 #include "../../include/dlplan/core/elements/roles/compose.h"
 #include "../../include/dlplan/core/elements/roles/diff.h"
 #include "../../include/dlplan/core/elements/roles/identity.h"
@@ -76,6 +77,7 @@ private:
         , SumConceptDistanceNumerical
         , SumRoleDistanceNumerical
         , AndRole
+        , ArgumentRole
         , ComposeRole
         , DiffRole
         , IdentityRole
@@ -141,6 +143,7 @@ public:
     std::shared_ptr<const Numerical> make_sum_role_distance_numerical(const std::shared_ptr<const Role>& role_from, const std::shared_ptr<const Role>& role, const std::shared_ptr<const Role>& role_to);
 
     std::shared_ptr<const Role> make_and_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
+    std::shared_ptr<const Role> make_argument_role(int pos);
     std::shared_ptr<const Role> make_compose_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Role> make_diff_role(const std::shared_ptr<const Role>& role_left, const std::shared_ptr<const Role>& role_right);
     std::shared_ptr<const Role> make_identity_role(const std::shared_ptr<const Concept>& concept_);

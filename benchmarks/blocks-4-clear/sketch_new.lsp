@@ -1,5 +1,5 @@
 (:extended_sketch
-    (:memory_states (m0 m1 m2))
+    (:memory_states (m0 m1))
     (:initial_memory_state m0)
     (:registers (r0))
     (:booleans

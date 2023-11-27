@@ -108,13 +108,34 @@ static LoadRule parse(const ast::LoadRule& node, const error_handler_type& error
 }
 
 
+class ArgumentVisitor {
+private:
+    const error_handler_type& error_handler;
+    Context& context;
+    ConceptList &concept_arguments;
+    RoleList &role_arguments;
+
+public:
+    ArgumentVisitor(const error_handler_type& error_handler_, Context& context_, ConceptList &concept_arguments_, RoleList &role_arguments_)
+        : error_handler(error_handler_), context(context_), concept_arguments(concept_arguments_), role_arguments(role_arguments_) { }
+
+    void operator()(const dlplan::policy::ast::ConceptReference& node) const {
+        concept_arguments.push_back(dlplan::policy::parse(node, error_handler, context.dlplan_context));
+    }
+
+    void operator()(const dlplan::policy::ast::RoleReference& node) const {
+        role_arguments.push_back(dlplan::policy::parse(node, error_handler, context.dlplan_context));
+    }
+};
+
 static ModuleCall parse(const ast::ModuleCall& node, const error_handler_type& error_handler, Context& context) {
     const auto name = parse(node.name, error_handler, context);
-    ConceptList arguments;
+    ConceptList concept_arguments;
+    RoleList role_arguments;
     for (const auto& child_node : node.arguments) {
-        arguments.push_back(dlplan::policy::parse(child_node, error_handler, context.dlplan_context));
+        boost::apply_visitor(ArgumentVisitor(error_handler, context, concept_arguments, role_arguments), child_node);
     }
-    return ModuleCall(name, arguments);
+    return ModuleCall(name, concept_arguments, role_arguments);
 }
 
 static CallRule parse(const ast::CallRule& node, const error_handler_type& error_handler, Context& context) {
@@ -262,9 +283,22 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     auto memory_states = parse(node.memory_states, error_handler, context);
     auto initial_memory_state = parse(node.initial_memory_state, error_handler, context);
     auto registers = parse(node.registers, error_handler, context);
-    auto booleans = dlplan::policy::parse(node.booleans, error_handler, context.dlplan_context);
-    auto numericals = dlplan::policy::parse(node.numericals, error_handler, context.dlplan_context);
-    auto concepts = dlplan::policy::parse(node.concepts, error_handler, context.dlplan_context);
+    BooleanMap booleans;
+    if (node.booleans.has_value()) {
+        booleans = dlplan::policy::parse(node.booleans.value(), error_handler, context.dlplan_context);
+    }
+    NumericalMap numericals;
+    if (node.numericals.has_value()) {
+        numericals = dlplan::policy::parse(node.numericals.value(), error_handler, context.dlplan_context);
+    }
+    ConceptMap concepts;
+    if (node.concepts.has_value()) {
+        concepts = dlplan::policy::parse(node.concepts.value(), error_handler, context.dlplan_context);
+    }
+    RoleMap roles;
+    if (node.concepts.has_value()) {
+        roles = dlplan::policy::parse(node.roles.value(), error_handler, context.dlplan_context);
+    }
 
     auto [load_rules, call_rules, action_rules, search_rules] = parse(node.rules, error_handler, context);
 
@@ -294,7 +328,7 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
     }
     return make_extended_sketch(
         memory_states, initial_memory_state,
-        booleans, numericals, concepts,
+        booleans, numericals, concepts, roles,
         load_rules, call_rules, action_rules, search_rules,
         sketches_by_memory_state,
         search_rule_by_rule_by_memory_state,
@@ -303,19 +337,48 @@ ExtendedSketch parse(const ast::ExtendedSketch& node, const error_handler_type& 
 }
 
 
+class ParameterVisitor {
+private:
+    const error_handler_type& error_handler;
+    Context& context;
+    ConceptList &concept_parameters;
+    RoleList &role_parameters;
+
+public:
+    ParameterVisitor(const error_handler_type& error_handler_, Context& context_, ConceptList &concept_parameters_, RoleList &role_parameters_)
+        : error_handler(error_handler_), context(context_), concept_parameters(concept_parameters_), role_parameters(role_parameters_) { }
+
+    void operator()(const dlplan::policy::ast::ConceptDefinition& node) const {
+        const auto key = dlplan::policy::parse(node, error_handler, context.dlplan_context);
+
+        auto concept_ = context.dlplan_context.policy_factory.make_concept(key,
+            context.dlplan_context.policy_factory.get_element_factory()->make_argument_concept(concept_parameters.size()));
+
+        concept_parameters.push_back(concept_);
+
+        context.dlplan_context.concepts.emplace(key, dlplan::policy::NamedConceptData{node, concept_});
+    }
+
+    void operator()(const dlplan::policy::ast::RoleDefinition& node) const {
+        const auto key = dlplan::policy::parse(node, error_handler, context.dlplan_context);
+
+        auto role_ = context.dlplan_context.policy_factory.make_role(key,
+            context.dlplan_context.policy_factory.get_element_factory()->make_argument_role(role_parameters.size()));
+
+        role_parameters.push_back(role_);
+
+        context.dlplan_context.roles.emplace(key, dlplan::policy::NamedRoleData{node, role_});
+    }
+};
+
 static Signature parse(const ast::Signature& node, const error_handler_type& error_handler, Context& context) {
     const auto name = parse(node.name, error_handler, context);
-    ConceptList parameters;
+    ConceptList concept_parameters;
+    RoleList role_parameters;
     for (const auto& child_node : node.parameters) {
-        auto key = dlplan::policy::parse(child_node, error_handler, context.dlplan_context);
-
-        auto concept = context.dlplan_context.policy_factory.make_concept(key,
-            context.dlplan_context.policy_factory.get_element_factory()->make_argument_concept(parameters.size()));
-
-        parameters.push_back(concept);
-        context.dlplan_context.concepts.emplace(key, dlplan::policy::NamedConceptData{child_node, concept});
+        boost::apply_visitor(ParameterVisitor(error_handler, context, concept_parameters, role_parameters), child_node);
     }
-    return Signature(name, parameters);
+    return Signature(name, concept_parameters, role_parameters);
 }
 
 Module parse(const ast::Module& node, const dlplan::error_handler_type& error_handler, Context& context) {
@@ -330,13 +393,13 @@ void resolve_function_calls(
     std::unordered_map<std::string, Module> signature_to_module;
     for (const auto& module : modules) {
         std::stringstream signature_ss;
-        signature_ss << module->get_signature().get_name() << " " << module->get_signature().get_parameters().size();
+        signature_ss << module->get_signature().get_name() << " " << module->get_signature().get_concept_parameters().size() << " " << module->get_signature().get_role_parameters().size();
         signature_to_module[signature_ss.str()] = module;
     }
     for (auto& module : modules) {
         for (auto& call_rule : module->get_extended_sketch()->get_call_rules()) {
             std::stringstream call_ss;
-            call_ss << call_rule->get_call().get_name() << " " << call_rule->get_call().get_arguments().size();
+            call_ss << call_rule->get_call().get_name() << " " << call_rule->get_call().get_concept_arguments().size()<< " " << call_rule->get_call().get_role_arguments().size();
             auto it = signature_to_module.find(call_ss.str());
             if (it == signature_to_module.end()) {
                 // TODO: we want access to the error_handler and ast nodes here to point to the file.

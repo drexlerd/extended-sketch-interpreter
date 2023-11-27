@@ -151,7 +151,7 @@ namespace mimir::planners
                             instance_info_,
                             atom_registry.convert_state(successor_state),
                             initial_state.dlplan->get_register_contents(),
-                            initial_state.dlplan->get_argument_contents())
+                            initial_state.dlplan->get_concept_argument_contents())
                     }
                 };
 
@@ -271,7 +271,7 @@ namespace mimir::planners
                         instance_info_,
                         atom_registry.convert_state(state),
                         initial_state.dlplan->get_register_contents(),
-                        initial_state.dlplan->get_argument_contents()),
+                        initial_state.dlplan->get_concept_argument_contents()),
                 }
             };
             auto applicable_actions = successor_generator_->get_applicable_actions(state);
@@ -313,7 +313,7 @@ namespace mimir::planners
                                 instance_info_,
                                 atom_registry.convert_state(successor_state),
                                 initial_state.dlplan->get_register_contents(),
-                                initial_state.dlplan->get_argument_contents())
+                                initial_state.dlplan->get_concept_argument_contents())
                         }
                     };
                     if (test_prune(state_data.extended_state.dlplan->get_atom_indices(), successor_state_data.extended_state.dlplan->get_atom_indices(), novelty_table))
@@ -382,7 +382,7 @@ namespace mimir::planners
                     instance_info_,
                     atom_registry.convert_state(initial_state.mimir),
                     initial_state.dlplan->get_register_contents(),
-                    initial_state.dlplan->get_argument_contents())
+                    initial_state.dlplan->get_concept_argument_contents())
         };
         ExtendedSketchGoalTest goal_test = ExtendedSketchGoalTest(problem_, instance_info_, sketch, initial_state_prime);
 

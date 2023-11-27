@@ -38,6 +38,7 @@ BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::RoleDistanceNumerical, role_left, r
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::SumConceptDistanceNumerical, concept_left, role, concept_right)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::SumRoleDistanceNumerical, role_left, role, role_right)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::AndRole, role_left, role_right)
+BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::ArgumentRole, pos)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::ComposeRole, role_left, role_right)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::DiffRole, role_left, role_right)
 BOOST_FUSION_ADAPT_STRUCT(dlplan::core::ast::IdentityRole, concept_)

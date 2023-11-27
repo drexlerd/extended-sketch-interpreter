@@ -90,7 +90,7 @@ void LoadRuleImpl::apply(
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
             register_contents,
-            current_state.dlplan->get_argument_contents())  // We keep the state the same, hence we cannot use caching
+            current_state.dlplan->get_concept_argument_contents())  // We keep the state the same, hence we cannot use caching
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
@@ -159,7 +159,7 @@ void CallRuleImpl::apply(
     // Evaluate the arguments.
     std::cout << "    Arguments: ";
     std::vector<dlplan::core::ConceptDenotation> argument_contents;
-    for (const auto& concept : m_call.get_arguments()) {
+    for (const auto& concept : m_call.get_concept_arguments()) {
         auto denotation = concept->get_element()->evaluate(*current_state.dlplan);
         std::cout << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
         argument_contents.push_back(denotation);
@@ -265,7 +265,7 @@ void ActionRuleImpl::apply(
         current_state.dlplan->get_instance_info(),
         atom_registry.convert_state(successor_state_mimir),
         current_state.dlplan->get_register_contents(),
-        current_state.dlplan->get_argument_contents());
+        current_state.dlplan->get_concept_argument_contents());
     std::cout << "    Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 }
 

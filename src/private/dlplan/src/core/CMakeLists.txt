@@ -30,6 +30,7 @@ target_sources(dlplancore
         elements/numericals/sum_concept_distance.cpp
         elements/numericals/sum_role_distance.cpp
         elements/roles/and.cpp
+        elements/roles/argument.cpp
         elements/roles/compose.cpp
         elements/roles/diff.cpp
         elements/roles/identity.cpp

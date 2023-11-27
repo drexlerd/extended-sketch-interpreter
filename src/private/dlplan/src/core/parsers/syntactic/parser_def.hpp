@@ -62,6 +62,7 @@ namespace dlplan::core::parser
     struct SumConceptDistanceNumericalClass;
     struct SumRoleDistanceNumericalClass;
     struct AndRoleClass;
+    struct ArgumentRoleClass;
     struct ComposeRoleClass;
     struct DiffRoleClass;
     struct IdentityRoleClass;
@@ -168,6 +169,9 @@ namespace dlplan::core::parser
 
     x3::rule<AndRoleClass, ast::AndRole> const
         and_role = "and_role";
+
+    x3::rule<ArgumentRoleClass, ast::ArgumentRole> const
+        argument_role = "argument_role";
 
     x3::rule<ComposeRoleClass, ast::ComposeRole> const
         compose_role = "compose_role";
@@ -290,6 +294,8 @@ namespace dlplan::core::parser
 
     const auto and_role_def = lit("r_and") > lit('(') > role > lit(',') > role > lit(')');
 
+    const auto argument_role_def = lit("r_argument") > lit('(') > position > lit(')');
+
     const auto compose_role_def = lit("r_compose") > lit('(') > role > lit(',') > role > lit(')');
 
     const auto diff_role_def = lit("r_diff") > lit('(') > role > lit(',') > role > lit(')');
@@ -324,7 +330,7 @@ namespace dlplan::core::parser
     const auto numerical_root_def = eps > numerical;
 
     // Note: non recursive comes first, i.e., primitive_role
-    const auto role_def = primitive_role | and_role | compose_role | diff_role | identity_role | inverse_role | not_role | or_role | restrict_role | top_role | transitive_closure_role | transitive_reflexive_closure_role;
+    const auto role_def = primitive_role | and_role | argument_role | compose_role | diff_role | identity_role | inverse_role | not_role | or_role | restrict_role | top_role | transitive_closure_role | transitive_reflexive_closure_role;
     const auto role_root_def = eps > role;
 
     const auto concept_or_role_def = concept_ | role;
@@ -344,7 +350,7 @@ namespace dlplan::core::parser
         empty_boolean, inclusion_boolean, nullary_boolean,
         all_concept, and_concept, argument_concept, bot_concept, diff_concept, equal_concept, not_concept, one_of_concept, or_concept, primitive_concept, projection_concept, register_concept, some_concept, subset_concept, top_concept,
         concept_distance_numerical, count_numerical, role_distance_numerical, sum_concept_distance_numerical, sum_role_distance_numerical,
-        and_role, compose_role, diff_role, identity_role, inverse_role, not_role, or_role, primitive_role, restrict_role, top_role, transitive_closure_role, transitive_reflexive_closure_role)
+        and_role, argument_role, compose_role, diff_role, identity_role, inverse_role, not_role, or_role, primitive_role, restrict_role, top_role, transitive_closure_role, transitive_reflexive_closure_role)
 
     ///////////////////////////////////////////////////////////////////////////
     // Annotation and Error handling
@@ -378,6 +384,7 @@ namespace dlplan::core::parser
     struct SumConceptDistanceNumericalClass : x3::annotate_on_success {};
     struct SumRoleDistanceNumericalClass : x3::annotate_on_success {};
     struct AndRoleClass : x3::annotate_on_success {};
+    struct ArgumentRoleClass : x3::annotate_on_success {};
     struct ComposeRoleClass : x3::annotate_on_success {};
     struct DiffRoleClass : x3::annotate_on_success {};
     struct IdentityRoleClass : x3::annotate_on_success {};

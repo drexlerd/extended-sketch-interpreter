@@ -8,6 +8,7 @@
 #include "../dlplan/include/dlplan/core.h"
 #include "../dlplan/include/dlplan/policy.h"
 
+#include <boost/variant.hpp>
 
 
 namespace mimir::extended_sketch {
@@ -22,6 +23,10 @@ namespace mimir::extended_sketch {
     using Concept = std::shared_ptr<const dlplan::policy::NamedConcept>;
     using ConceptList = std::vector<Concept>;
     using ConceptMap = std::unordered_map<std::string, Concept>;
+
+    using Role = std::shared_ptr<const dlplan::policy::NamedRole>;
+    using RoleList = std::vector<Role>;
+    using RoleMap = std::unordered_map<std::string, Role>;
 
     using Condition = std::shared_ptr<const dlplan::policy::BaseCondition>;
     using ConditionList = std::vector<Condition>;

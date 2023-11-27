@@ -11,6 +11,26 @@
 
 namespace dlplan::core {
 
+StateExtension::StateExtension(
+    const ObjectIndices& register_contents,
+    const std::vector<ConceptDenotation>& concept_argument_contents,
+    const std::vector<RoleDenotation>& role_argument_contents)
+    : m_register_contents(register_contents)
+    , m_concept_argument_contents(concept_argument_contents)
+    , m_role_argument_contents(role_argument_contents) { }
+
+const ObjectIndices& StateExtension::get_register_contents() const {
+    return m_register_contents;
+}
+
+const std::vector<ConceptDenotation>& StateExtension::get_concept_argument_contents() const {
+    return m_concept_argument_contents;
+}
+
+const std::vector<RoleDenotation>& StateExtension::get_role_argument_contents() const {
+    return m_role_argument_contents;
+}
+
 static AtomIndices sort_atom_idxs(AtomIndices&& atom_idxs) {
     std::sort(atom_idxs.begin(), atom_idxs.end());
     return atom_idxs;
@@ -53,25 +73,21 @@ State::State(
     StateIndex index,
     std::shared_ptr<InstanceInfo> instance_info,
     const AtomIndices& atom_indices,
-    const ObjectIndices& register_contents,
-    const std::vector<ConceptDenotation>& argument_contents)
+    const std::shared_ptr<const StateExtension>& state_extension)
     : Base<State>(index),
       m_instance_info(instance_info),
       m_atom_indices(std::is_sorted(atom_indices.begin(), atom_indices.end()) ? atom_indices : sort_atom_idxs(AtomIndices(atom_indices))),
-      m_register_contents(register_contents),
-      m_argument_contents(argument_contents) { }
+      m_state_extension(state_extension) { }
 
 State::State(
     StateIndex index,
     std::shared_ptr<InstanceInfo> instance_info,
     AtomIndices&& atom_indices,
-    ObjectIndices&& register_contents,
-    std::vector<ConceptDenotation>&& argument_contents)
+    std::shared_ptr<const StateExtension> state_extension)
     : Base<State>(index),
       m_instance_info(instance_info),
       m_atom_indices(std::is_sorted(atom_indices.begin(), atom_indices.end()) ? atom_indices : sort_atom_idxs(std::move(atom_indices))),
-      m_register_contents(std::move(register_contents)),
-      m_argument_contents(std::move(argument_contents)) { }
+      m_state_extension(state_extension) { }
 
 State::State(const State&) = default;
 
@@ -116,12 +132,8 @@ const AtomIndices& State::get_atom_indices() const {
     return m_atom_indices;
 }
 
-const ObjectIndices& State::get_register_contents() const {
-    return m_register_contents;
-}
-
-const std::vector<ConceptDenotation>& State::get_argument_contents() const {
-    return m_argument_contents;
+const std::shared_ptr<const StateExtension>& State::get_state_extension() const {
+    return m_state_extension;
 }
 
 }
