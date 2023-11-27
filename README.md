@@ -1,4 +1,7 @@
-# extended-sketch-interpreter
+# Interpreter for Extended Sketches SIW_R* and Module SIW_M
+
+This repository contains an implementation of an interpreter
+for extended sketches SIW_R* and for modules SIW_M.
 
 ## Dependencies
 
@@ -7,25 +10,46 @@
 ## Installation
 
 ```console
-cmake -S . -B build
-cmake --build build -j16
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j24
 ```
 
-## Running
+## Running SIW_R
 
-### Successful parse
+### Blocks-clear
 
 ```console
-./build/src/planner/siwm  benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/success.sketch
+./build/src/public/siw_r benchmarks/blocks-4-clear/domain.pddl benchmarks/blocks-4-clear/p-200-0.pddl benchmarks/blocks-4-clear/sketch.lsp
 ```
 
-### Failed parse
+### Blocks 4 on
 
 ```console
-./build/src/planner/siwm  benchmarks/gripper/domain.pddl benchmarks/gripper/p-1-0.pddl benchmarks/gripper/fail.sketch
+./build/src/public/siw_r benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-4-0.pddl benchmarks/blocks-4-on/sketch.lsp
 ```
 
-### Implementation Details:
+## Running SIW_M
 
-- Declaration must come before its definition or reference.
-However, no requirement on the order in which definition or reference occurs.
+### Blocks-Clear
+
+```console
+./build/src/public/siw_m benchmarks/blocks-4-clear/domain.pddl benchmarks/blocks-4-clear/p-200-0.pddl benchmarks/blocks-4-clear/module.lsp
+```
+
+### Blocks-On
+
+```console
+./build/src/public/siw_m benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-4-0.pddl benchmarks/blocks-4-on/module.lsp
+```
+
+### Blocks-Tower
+
+```console
+./build/src/public/siw_m benchmarks/blocks-4-tower/domain.pddl benchmarks/blocks-4-tower/p-4-0.pddl benchmarks/blocks-4-tower/module.lsp
+```
+
+### Hanoi
+
+```console
+./build/src/public/siw_m benchmarks/hanoi/domain.pddl benchmarks/hanoi/p10.pddl benchmarks/hanoi/module.lsp
+```
