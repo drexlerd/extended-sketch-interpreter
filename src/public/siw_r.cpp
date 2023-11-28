@@ -96,6 +96,9 @@ int main(int argc, char** argv) {
     if (solution_found) {
         std::cout << std::endl << "Solution found!" << std::endl;
         siwr.print_statistics();
+        for (const auto& action : plan) {
+            std::cout << action << std::endl;
+        }
     } else {
         std::cout << std::endl << "No solution found!" << std::endl;
     }
