@@ -7,8 +7,25 @@
         (:booleans )
         (:numericals )
         (:concepts
-            (W "c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on,0,1)),c_top))")
+            (W "c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top))")
             (M "c_some(r_primitive(on_g,0,1),c_register(0))")
+            (R1 "c_register(1)")
+        )
+        (:roles (On_g "r_primitive(on_g,0,1)"))
+        (:call_rule (:conditions (:memory m0))             (:effects (:memory m3) (:call tower-rec((:concepts (W)) (:roles (On_g))))))
+    )
+)
+(:module
+    (:signature tower-rec((:concepts (X)) (:roles (On_g))))
+    (:extended_sketch
+        (:memory_states (m0 m1 m2 m3 m4))
+        (:initial_memory_state m0)
+        (:registers (r0 r1))
+        (:booleans )
+        (:numericals )
+        (:concepts
+            (W "c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_argument(0)),c_some(r_transitive_closure(r_primitive(on,0,1)),c_argument(0)))")
+            (M "c_some(r_argument(0),c_register(0))")
             (R1 "c_register(1)")
         )
         (:load_rule (:conditions (:memory m0) (:c_c_gt W)) (:effects (:memory m1) (:load (r0 W))))

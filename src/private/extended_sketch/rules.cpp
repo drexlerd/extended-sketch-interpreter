@@ -92,7 +92,7 @@ void LoadRuleImpl::apply(
             std::make_shared<dlplan::core::StateExtension>(
                 register_contents,
                 current_state.dlplan->get_state_extension()->get_concept_argument_contents(),
-                std::vector<dlplan::core::RoleDenotation>{}))  // We keep the state the same, hence we cannot use caching
+                current_state.dlplan->get_state_extension()->get_role_argument_contents()))  // We keep the state the same, hence we cannot use caching
     };
 
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
@@ -160,11 +160,18 @@ void CallRuleImpl::apply(
     std::vector<int> register_contents(callee->get_extended_sketch()->get_register_mapping().size(), 0);
     // Evaluate the arguments.
     std::cout << "    Arguments: ";
-    std::vector<dlplan::core::ConceptDenotation> argument_contents;
+    std::vector<dlplan::core::ConceptDenotation> concept_argument_contents;
     for (const auto& concept : m_call.get_concept_arguments()) {
         auto denotation = concept->get_element()->evaluate(*current_state.dlplan);
         std::cout << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
-        argument_contents.push_back(denotation);
+        concept_argument_contents.push_back(denotation);
+    }
+    std::cout << std::endl;
+    std::vector<dlplan::core::RoleDenotation> role_argument_contents;
+    for (const auto& role : m_call.get_role_arguments()) {
+        auto denotation = role->get_element()->evaluate(*current_state.dlplan);
+        std::cout << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
+        role_argument_contents.push_back(denotation);
     }
     std::cout << std::endl;
     callee_state = ExtendedState {
@@ -174,7 +181,7 @@ void CallRuleImpl::apply(
             current_state.dlplan->get_index(),
             current_state.dlplan->get_instance_info(),
             current_state.dlplan->get_atom_indices(),
-            std::make_shared<dlplan::core::StateExtension>(register_contents, argument_contents, std::vector<dlplan::core::RoleDenotation>{}))  // We keep the state the same, hence we cannot use caching
+            std::make_shared<dlplan::core::StateExtension>(register_contents, concept_argument_contents, role_argument_contents))  // We keep the state the same, hence we cannot use caching
     };
     std::cout << "    Initial memory state in callee: " << callee->get_extended_sketch()->get_initial_memory_state()->compute_signature() << std::endl;
 }

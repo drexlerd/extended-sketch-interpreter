@@ -188,7 +188,7 @@ namespace mimir::planners
         g_value_ = 0;
         g_values_.clear();
         dlplan::novelty::NoveltyTable novelty_table(
-            std::make_shared<dlplan::novelty::NoveltyBase>(atom_registry.get_num_reached_ranks(), arity));
+            std::make_shared<dlplan::novelty::NoveltyBase>(atom_registry.get_num_reached_ranks() + 1000, arity));
 
         {
             uint32_t initial_state_index = state_registry.find_state(initial_state.mimir);
@@ -345,6 +345,8 @@ namespace mimir::planners
                             return true;
                         }
                     }
+                } else {
+                    ++statistics.pruned;
                 }
             }
         }

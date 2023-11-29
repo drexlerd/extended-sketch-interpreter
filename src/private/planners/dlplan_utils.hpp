@@ -16,6 +16,10 @@ extern std::string to_string(
     const dlplan::core::InstanceInfo& instance_info,
     const dlplan::core::ConceptDenotation& denotation);
 
+extern std::string to_string(
+    const dlplan::core::InstanceInfo& instance_info,
+    const dlplan::core::RoleDenotation& denotation);
+
 }
 
 #endif

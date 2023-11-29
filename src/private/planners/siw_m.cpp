@@ -99,6 +99,7 @@ bool SIWMSearch::find_plan(ActionList& plan) {
         applied = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, successor_state, partial_plan, iw_statistics);
         if (applied) {
             ++num_iw_searches;
+            if (num_iw_searches == 10) return false; 
             plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
             current_state = successor_state;
             statistics += iw_statistics;
