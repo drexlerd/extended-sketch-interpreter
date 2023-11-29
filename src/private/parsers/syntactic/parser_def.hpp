@@ -96,7 +96,7 @@ namespace mimir::extended_sketch { namespace parser
     const auto memory_states_def = lit('(') >> lit(":memory_states") > lit('(') >> *memory_state > lit(')') > lit(')');
     const auto initial_memory_state_def = lit('(') >> lit(":initial_memory_state") > memory_state_reference > lit(')');
 
-    const auto registers_def = lit('(') >> lit(":registers") > lit('(') > *dlplan::policy::concept_definition() > lit(')') > lit(')');
+    const auto registers_def = lit('(') >> lit(":registers") > -(lit('(') > *dlplan::policy::concept_definition() > lit(')')) > lit(')');
 
     const auto memory_condition_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
     const auto memory_effect_def = lit('(') >> lit(":memory") > memory_state_reference > lit(')');
@@ -114,7 +114,13 @@ namespace mimir::extended_sketch { namespace parser
             > lit(')')
         > lit(')');
 
-    const auto module_call_def = lit('(') >> lit(":call") > name > lit('(') >> (((lit(":concept") > dlplan::policy::concept_reference()) | (lit(":role") > dlplan::policy::role_reference())) % lit(',')) > lit(')') > lit(')');
+    const auto module_call_def = 
+        lit('(') >> lit(":call") > name 
+            > lit('(') 
+                >> -(lit('(') >> lit(":concepts") > -(lit('(') > *dlplan::policy::concept_reference() > lit(')'))> lit(')'))
+                >> -(lit('(') >> lit(":roles") > -(lit('(') > *dlplan::policy::role_reference() > lit(')')) > lit(')'))
+            > lit(')') 
+        > lit(')');
     const auto call_rule_def =
         lit('(') >> lit(":call_rule")
             > lit('(') > lit(":conditions")
@@ -129,7 +135,7 @@ namespace mimir::extended_sketch { namespace parser
         > lit(')');
 
     const auto action_reference_def = name;
-    const auto action_call_def = lit('(') >> lit(":action") > action_reference > lit('(') >> (dlplan::policy::concept_reference() % lit(',')) > lit(')') > lit(')');
+    const auto action_call_def = lit('(') >> lit(":action") > action_reference > -(lit('(') >> *dlplan::policy::concept_reference() > lit(')')) > lit(')');
     const auto action_rule_def =
         lit('(') >> lit(":action_rule")
             > lit('(') > lit(":conditions")
@@ -162,7 +168,7 @@ namespace mimir::extended_sketch { namespace parser
         > lit(":extended_sketch")
         > memory_states
         > initial_memory_state
-        >> registers
+        > -registers
         > -dlplan::policy::booleans()
         > -dlplan::policy::numericals()
         > -dlplan::policy::concepts()
@@ -175,8 +181,9 @@ namespace mimir::extended_sketch { namespace parser
     const auto signature_def = lit('(') >> lit(":signature")
         > name
             > lit('(')
-                >> (((lit(":concept") > dlplan::policy::concept_definition()) | (lit(":role") > dlplan::policy::role_definition())) % lit(','))
-            > lit(')')
+                >> -(lit('(') >> lit(":concepts") > -(lit('(') > *dlplan::policy::concept_definition() > lit(')')) > lit(')'))
+                >> -(lit('(') >> lit(":roles") > -(lit('(') > *dlplan::policy::role_definition() > lit(')')) > lit(')'))
+            > lit(')') 
         > lit(')');
 
     const auto module__def = lit('(') >> lit(":module")

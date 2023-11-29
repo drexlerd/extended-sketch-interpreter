@@ -23,7 +23,7 @@ BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::MemoryEffect, reference)
 
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::LoadRule, memory_condition, feature_conditions, memory_effect, feature_effects, register_reference, concept_reference)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ExtendedSketchReference, reference)
-BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ModuleCall, name, arguments)
+BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ModuleCall, name, concept_references, role_references)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::CallRule, memory_condition, feature_conditions, memory_effect, feature_effects, call)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ActionReference, reference)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ActionCall, reference, arguments)
@@ -32,7 +32,7 @@ BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::SearchRule, memory_condit
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Rules, rules)
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::ExtendedSketch, memory_states, initial_memory_state, registers, booleans, numericals, concepts, roles, rules)
 
-BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Signature, name, parameters)
+BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Signature, name, concept_parameters, role_parameters)
 
 BOOST_FUSION_ADAPT_STRUCT(mimir::extended_sketch::ast::Module, signature, extended_sketch)
 

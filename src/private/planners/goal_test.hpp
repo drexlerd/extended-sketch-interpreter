@@ -58,7 +58,6 @@ public:
                 std::cout << applicable_rule->str() << std::endl;
             }
         );
-
     }
 
     GoalTestResult test_goal(const StateData& state_data) {
@@ -73,6 +72,9 @@ public:
         // Additional prints for debugging
         DEBUG_CODE(
             std::cout << state_data.extended_state.dlplan->str() << std::endl;
+            for (const auto& boolean : sketch_->get_booleans()) {
+                std::cout << boolean->get_element()->evaluate(*dlplan_initial_state_) << " " << boolean->get_element()->evaluate(*state_data.extended_state.dlplan) << " " << boolean->get_key() << std::endl;
+            }
             for (const auto& numerical : sketch_->get_numericals()) {
                 std::cout << numerical->get_element()->evaluate(*dlplan_initial_state_) << " " << numerical->get_element()->evaluate(*state_data.extended_state.dlplan) << " " << numerical->get_key() << std::endl;
             }

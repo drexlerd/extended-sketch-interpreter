@@ -97,7 +97,8 @@ namespace mimir::extended_sketch::ast
 
     struct ModuleCall : x3::position_tagged {
         Name name;
-        std::vector<boost::variant<dlplan::policy::ast::ConceptReference, dlplan::policy::ast::RoleReference>> arguments;
+        std::vector<dlplan::policy::ast::ConceptReference> concept_references;
+        std::vector<dlplan::policy::ast::RoleReference> role_references;
     };
 
     struct CallRule : x3::position_tagged {
@@ -162,7 +163,8 @@ namespace mimir::extended_sketch::ast
     /* Signature entry */
     struct Signature : x3::position_tagged {
         Name name;
-        std::vector<boost::variant<dlplan::policy::ast::ConceptDefinition, dlplan::policy::ast::RoleDefinition>> parameters;
+        std::vector<dlplan::policy::ast::ConceptDefinition> concept_parameters;
+        std::vector<dlplan::policy::ast::RoleDefinition> role_parameters;
     };
 
     struct Module : x3::position_tagged {
