@@ -7,12 +7,10 @@
         (:booleans )
         (:numericals )
         (:concepts
-            (W "c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top))")
-            (M "c_some(r_primitive(on_g,0,1),c_register(0))")
-            (R1 "c_register(1)")
+            (lowest-misplaced-blocks "c_or(c_diff(c_some(r_primitive(on_g,0,1),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_diff(c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top)),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))))")
         )
         (:roles (On_g "r_primitive(on_g,0,1)"))
-        (:call_rule (:conditions (:memory m0))             (:effects (:memory m3) (:call tower-rec((:concepts (W)) (:roles (On_g))))))
+        (:call_rule (:conditions (:memory m0))             (:effects (:memory m3) (:call tower-rec((:concepts (Lowest-misplaced-block)) (:roles (On_g))))))
     )
 )
 (:module
