@@ -42,6 +42,12 @@ cmake --build build -j24
 ./build/src/public/siw_m benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-4-0.pddl benchmarks/blocks-4-on/module.lsp
 ```
 
+### Blocks-Table
+
+```console
+./build/src/public/siw_m benchmarks/blocks-4-ontable/domain.pddl benchmarks/blocks-4-ontable/p-200-0.pddl benchmarks/blocks-4-ontable/module.lsp
+```
+
 ### Blocks-Tower
 
 ```console
