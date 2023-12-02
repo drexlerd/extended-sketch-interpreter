@@ -25,7 +25,7 @@ cmake --build build -j24
 ### Blocks 4 on
 
 ```console
-./build/src/public/siw_r benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-4-0.pddl benchmarks/blocks-4-on/sketch.lsp
+./build/src/public/siw_r benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-200-0.pddl benchmarks/blocks-4-on/sketch.lsp
 ```
 
 ## Running SIW_M
@@ -39,7 +39,7 @@ cmake --build build -j24
 ### Blocks-On
 
 ```console
-./build/src/public/siw_m benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-4-0.pddl benchmarks/blocks-4-on/module.lsp
+./build/src/public/siw_m benchmarks/blocks-4-on/domain.pddl benchmarks/blocks-4-on/p-200-0.pddl benchmarks/blocks-4-on/module.lsp
 ```
 
 ### Blocks-Table

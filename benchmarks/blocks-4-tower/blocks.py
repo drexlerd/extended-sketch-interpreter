@@ -40,12 +40,17 @@ def main():
 
     element_factory = SyntacticElementFactory(vocabulary)
 
-    concepts = {
-        "well-placed-blocks": element_factory.parse_concept("c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))"),
-        "bottom-most-blocks": element_factory.parse_concept("c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top))"),
-        "bottom-most-misplaced-blocks": element_factory.parse_concept("c_diff(c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top)),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1))))"),
-        "lowest-misplaced-blocks": element_factory.parse_concept("c_or(c_diff(c_some(r_primitive(on_g,0,1),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_diff(c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top)),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))))")
-    }
+    concepts = {}
+    concepts["well-placed-blocks"] = element_factory.parse_concept("c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))")
+    concepts["goal-mentioned-blocks"] = element_factory.parse_concept("c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top)")
+    concepts["misplaced-blocks"] = element_factory.make_diff_concept(concepts["goal-mentioned-blocks"], concepts["well-placed-blocks"])
+    concepts["blocks-in-unfinished-towers"] = element_factory.make_some_concept(element_factory.parse_role("r_transitive_reflexive_closure(r_primitive(on_g,1,0))"), concepts["misplaced-blocks"])
+    concepts["bottom-most-blocks"] = element_factory.parse_concept("c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top))")
+    concepts["bottom-most-misplaced-blocks"] = element_factory.make_diff_concept(concepts["bottom-most-blocks"], concepts["well-placed-blocks"])
+    concepts["lowest-misplaced-aboved-well-placed"] = element_factory.parse_concept("c_diff(c_some(r_primitive(on_g,0,1),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1))))")
+    concepts["lowest-misplaced-blocks"] = element_factory.make_or_concept(concepts["lowest-misplaced-aboved-well-placed"],concepts["bottom-most-misplaced-blocks"])
+    concepts["bottom-most-blocks-in-unfinished-towers"] = element_factory.make_and_concept(concepts["blocks-in-unfinished-towers"], concepts["bottom-most-blocks"])
+
     roles = {}
     boolean = {}
     numericals = {}
