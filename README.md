@@ -54,6 +54,12 @@ cmake --build build -j24
 ./build/src/public/siw_m benchmarks/blocks-4-tower/domain.pddl benchmarks/blocks-4-tower/p-4-0.pddl benchmarks/blocks-4-tower/module.lsp
 ```
 
+### Blocks
+
+```console
+./build/src/public/siw_m benchmarks/blocks-4/domain.pddl benchmarks/blocks-4/p-6-0.pddl benchmarks/blocks-4/module.lsp
+```
+
 ### Hanoi
 
 ```console

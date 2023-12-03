@@ -1,24 +1,25 @@
 (:module
     (:signature entry())
     (:extended_sketch
-        (:memory_states (m0))
+        (:memory_states (m0 m1))
         (:initial_memory_state m0)
-        (:registers ())
+        (:registers (r0))
         (:booleans )
         (:numericals )
         (:concepts
             (lowest-misplaced-blocks "c_or(c_diff(c_some(r_primitive(on_g,0,1),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_diff(c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top)),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))))")
         )
         (:roles (On_g "r_primitive(on_g,0,1)"))
-        (:call_rule (:conditions (:memory m0) (:c_c_gt lowest-misplaced-blocks))             (:effects (:memory m0) (:call tower_rec((:concepts (lowest-misplaced-blocks)) (:roles (On_g))))))
+        (:load_rule (:conditions (:memory m0) (:c_c_gt lowest-misplaced-blocks)) (:effects (:memory m1) (:load (r0 lowest-misplaced-blocks))))
+        (:call_rule (:conditions (:memory m1))                                   (:effects (:memory m0) (:call tower_rec((:concepts (r0)) (:roles (On_g))))))
     )
 )
 (:module
     (:signature tower_rec((:concepts (X)) (:roles (On_g))))
     (:extended_sketch
-        (:memory_states (m0 m1 m2 m3 m4 m5 m6))
+        (:memory_states (m0 m1 m2 m3))
         (:initial_memory_state m0)
-        (:registers (r0 r1 r2))
+        (:registers (r0))
         (:booleans )
         (:numericals )
         (:concepts
@@ -26,11 +27,9 @@
             (M "c_some(r_argument(0),c_register(0))")
         )
         (:load_rule (:conditions (:memory m0) (:c_c_gt X)) (:effects (:memory m1) (:load (r0 X))))
-
-        (:call_rule (:conditions (:memory m1) (:c_c_eq W)) (:effects (:memory m3) (:call on_table((:concepts (r0))))))
-
-        (:call_rule (:conditions (:memory m1) (:c_c_gt W)) (:effects (:memory m3) (:e_c_bot W) (:e_c_bot M) (:call on((:concepts (r0 W))))))
-        (:call_rule (:conditions (:memory m3) (:c_c_gt M)) (:effects (:memory m4) (:call tower_rec((:concepts (M)) (:roles (On_g))))))
+        (:call_rule (:conditions (:memory m1) (:c_c_eq W)) (:effects (:memory m2) (:call on_table((:concepts (r0))))))
+        (:call_rule (:conditions (:memory m1) (:c_c_gt W)) (:effects (:memory m2) (:e_c_bot W) (:e_c_bot M) (:call on((:concepts (r0 W))))))
+        (:call_rule (:conditions (:memory m2) (:c_c_gt M)) (:effects (:memory m3) (:call tower_rec((:concepts (M)) (:roles (On_g))))))
     )
 )
 (:module

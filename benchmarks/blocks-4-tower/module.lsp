@@ -1,20 +1,52 @@
 (:module
     (:signature entry())
     (:extended_sketch
-        (:memory_states (m0 m1 m2 m3 m4))
+        (:memory_states (m0 m1))
         (:initial_memory_state m0)
-        (:registers (r0 r1))
+        (:registers (r0))
         (:booleans )
         (:numericals )
         (:concepts
-            (W "c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on,0,1)),c_top))")
-            (M "c_some(r_primitive(on_g,0,1),c_register(0))")
-            (R1 "c_register(1)")
+            (lowest-misplaced-blocks "c_or(c_diff(c_some(r_primitive(on_g,0,1),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))),c_diff(c_diff(c_some(r_transitive_reflexive_closure(r_primitive(on_g,0,1)),c_top),c_some(r_transitive_closure(r_primitive(on_g,0,1)),c_top)),c_all(r_transitive_reflexive_closure(r_primitive(on,0,1)),c_equal(r_primitive(on_g,0,1),r_primitive(on,0,1)))))")
         )
-        (:load_rule (:conditions (:memory m0) (:c_c_gt W)) (:effects (:memory m1) (:load (r0 W))))
-        (:load_rule (:conditions (:memory m1) (:c_c_gt M)) (:effects (:memory m2) (:load (r1 M))))
-        (:call_rule (:conditions (:memory m2))             (:effects (:memory m3) (:call on((:concepts (r1 r0))))))
-        (:load_rule (:conditions (:memory m3))             (:effects (:memory m1) (:load (r0 R1))))
+        (:roles (On_g "r_primitive(on_g,0,1)"))
+        (:load_rule (:conditions (:memory m0) (:c_c_gt lowest-misplaced-blocks)) (:effects (:memory m1) (:load (r0 lowest-misplaced-blocks))))
+        (:call_rule (:conditions (:memory m1))                                   (:effects (:memory m0) (:call tower_rec((:concepts (r0)) (:roles (On_g))))))
+    )
+)
+(:module
+    (:signature tower_rec((:concepts (X)) (:roles (On_g))))
+    (:extended_sketch
+        (:memory_states (m0 m1 m2 m3))
+        (:initial_memory_state m0)
+        (:registers (r0))
+        (:booleans )
+        (:numericals )
+        (:concepts
+            (W "c_some(r_inverse(r_argument(0)),c_register(0))")
+            (M "c_some(r_argument(0),c_register(0))")
+        )
+        (:load_rule (:conditions (:memory m0) (:c_c_gt X)) (:effects (:memory m1) (:load (r0 X))))
+        (:call_rule (:conditions (:memory m1) (:c_c_eq W)) (:effects (:memory m2) (:call on_table((:concepts (r0))))))
+        (:call_rule (:conditions (:memory m1) (:c_c_gt W)) (:effects (:memory m2) (:e_c_bot W) (:e_c_bot M) (:call on((:concepts (r0 W))))))
+        (:call_rule (:conditions (:memory m2) (:c_c_gt M)) (:effects (:memory m3) (:call tower_rec((:concepts (M)) (:roles (On_g))))))
+    )
+)
+(:module
+    (:signature on_table((:concepts (B1))))
+    (:extended_sketch
+        (:memory_states (m0 m1))
+        (:initial_memory_state m0)
+        (:registers (r0 r1))
+        (:booleans
+            (OnTable "b_empty(c_and(c_primitive(on-table,0),c_argument(0)))")
+        )
+        (:numericals )
+        (:concepts
+            (D "c_some(r_transitive_closure(r_primitive(on,0,1)),c_argument(0))")
+        )
+        (:search_rule (:conditions (:memory m0) (:c_c_gt D))   (:effects (:memory m0) (:e_c_dec D)))
+        (:search_rule (:conditions (:memory m0) (:c_b_pos OnTable)) (:effects (:memory m1) (:e_b_neg OnTable)))
     )
 )
 (:module
@@ -24,15 +56,14 @@
         (:initial_memory_state m0)
         (:registers (r0 r1))
         (:booleans
-            (H "b_empty(c_primitive(holding,0))")
             (On "b_empty(c_and(c_some(r_primitive(on,0,1),c_argument(1)),c_argument(0)))")
         )
         (:numericals )
         (:concepts
-            (C "c_diff(c_or(c_argument(0), c_argument(1)), c_primitive(clear, 0))")
             (D "c_some(r_transitive_closure(r_primitive(on,0,1)),c_or(c_argument(0), c_argument(1)))")
         )
-        (:search_rule (:conditions (:memory m0) (:c_c_gt D))   (:effects (:memory m0) (:e_c_dec D) (:e_b_pos H)))
-        (:search_rule (:conditions (:memory m0) (:c_b_pos On)) (:effects (:memory m1) (:e_b_neg On)))
+        (:search_rule (:conditions (:memory m0) (:c_c_gt D))   (:effects (:memory m0) (:e_b_bot On) (:e_c_dec D)))
+        (:search_rule (:conditions (:memory m0) (:c_c_eq D) (:c_b_pos On)) (:effects (:memory m1) (:e_b_neg On)))
     )
 )
+
