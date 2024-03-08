@@ -45,73 +45,65 @@ ExtendedSketchImpl::ExtendedSketchImpl(
       m_register_mapping(register_mapping) {
 }
 
-bool ExtendedSketchImpl::try_apply_load_rule(
+std::tuple<bool, ExtendedState> ExtendedSketchImpl::try_apply_load_rule(
     const ExtendedState& current_state,
-    int step,
-    ExtendedState& successor_state) const {
+    int step) const {
     auto it1 = m_load_rules_by_memory_state.find(current_state.memory);
     if (it1 != m_load_rules_by_memory_state.end()) {
         for (const auto& load_rule : it1->second) {
             if (load_rule->evaluate_conditions(current_state)) {
                 std::cout << step << ". Apply load rule " << load_rule->compute_signature() << std::endl;
-                load_rule->apply(current_state, m_register_mapping, successor_state);
-                return true;
+                auto successor_state = load_rule->apply(current_state, m_register_mapping);
+                return std::make_tuple(true, successor_state);
             }
         }
     }
     // cout << "No applicable load rule in memory state " << current_state.memory->compute_signature() << endl;
-    return false;
+    return std::make_tuple(false, ExtendedState());
 }
 
-bool ExtendedSketchImpl::try_apply_call_rule(
+std::tuple<bool, ExtendedState, Module, ExtendedState> ExtendedSketchImpl::try_apply_call_rule(
     const ExtendedState& current_state,
-    int step,
-    ExtendedState& successor_state,
-    Module& callee,
-    ExtendedState& callee_state) const {
+    int step) const {
     for (const auto& call_rule : m_call_rules) {
         if (call_rule->evaluate_conditions(current_state)) {
             std::cout << step << ". Apply call rule " << call_rule->compute_signature() << std::endl;
-            call_rule->apply(current_state, successor_state, callee, callee_state);
-            return true;
+            auto [successor_state, callee, callee_state] = call_rule->apply(current_state);
+            return std::make_tuple(true, successor_state, callee, callee_state);
         }
     }
     // cout << "No applicable call rule in memory state " << current_state.memory->compute_signature() << endl;
-    return false;
+    return std::make_tuple(false, ExtendedState(), Module(), ExtendedState());
 }
 
-bool ExtendedSketchImpl::try_apply_action_rule(
+std::tuple<bool, ExtendedState, mimir::formalism::Action> ExtendedSketchImpl::try_apply_action_rule(
     const mimir::formalism::ProblemDescription& problem,
     const ExtendedState& current_state,
-    int step,
-    ExtendedState& successor_state,
-    mimir::formalism::Action& action) {
+    int step) {
     for (const auto& action_rule : m_action_rules) {
         if (action_rule->evaluate_conditions(current_state)) {
             std::cout << step << ". Apply action rule " << action_rule->compute_signature() << std::endl;
-            action_rule->apply(problem, current_state, successor_state, action);
-            return true;
+            auto [successor_state, action] = action_rule->apply(problem, current_state);
+            return std::make_tuple(true, successor_state, action);
         }
     }
     // cout << "No applicable action rule in memory state " << current_state.memory->compute_signature() << endl;
-    return false;
+    return std::make_tuple(false, ExtendedState(), mimir::formalism::Action());
 }
 
-bool ExtendedSketchImpl::try_apply_search_rule(
+std::tuple<bool, ExtendedState, mimir::planners::IWSearchStatistics> ExtendedSketchImpl::try_apply_search_rule(
     const mimir::formalism::ProblemDescription& problem,
     const std::shared_ptr<dlplan::core::InstanceInfo>& instance_info,
     const mimir::planners::SuccessorGenerator& successor_generator,
     int max_arity,
     const ExtendedState& current_state,
     int step,
-    ExtendedState& successor_state,
-    mimir::formalism::ActionList& plan,
-    mimir::planners::IWSearchStatistics& statistics) const {
+    mimir::formalism::ActionList& plan) const {
 
     auto it2 = m_sketches_by_memory_state.find(current_state.memory);
     if (it2 != m_sketches_by_memory_state.end()) {
         if (it2->second->evaluate_conditions(*current_state.dlplan).empty()) {
-            return false;
+            return std::make_tuple(false, ExtendedState(), mimir::planners::IWSearchStatistics());
         }
 
         auto iw_search = make_unique<mimir::planners::IWSearch>(
@@ -123,17 +115,18 @@ bool ExtendedSketchImpl::try_apply_search_rule(
         std::cout << step << ". Apply search rule ";
         std::shared_ptr<const dlplan::policy::Rule> reason;
         mimir::formalism::ActionList partial_plan;
+        ExtendedState successor_state;
         bool partial_solution_found = iw_search->find_plan(
             it2->second,
             current_state,
             successor_state,
             partial_plan,
             reason);
-        statistics = iw_search->statistics;
+        mimir::planners::IWSearchStatistics statistics = iw_search->statistics;
         std::cout << std::endl;
 
         if (!partial_solution_found) {
-            return false;
+            return std::make_tuple(false, ExtendedState(), mimir::planners::IWSearchStatistics());
         } else {
             plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
             std::cout << "  Partial plan:" << std::endl;
@@ -149,10 +142,10 @@ bool ExtendedSketchImpl::try_apply_search_rule(
         std::cout << "  Reason " << m_search_rule_by_rule_by_memory_state.at(current_state.memory).at(reason)->compute_signature() << std::endl;
         std::cout << "  Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
 
-        return true;
+        return std::make_tuple(true, successor_state, statistics);
     }
     // cout << "No applicable search rule in memory state " << current_state.memory->compute_signature() << endl;
-    return false;  // unsolved
+    return std::make_tuple(false, ExtendedState(), mimir::planners::IWSearchStatistics());  // unsolved
 }
 
 ExtendedState ExtendedSketchImpl::create_initial_extended_state(

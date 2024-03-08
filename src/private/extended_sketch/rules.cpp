@@ -70,10 +70,9 @@ LoadRuleImpl::LoadRuleImpl(
 
 LoadRuleImpl::~LoadRuleImpl() = default;
 
-void LoadRuleImpl::apply(
+ExtendedState LoadRuleImpl::apply(
     const ExtendedState& current_state,
-    const std::unordered_map<Concept, int>& register_mapping,
-    ExtendedState& successor_state) {
+    const std::unordered_map<Concept, int>& register_mapping) {
     const auto denotation = m_concept->get_element()->evaluate(*current_state.dlplan);
     if (denotation.size() == 0) {
         throw std::runtime_error("Tried to load object from empty concept into register");
@@ -82,7 +81,7 @@ void LoadRuleImpl::apply(
     std::vector<int> register_contents = current_state.dlplan->get_state_extension()->get_register_contents();
     register_contents[register_mapping.at(m_register)] = object_index;
 
-    successor_state = ExtendedState {
+    auto successor_state = ExtendedState {
         get_memory_state_effect(),
         current_state.mimir,
         std::make_shared<dlplan::core::State>(
@@ -98,6 +97,8 @@ void LoadRuleImpl::apply(
     const std::string& object_name = current_state.dlplan->get_instance_info()->get_objects()[object_index].get_name();
     std::cout << "    Set content of register " << m_register->get_key() << " to object " << object_name << std::endl;
     std::cout << "    Set current memory state to " << get_memory_state_effect()->compute_signature() << std::endl;
+
+    return successor_state;
 }
 
 void LoadRuleImpl::compute_signature(std::stringstream& out) const {
@@ -144,17 +145,15 @@ CallRuleImpl::CallRuleImpl(
 
 CallRuleImpl::~CallRuleImpl() = default;
 
-void CallRuleImpl::apply(
-    const ExtendedState& current_state,
-    ExtendedState& successor_state,
-    Module& callee,
-    ExtendedState& callee_state) {
+std::tuple<ExtendedState, Module, ExtendedState> CallRuleImpl::apply(
+    const ExtendedState& current_state)
+{
     // Only memory state of current state changes to m'
-    successor_state = current_state;
+    ExtendedState successor_state = current_state;
     std::cout << "    Set memory state in caller: " << get_memory_state_effect()->compute_signature() << std::endl;
     successor_state.memory = get_memory_state_effect();
     // Get a shared reference to the callee
-    callee = m_callee.lock();
+    Module callee = m_callee.lock();
     std::cout << "    Callee: " << callee->get_signature().compute_signature() << std::endl;
     // Initialize the registers with 0
     std::vector<int> register_contents(callee->get_extended_sketch()->get_register_mapping().size(), 0);
@@ -174,7 +173,7 @@ void CallRuleImpl::apply(
         role_argument_contents.push_back(denotation);
     }
     std::cout << std::endl;
-    callee_state = ExtendedState {
+    auto callee_state = ExtendedState {
         callee->get_extended_sketch()->get_initial_memory_state(),
         current_state.mimir,
         std::make_shared<dlplan::core::State>(
@@ -184,6 +183,8 @@ void CallRuleImpl::apply(
             std::make_shared<dlplan::core::StateExtension>(register_contents, concept_argument_contents, role_argument_contents))  // We keep the state the same, hence we cannot use caching
     };
     std::cout << "    Initial memory state in callee: " << callee->get_extended_sketch()->get_initial_memory_state()->compute_signature() << std::endl;
+
+    return std::make_tuple(successor_state, callee, callee_state);
 }
 
 const ModuleCall& CallRuleImpl::get_call() const {
@@ -233,11 +234,10 @@ ActionRuleImpl::ActionRuleImpl(
 
 ActionRuleImpl::~ActionRuleImpl() = default;
 
-void ActionRuleImpl::apply(
+std::tuple<ExtendedState, mimir::formalism::Action> ActionRuleImpl::apply(
     const mimir::formalism::ProblemDescription& problem,
-    const ExtendedState& current_state,
-    ExtendedState& successor_state,
-    mimir::formalism::Action& action) {
+    const ExtendedState& current_state)
+{
     mimir::planners::LiftedSchemaSuccessorGenerator schema_successor_generator(m_call.get_action_schema(), problem);
     std::vector<dlplan::core::ConceptDenotation> denotations;
     std::cout << current_state.dlplan->str() << std::endl;
@@ -260,12 +260,13 @@ void ActionRuleImpl::apply(
         object_list.push_back(object);
     }
     std::cout << std::endl;
-    action = schema_successor_generator.create_action(std::move(object_list));
+    mimir::formalism::Action action = schema_successor_generator.create_action(std::move(object_list));
     std::cout << "    Action: " << action << std::endl;
     auto successor_state_mimir = mimir::formalism::apply(action, current_state.mimir);
     auto instance_info = current_state.dlplan->get_instance_info();
     mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);
 
+    ExtendedState successor_state;
     successor_state.memory = get_memory_state_effect();
     successor_state.mimir = successor_state_mimir;
     successor_state.dlplan = std::make_shared<dlplan::core::State>(
@@ -274,6 +275,8 @@ void ActionRuleImpl::apply(
         atom_registry.convert_state(successor_state_mimir),
         current_state.dlplan->get_state_extension());
     std::cout << "    Set current memory state to " << successor_state.memory->compute_signature() << std::endl;
+
+    return std::make_tuple(successor_state, action);
 }
 
 void ActionRuleImpl::compute_signature(std::stringstream& out) const {

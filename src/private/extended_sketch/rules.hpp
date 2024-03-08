@@ -61,10 +61,9 @@ public:
         const Concept& concept);
     ~LoadRuleImpl() override;
 
-    void apply(
+    ExtendedState apply(
         const ExtendedState& current_state,
-        const std::unordered_map<Concept,int>& register_mapping,
-        ExtendedState& successor_state);
+        const std::unordered_map<Concept,int>& register_mapping);
 
     void compute_signature(std::stringstream& out) const override;
 };
@@ -100,11 +99,8 @@ public:
         const ModuleCall& call);
     ~CallRuleImpl() override;
 
-    void apply(
-        const ExtendedState& current_state,
-        ExtendedState& successor_state,
-        Module& callee,
-        ExtendedState& callee_state);
+    std::tuple<ExtendedState, Module, ExtendedState> apply(
+        const ExtendedState& current_state);
 
     const ModuleCall& get_call() const;
     void set_callee(const Module& module);
@@ -140,11 +136,9 @@ public:
         const ActionCall& call);
     ~ActionRuleImpl() override;
 
-    void apply(
+    std::tuple<ExtendedState, mimir::formalism::Action> apply(
         const mimir::formalism::ProblemDescription& problem,
-        const ExtendedState& current_state,
-        ExtendedState& successor_state,
-        mimir::formalism::Action& action);
+        const ExtendedState& current_state);
 
     void compute_signature(std::stringstream& out) const override;
 };

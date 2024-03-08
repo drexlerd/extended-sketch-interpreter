@@ -62,17 +62,17 @@ bool SIWMSearch::find_plan(ActionList& plan) {
 
         /* Internal memory */
         // Load rule
-        ExtendedState successor_state;
-        bool applied = extended_sketch->try_apply_load_rule(current_state, step, successor_state);
-        if (applied) {
-            current_state = successor_state;
-            continue;
+        {
+            const auto [applied, successor_state] = extended_sketch->try_apply_load_rule(current_state, step);
+            if (applied) {
+                current_state = successor_state;
+                continue;
+            }
         }
 
+
         // Call rule
-        Module callee;
-        ExtendedState callee_state;
-        applied = extended_sketch->try_apply_call_rule(current_state, step, successor_state, callee, callee_state);
+        const auto [applied, successor_state, callee, callee_state] = extended_sketch->try_apply_call_rule(current_state, step);
         if (applied) {
             std::cout << "Push callee on stack." << std::endl;
             stack.push_back(StackEntry{ current_module, successor_state });
@@ -84,27 +84,27 @@ bool SIWMSearch::find_plan(ActionList& plan) {
 
         /* External memory */
         // Action rule
-        Action action;
-        applied = extended_sketch->try_apply_action_rule(m_problem, current_state, step, successor_state, action);
-        if (applied) {
-            plan.push_back(action);
-            current_state = successor_state;
-            ++statistics.generated;
-            continue;
+        {
+            const auto [applied, successor_state, action] = extended_sketch->try_apply_action_rule(m_problem, current_state, step);
+            if (applied) {
+                plan.push_back(action);
+                current_state = successor_state;
+                ++statistics.generated;
+                continue;
+            }
         }
 
         // Search rule
-        IWSearchStatistics iw_statistics;
-        ActionList partial_plan;
-        applied = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, successor_state, partial_plan, iw_statistics);
-        if (applied) {
-            ++num_iw_searches;
-            plan.insert(plan.end(), partial_plan.begin(), partial_plan.end());
-            current_state = successor_state;
-            statistics += iw_statistics;
-            average_effective_arity += iw_statistics.effective_arity;
-            maximum_effective_arity = std::max(maximum_effective_arity, iw_statistics.effective_arity);
-            continue;
+        {
+            const auto [applied, successor_state, iw_statistics] = extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, plan);
+            if (applied) {
+                ++num_iw_searches;
+                current_state = successor_state;
+                statistics += iw_statistics;
+                average_effective_arity += iw_statistics.effective_arity;
+                maximum_effective_arity = std::max(maximum_effective_arity, iw_statistics.effective_arity);
+                continue;
+            }
         }
 
 
