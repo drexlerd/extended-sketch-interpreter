@@ -244,24 +244,51 @@ std::tuple<ExtendedState, mimir::formalism::Action> ActionRuleImpl::apply(
     std::cout << "    Denotations: ";
     for (const auto& concept : m_call.get_arguments()) {
         dlplan::core::ConceptDenotation denotation = concept->get_element()->evaluate(*current_state.dlplan);
+        if (denotation.empty()) {
+            throw std::runtime_error("Cannot apply action because of empty denotation.");
+        }
         denotations.push_back(denotation);
         std::cout << concept->get_key() << "=" << mimir::planners::to_string(*current_state.dlplan->get_instance_info(), denotation) << " ";
     }
-    std::cout << std::endl;
-    std::cout << "    Arguments: ";
-    mimir::formalism::ObjectList object_list;
-    for (size_t i = 0; i < denotations.size(); ++i) {
-        const auto& denotation = denotations[i];
-        if (denotation.empty()) {
-            throw std::runtime_error("Cannot apply action " + m_call.get_action_schema()->name + " because of empty denotation.");
+    // TODO: find applicable action
+    mimir::formalism::Action action = nullptr;
+    std::vector<size_t> loop_indices(denotations.size(), 0);
+    while (true) {
+        std::cout << std::endl;
+        std::cout << "    Arguments: ";
+        mimir::formalism::ObjectList object_list;
+        for (size_t i = 0; i < loop_indices.size(); ++i) {
+            const auto& denotation = denotations[i];
+            auto object = problem->get_object(denotation.to_sorted_vector()[loop_indices[i]]);
+            std::cout << m_call.get_arguments()[i]->get_key() << "=" << object << " ";
+            object_list.push_back(object);
         }
-        auto object = problem->get_object(denotation.to_sorted_vector().front());
-        std::cout << m_call.get_arguments()[i]->get_key() << "=" << object << " ";
-        object_list.push_back(object);
+        std::cout << std::endl;
+        action = schema_successor_generator.create_action(std::move(object_list));
+        std::cout << "    Action: " << action << std::endl;
+        if (mimir::formalism::is_applicable(action, current_state.mimir)) {
+            break;
+        }
+
+        // Increment the innermost loop index
+        size_t pos = 0;
+        ++loop_indices[pos];
+
+        // Propagate the increment if necessary
+        while (pos < loop_indices.size() && loop_indices[pos] == denotations[pos].size()) {
+            loop_indices[pos] = 0; // Reset current level
+            ++pos; // Move to the next level
+            if (pos < loop_indices.size()) {
+                ++loop_indices[pos]; // Increment the next level
+            }
+        }
+        // If we've incremented past the last level, we're done
+        if (pos == loop_indices.size()) {
+            break;
+        }
     }
-    std::cout << std::endl;
-    mimir::formalism::Action action = schema_successor_generator.create_action(std::move(object_list));
-    std::cout << "    Action: " << action << std::endl;
+    assert(action);
+
     auto successor_state_mimir = mimir::formalism::apply(action, current_state.mimir);
     auto instance_info = current_state.dlplan->get_instance_info();
     mimir::planners::DLPlanAtomRegistry atom_registry(problem, instance_info);

@@ -50,6 +50,8 @@ bool SIWRSearch::find_plan(ActionList& plan) {
         ++step;
         //if (step == 20) return false;
 
+        /* Internal memory */
+        // Load rule
         {
             const auto [applied, successor_state] = m_extended_sketch->try_apply_load_rule(current_state, step);
             if (applied) {
@@ -58,6 +60,8 @@ bool SIWRSearch::find_plan(ActionList& plan) {
             }
         }
 
+        /* External memory */
+        // Search rule
         {
             const auto [applied, successor_state, iw_statistics] = m_extended_sketch->try_apply_search_rule(m_problem, m_instance_info, m_successor_generator, m_max_arity, current_state, step, plan);
             if (applied) {

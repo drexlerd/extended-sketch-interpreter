@@ -60,6 +60,8 @@ bool SIWMSearch::find_plan(ActionList& plan) {
         ++step;
         auto extended_sketch = current_module->get_extended_sketch();
 
+        //if (step == 20) return false;
+
         /* Internal memory */
         // Load rule
         {
