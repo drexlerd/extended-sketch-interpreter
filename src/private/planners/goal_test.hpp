@@ -5,7 +5,6 @@
 
 #include "../formalism/state.hpp"
 #include "state_data.hpp"
-#include "debug_config.hpp"
 
 #include <unordered_map>
 #include <chrono>
@@ -49,15 +48,6 @@ public:
             std::cout << sketch_->str() << std::endl;
             throw std::runtime_error("No rule applicable for state: " + dlplan_initial_state_->str());
         }
-
-        // Additional prints for debugging
-        DEBUG_CODE(
-            std::cout << dlplan_initial_state_->str() << std::endl;
-            std::cout << "Num applicable rules: " << applicable_rules_.size() << std::endl;
-            for (const auto& applicable_rule : applicable_rules_) {
-                std::cout << applicable_rule->str() << std::endl;
-            }
-        );
     }
 
     GoalTestResult test_goal(const StateData& state_data) {
@@ -68,21 +58,6 @@ public:
         ++count_goal_test_;
         const auto start_sketch_goal = std::chrono::high_resolution_clock::now();
         std::shared_ptr<const dlplan::policy::Rule> reason = nullptr;
-
-        // Additional prints for debugging
-        DEBUG_CODE(
-            std::cout << state_data.extended_state.dlplan->str() << std::endl;
-            for (const auto& boolean : sketch_->get_booleans()) {
-                std::cout << boolean->get_element()->evaluate(*dlplan_initial_state_) << " " << boolean->get_element()->evaluate(*state_data.extended_state.dlplan) << " " << boolean->get_key() << std::endl;
-            }
-            for (const auto& numerical : sketch_->get_numericals()) {
-                std::cout << numerical->get_element()->evaluate(*dlplan_initial_state_) << " " << numerical->get_element()->evaluate(*state_data.extended_state.dlplan) << " " << numerical->get_key() << std::endl;
-            }
-            for (const auto& concept : sketch_->get_concepts()) {
-                std::cout << concept->get_element()->evaluate(*dlplan_initial_state_).str() << " " << concept->get_element()->evaluate(*state_data.extended_state.dlplan).str() << " " << concept->get_key() << std::endl;
-            }
-            std::cout << std::endl;
-        );
 
         for (const auto& rule : applicable_rules_) {
             if (rule->evaluate_effects(*dlplan_initial_state_, *state_data.extended_state.dlplan, caches_)) {
